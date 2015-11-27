@@ -1,4 +1,4 @@
-package ua.jenshensoft.cardslayout;
+package ua.jenshensoft.cardslayout.views;
 
 
 import android.animation.ObjectAnimator;
@@ -15,6 +15,8 @@ import android.widget.FrameLayout;
 import java.util.ArrayList;
 import java.util.List;
 
+import ua.jenshensoft.cardslayout.CardInfo;
+import ua.jenshensoft.cardslayout.R;
 import ua.jenshensoft.cardslayout.listeners.CardTranslationListener;
 import ua.jenshensoft.cardslayout.listeners.OnCardPercentageChangeListener;
 import ua.jenshensoft.cardslayout.listeners.OnCardSwipedListener;

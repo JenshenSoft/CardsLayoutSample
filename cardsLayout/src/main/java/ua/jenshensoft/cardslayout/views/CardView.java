@@ -1,10 +1,11 @@
-package ua.jenshensoft.cardslayout;
+package ua.jenshensoft.cardslayout.views;
 
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
 
+import ua.jenshensoft.cardslayout.CardInfo;
 import ua.jenshensoft.cardslayout.listeners.CardTranslationListener;
 import ua.jenshensoft.cardslayout.listeners.OnCardPercentageChangeListener;
 import ua.jenshensoft.cardslayout.listeners.OnCardSwipedListener;
