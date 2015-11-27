@@ -32,6 +32,9 @@ def gitUrl = 'https://github.com/JenshenSoft/CardsLayoutSample.git'
 group = "ua.jenshensoft"
 
 bintray {
+    user = 'jenshen1992'
+    key = 'e65193e6141d9d2c832e2db0c192d3c26cbc9617'
+
 
     configurations = ['archives'] //When uploading configuration files
     pkg {

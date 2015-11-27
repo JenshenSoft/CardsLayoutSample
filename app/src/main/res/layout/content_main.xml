@@ -14,36 +14,37 @@
 
     <ua.jenshensoft.cardslayout.views.CardsLayout
         android:layout_width="match_parent"
+        android:id="@+id/cardslayout"
         android:layout_height="match_parent"
         app:childListOrientation="horizontal"
         app:cardsGravity="bottom|center_horizontal">
         <ImageView
+            android:id="@+id/card_imageView_0"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/cat"/>
+            android:layout_height="wrap_content"/>
         <ImageView
+            android:id="@+id/card_imageView_1"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/cat"/>
+            android:layout_height="wrap_content"/>
         <ImageView
+            android:id="@+id/card_imageView_2"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/cat"/>
+            android:layout_height="wrap_content"/>
         <ImageView
+            android:id="@+id/card_imageView_3"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/cat"/>
+            android:layout_height="wrap_content"/>
         <ImageView
+            android:id="@+id/card_imageView_4"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/cat"/>
+            android:layout_height="wrap_content"/>
         <ImageView
+            android:id="@+id/card_imageView_5"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/cat"/>
+            android:layout_height="wrap_content"/>
         <ImageView
+            android:id="@+id/card_imageView_6"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/cat"/>
+            android:layout_height="wrap_content"/>
     </ua.jenshensoft.cardslayout.views.CardsLayout>
 </RelativeLayout>

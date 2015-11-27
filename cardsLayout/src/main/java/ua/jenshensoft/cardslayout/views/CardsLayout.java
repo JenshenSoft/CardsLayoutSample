@@ -43,6 +43,7 @@ public class CardsLayout extends FrameLayout implements CardTranslationListener,
 
     private List<CardView> cardViewList = new ArrayList<>();
     private OnConfigureList onConfigureList;
+    private OnConfigureCard onConfigureCard;
 
     public CardsLayout(Context context) {
         super(context);
@@ -88,6 +89,9 @@ public class CardsLayout extends FrameLayout implements CardTranslationListener,
             cardView.setCardTranslationListener(this);
             //cardView.setCardSwipedListener(this);
             cardView.setCardPercentageChangeListener(this);
+            if (onConfigureCard != null) {
+                onConfigureCard.onConfiguration(cardView);
+            }
         }
     }
 
@@ -105,12 +109,13 @@ public class CardsLayout extends FrameLayout implements CardTranslationListener,
     @Override
     protected void onSizeChanged(int width, int height, int oldw, int oldh) {
         super.onSizeChanged(width, height, oldw, oldh);
-        setCardInfo();
-        setPositionsX(width);
-        setPositionsY(height);
         if (onConfigureList != null) {
             onConfigureList.onConfiguration(cardViewList);
         }
+        setCardInfo();
+        setPositionsX(width);
+        setPositionsY(height);
+
         moveViewsToStartPosition(cardViewList);
     }
 
@@ -139,8 +144,12 @@ public class CardsLayout extends FrameLayout implements CardTranslationListener,
 
     /* public methods */
 
-    public void setConfiguration(OnConfigureList onConfigureList) {
+    public void setConfigurationForList(OnConfigureList onConfigureList) {
         this.onConfigureList = onConfigureList;
+    }
+
+    public void setConfigurationForCard(OnConfigureCard onConfigureCard) {
+        this.onConfigureCard = onConfigureCard;
     }
 
     public void setChildOrientation(int childOrientation) {
@@ -336,5 +345,9 @@ public class CardsLayout extends FrameLayout implements CardTranslationListener,
 
     public interface OnConfigureList {
         void onConfiguration(List<CardView> cards);
+    }
+
+    public interface OnConfigureCard {
+        void onConfiguration(CardView card);
     }
 }
