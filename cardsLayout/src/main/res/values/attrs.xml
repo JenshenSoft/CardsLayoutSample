@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CardsLayout">
+        <attr name="swipeChildSpeed" format="float" />
+        <attr name="swipeChildOrientation" format="enum">
+            <enum name="leftToRight" value="0" />
+            <enum name="bottomToUp" value="1" />
+            <enum name="both" value="2" />
+            <enum name="none" value="3" />
+        </attr>
+        <attr name="cardsGravity">
+            <flag name="right" value="1" />
+            <flag name="left" value="2" />
+            <flag name="top" value="4" />
+            <flag name="bottom" value="8" />
+            <flag name="center" value="16" />
+            <flag name="center_horizontal" value="32" />
+            <flag name="center_vertical" value="64" />
+        </attr>
+        <attr name="childListOrientation" format="enum">
+            <enum name="vertical" value="0" />
+            <enum name="horizontal" value="1" />
+        </attr>
+    </declare-styleable>
+</resources>
