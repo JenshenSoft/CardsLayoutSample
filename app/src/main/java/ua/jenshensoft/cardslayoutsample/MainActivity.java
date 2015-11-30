@@ -1,17 +1,13 @@
 package ua.jenshensoft.cardslayoutsample;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.ImageView;
 
 import java.util.List;
 
+import ua.jenshensoft.cardslayout.listeners.OnCardTranslationListener;
 import ua.jenshensoft.cardslayout.views.CardView;
 import ua.jenshensoft.cardslayout.views.CardsLayout;
 
@@ -25,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        CardsLayout cardslayout = (CardsLayout) findViewById(R.id.cardslayout);
+        final CardsLayout cardslayout = (CardsLayout) findViewById(R.id.cardslayout);
         ImageView card0 = (ImageView) findViewById(R.id.card_imageView_0);
         card0.setImageResource(R.drawable.cat);
         ImageView card1 = (ImageView) findViewById(R.id.card_imageView_1);
@@ -49,6 +45,18 @@ public class MainActivity extends AppCompatActivity {
         cardslayout.setConfigurationForList(new CardsLayout.OnConfigureList() {
             @Override
             public void onConfiguration(List<CardView> cards) {
+            }
+        });
+
+        cardslayout.setCardTranslationListener(new OnCardTranslationListener() {
+            @Override
+            public void onCardTranslation(float positionX, float positionY, int index, boolean isTouched) {
+                /*cardslayout.removeCardView(index);
+                if (!isTouched) {
+                    cardslayout.setCardViewsState(true, index);
+                } else {
+                    cardslayout.setCardViewsState(false, index);
+                }*/
             }
         });
     }

@@ -6,7 +6,7 @@ import android.os.Build;
 import android.util.AttributeSet;
 
 import ua.jenshensoft.cardslayout.CardInfo;
-import ua.jenshensoft.cardslayout.listeners.CardTranslationListener;
+import ua.jenshensoft.cardslayout.listeners.OnCardTranslationListener;
 import ua.jenshensoft.cardslayout.listeners.OnCardPercentageChangeListener;
 import ua.jenshensoft.cardslayout.listeners.OnCardSwipedListener;
 import ua.zabelnikov.swipelayout.layout.frame.SwipeableLayout;
@@ -43,7 +43,7 @@ public class CardView extends SwipeableLayout {
         this.cardInfo = cardInfo;
     }
 
-    public void setCardTranslationListener(final CardTranslationListener cardTranslationListener) {
+    public void setCardTranslationListener(final OnCardTranslationListener cardTranslationListener) {
         this.setLayoutShiftListener(new LayoutShiftListener() {
             @Override
             public void onLayoutShifted(float positionX, float positionY, boolean isTouched) {

@@ -17,12 +17,12 @@ import java.util.List;
 
 import ua.jenshensoft.cardslayout.CardInfo;
 import ua.jenshensoft.cardslayout.R;
-import ua.jenshensoft.cardslayout.listeners.CardTranslationListener;
 import ua.jenshensoft.cardslayout.listeners.OnCardPercentageChangeListener;
 import ua.jenshensoft.cardslayout.listeners.OnCardSwipedListener;
+import ua.jenshensoft.cardslayout.listeners.OnCardTranslationListener;
 import ua.zabelnikov.swipelayout.layout.SwipeGestureManager;
 
-public class CardsLayout extends FrameLayout implements CardTranslationListener, OnCardSwipedListener, OnCardPercentageChangeListener {
+public class CardsLayout extends FrameLayout implements OnCardTranslationListener, OnCardSwipedListener, OnCardPercentageChangeListener {
 
     public static final int RIGHT = 1; // 0000 0001
     public static final int LEFT = 2; // 0000 0010
@@ -42,6 +42,9 @@ public class CardsLayout extends FrameLayout implements CardTranslationListener,
     private int cardsOnTheHand = 8;
 
     private List<CardView> cardViewList = new ArrayList<>();
+    private OnCardSwipedListener onCardSwipedListener;
+    private OnCardPercentageChangeListener onCardPercentageChangeListener;
+    private OnCardTranslationListener onCardTranslationListener;
     private OnConfigureList onConfigureList;
     private OnConfigureCard onConfigureCard;
 
@@ -116,29 +119,31 @@ public class CardsLayout extends FrameLayout implements CardTranslationListener,
         setPositionsX(width);
         setPositionsY(height);
 
-        moveViewsToStartPosition(cardViewList);
+        moveViewsToStartPosition(cardViewList, false);
     }
 
     @Override
     public void onCardTranslation(float positionX, float positionY, int index, boolean isTouched) {
-        if (!isTouched && hasViewInList(index)) {
-            removeCardView(index);
-        }
+        if (onCardSwipedListener != null)
+            onCardTranslationListener.onCardTranslation(positionX, positionY, index, isTouched);
     }
 
     @Override
     public void onCardSwiped(int index) {
-        removeCardView(index);
+        if (onCardSwipedListener != null)
+            onCardSwipedListener.onCardSwiped(index);
     }
 
     @Override
     public void percentageX(float percentage, int index) {
-
+        if (onCardPercentageChangeListener != null)
+            onCardPercentageChangeListener.percentageX(percentage, index);
     }
 
     @Override
     public void percentageY(float percentage, int index) {
-
+        if (onCardPercentageChangeListener != null)
+            onCardPercentageChangeListener.percentageY(percentage, index);
     }
 
 
@@ -162,6 +167,42 @@ public class CardsLayout extends FrameLayout implements CardTranslationListener,
 
     public void setCardsOnTheHand(int cardsOnTheHand) {
         this.cardsOnTheHand = cardsOnTheHand;
+    }
+
+    public void removeCardView(int index) {
+        CardView cardView = findCardView(index);
+        ViewParent parent = cardView.getParent();
+        ((ViewGroup) parent).removeView(cardView);
+        cardViewList.remove(cardView);
+        setPositionsX(getWidth());
+        setPositionsY(getHeight());
+        moveViewsToStartPosition(cardViewList, true);
+    }
+
+    public void setCardViewsState(boolean state, int index) {
+        for (CardView cardView : cardViewList) {
+            if (!state) {
+                if (cardView.getCardInfo().getCardIndex() != index) {
+                    cardView.addBlock(SwipeGestureManager.OrientationMode.LEFT_RIGHT);
+                    cardView.addBlock(SwipeGestureManager.OrientationMode.UP_BOTTOM);
+                }
+            } else {
+                cardView.removeBlock(SwipeGestureManager.OrientationMode.LEFT_RIGHT);
+                cardView.removeBlock(SwipeGestureManager.OrientationMode.UP_BOTTOM);
+            }
+        }
+    }
+
+    public void setCardTranslationListener(OnCardTranslationListener cardTranslationListener) {
+        this.onCardTranslationListener = cardTranslationListener;
+    }
+
+    public void setOnCardPercentageChangeListener(OnCardPercentageChangeListener onCardPercentageChangeListener) {
+        this.onCardPercentageChangeListener = onCardPercentageChangeListener;
+    }
+
+    public void setOnCardSwipedListener(OnCardSwipedListener onCardSwipedListener) {
+        this.onCardSwipedListener = onCardSwipedListener;
     }
 
 
@@ -320,26 +361,21 @@ public class CardsLayout extends FrameLayout implements CardTranslationListener,
         return false;
     }
 
-    private void removeCardView(int index) {
-        CardView cardView = findCardView(index);
-        ViewParent parent = cardView.getParent();
-        ((ViewGroup) parent).removeView(cardView);
-        cardViewList.remove(cardView);
-        setPositionsX(getWidth());
-        setPositionsY(getHeight());
-        moveViewsToStartPosition(cardViewList);
-    }
-
-    private void moveViewsToStartPosition(List<CardView> cards) {
+    private void moveViewsToStartPosition(List<CardView> cards, boolean isAnimated) {
         for (int i = 0; i < cardViewList.size(); i++) {
             CardView cardView = cards.get(i);
             CardInfo cardInfo = cardView.getCardInfo();
-            ObjectAnimator animatorX = ObjectAnimator.ofFloat(cardView, "x", cardInfo.getLastPositionX(), cardInfo.getCurrentPositionX());
-            animatorX.setDuration(500);
-            animatorX.start();
-            ObjectAnimator animatorY = ObjectAnimator.ofFloat(cardView, "y", cardInfo.getLastPositionY(), cardInfo.getCurrentPositionY());
-            animatorY.setDuration(500);
-            animatorY.start();
+            if (isAnimated) {
+                ObjectAnimator animatorX = ObjectAnimator.ofFloat(cardView, "x", cardInfo.getLastPositionX(), cardInfo.getCurrentPositionX());
+                animatorX.setDuration(500);
+                animatorX.start();
+                ObjectAnimator animatorY = ObjectAnimator.ofFloat(cardView, "y", cardInfo.getLastPositionY(), cardInfo.getCurrentPositionY());
+                animatorY.setDuration(500);
+                animatorY.start();
+            } else {
+                cardView.setX(cardInfo.getCurrentPositionX());
+                cardView.setY(cardInfo.getCurrentPositionY());
+            }
         }
     }
 
