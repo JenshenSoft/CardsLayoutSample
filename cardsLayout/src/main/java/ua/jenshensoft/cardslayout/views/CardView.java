@@ -6,9 +6,9 @@ import android.os.Build;
 import android.util.AttributeSet;
 
 import ua.jenshensoft.cardslayout.CardInfo;
-import ua.jenshensoft.cardslayout.listeners.OnCardTranslationListener;
 import ua.jenshensoft.cardslayout.listeners.OnCardPercentageChangeListener;
 import ua.jenshensoft.cardslayout.listeners.OnCardSwipedListener;
+import ua.jenshensoft.cardslayout.listeners.OnCardTranslationListener;
 import ua.zabelnikov.swipelayout.layout.frame.SwipeableLayout;
 import ua.zabelnikov.swipelayout.layout.listener.LayoutShiftListener;
 import ua.zabelnikov.swipelayout.layout.listener.OnLayoutPercentageChangeListener;
@@ -47,7 +47,7 @@ public class CardView extends SwipeableLayout {
         this.setLayoutShiftListener(new LayoutShiftListener() {
             @Override
             public void onLayoutShifted(float positionX, float positionY, boolean isTouched) {
-                cardTranslationListener.onCardTranslation(positionX, positionY, cardInfo.getCardIndex(), isTouched);
+                cardTranslationListener.onCardTranslation(positionX, positionY, cardInfo, isTouched);
             }
         });
     }
@@ -56,7 +56,7 @@ public class CardView extends SwipeableLayout {
         this.setOnSwipedListener(new OnLayoutSwipedListener() {
             @Override
             public void onLayoutSwiped() {
-                onCardSwipedListener.onCardSwiped(cardInfo.getCardIndex());
+                onCardSwipedListener.onCardSwiped(cardInfo);
             }
         });
     }
@@ -66,13 +66,13 @@ public class CardView extends SwipeableLayout {
             @Override
             public void percentageX(float percentage) {
                 super.percentageX(percentage);
-                onCardPercentageChangeListener.percentageX(percentage, cardInfo.getCardIndex());
+                onCardPercentageChangeListener.percentageX(percentage, cardInfo);
             }
 
             @Override
             public void percentageY(float percentage) {
                 super.percentageY(percentage);
-                onCardPercentageChangeListener.percentageY(percentage, cardInfo.getCardIndex());
+                onCardPercentageChangeListener.percentageY(percentage, cardInfo);
             }
         });
     }

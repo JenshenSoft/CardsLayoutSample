@@ -10,7 +10,10 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.view.animation.BounceInterpolator;
+import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,18 +38,20 @@ public class CardsLayout extends FrameLayout implements OnCardTranslationListene
     public static final int ORIENTATION_VERTICAL = 0;
     public static final int ORIENTATION_HORIZONTAL = 1;
 
+    private final List<CardView> cardViewList = new ArrayList<>();
     private int gravity;
-
-    private int childOrientation;
-
-    private int cardsOnTheHand = 8;
-
-    private List<CardView> cardViewList = new ArrayList<>();
+    private int childListOrientation;
+    private int childList_paddingLeft;
+    private int childList_paddingRight;
+    private int childList_paddingTop;
+    private int childList_paddingBottom;
+    private int childRotation;
+    private boolean isOnLayoutCalled;
     private OnCardSwipedListener onCardSwipedListener;
     private OnCardPercentageChangeListener onCardPercentageChangeListener;
     private OnCardTranslationListener onCardTranslationListener;
     private OnConfigureList onConfigureList;
-    private OnConfigureCard onConfigureCard;
+    private final Interpolator interpolator = new BounceInterpolator();
 
     public CardsLayout(Context context) {
         super(context);
@@ -71,30 +76,24 @@ public class CardsLayout extends FrameLayout implements OnCardTranslationListene
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
-
+        if (isOnLayoutCalled) {
+            return;
+        }
+        if (onConfigureList != null) {
+            onConfigureList.onConfiguration(cardViewList);
+        }
+        setCardInfo();
+        invalidateCardsPosition();
+        moveViewsToCurrentPosition(false);
+        isOnLayoutCalled = true;
     }
 
     @Override
     public void onViewAdded(View child) {
         super.onViewAdded(child);
         if (!(child instanceof CardView)) {
-            CardView cardView = new CardView(getContext());
-            cardView.setSwipeOrientationMode(SwipeGestureManager.OrientationMode.BOTH);
-            FrameLayout.LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            cardView.setLayoutParams(layoutParams);
             ((ViewGroup) child.getParent()).removeView(child);
-            if (cardViewList.size() >= cardsOnTheHand) {
-                return;
-            }
-            cardView.addView(child);
-            this.addView(cardView);
-            cardViewList.add(cardView);
-            cardView.setCardTranslationListener(this);
-            //cardView.setCardSwipedListener(this);
-            cardView.setCardPercentageChangeListener(this);
-            if (onConfigureCard != null) {
-                onConfigureCard.onConfiguration(cardView);
-            }
+            addCardViewToRootView(child);
         }
     }
 
@@ -110,63 +109,54 @@ public class CardsLayout extends FrameLayout implements OnCardTranslationListene
     }
 
     @Override
-    protected void onSizeChanged(int width, int height, int oldw, int oldh) {
-        super.onSizeChanged(width, height, oldw, oldh);
-        if (onConfigureList != null) {
-            onConfigureList.onConfiguration(cardViewList);
-        }
-        setCardInfo();
-        setPositionsX(width);
-        setPositionsY(height);
-
-        moveViewsToStartPosition(cardViewList, false);
+    public void onCardTranslation(float positionX, float positionY, CardInfo cardInfo, boolean isTouched) {
+        if (onCardTranslationListener != null)
+            onCardTranslationListener.onCardTranslation(positionX, positionY, cardInfo, isTouched);
     }
 
     @Override
-    public void onCardTranslation(float positionX, float positionY, int index, boolean isTouched) {
+    public void onCardSwiped(CardInfo cardInfo) {
         if (onCardSwipedListener != null)
-            onCardTranslationListener.onCardTranslation(positionX, positionY, index, isTouched);
+            onCardSwipedListener.onCardSwiped(cardInfo);
     }
 
     @Override
-    public void onCardSwiped(int index) {
-        if (onCardSwipedListener != null)
-            onCardSwipedListener.onCardSwiped(index);
-    }
-
-    @Override
-    public void percentageX(float percentage, int index) {
+    public void percentageX(float percentage, CardInfo cardInfo) {
         if (onCardPercentageChangeListener != null)
-            onCardPercentageChangeListener.percentageX(percentage, index);
+            onCardPercentageChangeListener.percentageX(percentage, cardInfo);
     }
 
     @Override
-    public void percentageY(float percentage, int index) {
+    public void percentageY(float percentage, CardInfo cardInfo) {
         if (onCardPercentageChangeListener != null)
-            onCardPercentageChangeListener.percentageY(percentage, index);
+            onCardPercentageChangeListener.percentageY(percentage, cardInfo);
     }
 
 
     /* public methods */
 
+    public List<CardView> getCardViews() {
+        return cardViewList;
+    }
+
     public void setConfigurationForList(OnConfigureList onConfigureList) {
         this.onConfigureList = onConfigureList;
     }
 
-    public void setConfigurationForCard(OnConfigureCard onConfigureCard) {
-        this.onConfigureCard = onConfigureCard;
-    }
-
-    public void setChildOrientation(int childOrientation) {
-        this.childOrientation = childOrientation;
+    public void setChildListOrientation(int childListOrientation) {
+        this.childListOrientation = childListOrientation;
     }
 
     public void setGravity(int gravity) {
         this.gravity = gravity;
     }
 
-    public void setCardsOnTheHand(int cardsOnTheHand) {
-        this.cardsOnTheHand = cardsOnTheHand;
+    public void addCardView(View view, int position) {
+        addCardViewToRootView(view, position);
+    }
+
+    public void addCardView(View view) {
+        addCardViewToRootView(view);
     }
 
     public void removeCardView(int index) {
@@ -174,15 +164,30 @@ public class CardsLayout extends FrameLayout implements OnCardTranslationListene
         ViewParent parent = cardView.getParent();
         ((ViewGroup) parent).removeView(cardView);
         cardViewList.remove(cardView);
-        setPositionsX(getWidth());
-        setPositionsY(getHeight());
-        moveViewsToStartPosition(cardViewList, true);
+        for (CardView view : cardViewList) {
+            CardInfo cardInfo = view.getCardInfo();
+            int cardIndex = cardInfo.getCardIndex();
+            if (cardIndex > index) {
+                cardInfo.setCardIndex(cardIndex - 1);
+            }
+        }
+        invalidateCardsPosition();
+        moveViewsToCurrentPosition(true);
+    }
+
+    public void invalidateCardsPosition() {
+        setPositionsX();
+        setPositionsY();
+    }
+
+    public void setCardViewsState(boolean state) {
+        setCardViewsState(state, -1);
     }
 
     public void setCardViewsState(boolean state, int index) {
         for (CardView cardView : cardViewList) {
             if (!state) {
-                if (cardView.getCardInfo().getCardIndex() != index) {
+                if (cardView.getCardInfo() == null || cardView.getCardInfo().getCardIndex() != index) {
                     cardView.addBlock(SwipeGestureManager.OrientationMode.LEFT_RIGHT);
                     cardView.addBlock(SwipeGestureManager.OrientationMode.UP_BOTTOM);
                 }
@@ -205,15 +210,64 @@ public class CardsLayout extends FrameLayout implements OnCardTranslationListene
         this.onCardSwipedListener = onCardSwipedListener;
     }
 
+    public void moveViewsToCurrentPosition(boolean isAnimated) {
+        for (int i = 0; i < cardViewList.size(); i++) {
+            CardView cardView = cardViewList.get(i);
+            CardInfo cardInfo = cardView.getCardInfo();
+            if (isAnimated) {
+                ObjectAnimator animatorX = ObjectAnimator.ofFloat(cardView, "x", cardInfo.getLastPositionX(), cardInfo.getCurrentPositionX());
+                animatorX.setInterpolator(interpolator);
+                animatorX.setDuration(500);
+                animatorX.start();
+                ObjectAnimator animatorY = ObjectAnimator.ofFloat(cardView, "y", cardInfo.getLastPositionY(), cardInfo.getCurrentPositionY());
+                animatorY.setInterpolator(interpolator);
+                animatorY.setDuration(500);
+                animatorY.start();
+            } else {
+                cardView.setX(cardInfo.getCurrentPositionX());
+                cardView.setY(cardInfo.getCurrentPositionY());
+            }
+        }
+    }
 
     /* private methods */
+
+    private void addCardViewToRootView(View view) {
+        CardView cardView = createCardView(view);
+        this.addView(cardView);
+        cardViewList.add(cardView);
+    }
+
+    private void addCardViewToRootView(View view, int position) {
+        CardView cardView = createCardView(view);
+        this.addView(cardView);
+        cardViewList.add(position, cardView);
+    }
+
+    private CardView createCardView(View view) {
+        CardView cardView = new CardView(getContext());
+        cardView.setSwipeOrientationMode(SwipeGestureManager.OrientationMode.BOTH);
+        LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        cardView.setLayoutParams(layoutParams);
+        cardView.setRotation(childRotation);
+        cardView.addView(view);
+        cardView.setCardTranslationListener(this);
+        cardView.setCardSwipedListener(this);
+        cardView.setCardPercentageChangeListener(this);
+        return cardView;
+    }
 
     private void inflateAttributes(Context context, AttributeSet attributeSet) {
         if (attributeSet != null) {
             TypedArray attributes = context.obtainStyledAttributes(attributeSet, R.styleable.CardsLayout);
             try {
                 gravity = attributes.getInt(R.styleable.CardsLayout_cardsGravity, CENTER);
-                childOrientation = attributes.getInt(R.styleable.CardsLayout_childListOrientation, ORIENTATION_HORIZONTAL);
+                childListOrientation = attributes.getInt(R.styleable.CardsLayout_childListOrientation, ORIENTATION_HORIZONTAL);
+                childRotation = attributes.getInt(R.styleable.CardsLayout_childRotation, 0);
+                childList_paddingLeft = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_childList_paddingLeft, 0);
+                childList_paddingRight = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_childList_paddingRight, 0);
+                childList_paddingTop = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_childList_paddingTop, 0);
+                childList_paddingBottom = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_childList_paddingBottom, 0);
             } finally {
                 attributes.recycle();
             }
@@ -235,108 +289,152 @@ public class CardsLayout extends FrameLayout implements OnCardTranslationListene
         throw new RuntimeException("Can't find view");
     }
 
-    private void setPositionsX(int width) {
+    private void setPositionsX() {
+        int rootWidth = getWidth() - childList_paddingRight - childList_paddingLeft;
         int widthOfViews = calcWidthOfViews(cardViewList, 0);
-        int offset = widthOfViews - width;
+        int offset = widthOfViews - rootWidth;
         int lastCardPositionX = 0;
         int widthOfItem = cardViewList.get(0).getWidth();
+        int heightOfItem = cardViewList.get(0).getHeight();
         if (offset > 0) {
-            offset /= cardViewList.size() - 1;
-            if ((gravity & RIGHT) == RIGHT) {
-                lastCardPositionX = 0;
-            } else if ((gravity & LEFT) == LEFT) {
-                if (childOrientation == ORIENTATION_HORIZONTAL) {
-                    lastCardPositionX = (width - calcWidthOfViews(cardViewList, offset));
+            offset /= getCardViewsCount() - 1;
+            if ((gravity & LEFT) == LEFT) {
+                lastCardPositionX = getRotationOffset(widthOfItem, heightOfItem);
+            } else if ((gravity & RIGHT) == RIGHT) {
+                if (childListOrientation == ORIENTATION_HORIZONTAL) {
+                    lastCardPositionX = (rootWidth - calcWidthOfViews(cardViewList, offset)) - getRotationOffset(widthOfItem, heightOfItem);
                 } else {
-                    lastCardPositionX = (width - widthOfItem);
+                    lastCardPositionX = (rootWidth - widthOfItem) - getRotationOffset(widthOfItem, heightOfItem);
                 }
             } else if ((gravity & CENTER_HORIZONTAL) == CENTER_HORIZONTAL ||
                     (gravity & CENTER) == CENTER) {
-                if (childOrientation == ORIENTATION_HORIZONTAL) {
-                    lastCardPositionX = (width - calcWidthOfViews(cardViewList, offset)) / 2;
+                if (childListOrientation == ORIENTATION_HORIZONTAL) {
+                    lastCardPositionX = (rootWidth - calcWidthOfViews(cardViewList, offset)) / 2;
                 } else {
-                    lastCardPositionX = width / 2 - widthOfItem / 2;
+                    lastCardPositionX = rootWidth / 2 - widthOfItem / 2;
                 }
             }
         } else {
             offset = 0;
-            if ((gravity & RIGHT) == RIGHT) {
-                lastCardPositionX = 0;
-            } else if ((gravity & LEFT) == LEFT) {
-                if (childOrientation == ORIENTATION_HORIZONTAL) {
-                    lastCardPositionX = width - widthOfViews;
+            if ((gravity & LEFT) == LEFT) {
+                lastCardPositionX = getRotationOffset(widthOfItem, heightOfItem);
+            } else if ((gravity & RIGHT) == RIGHT) {
+                if (childListOrientation == ORIENTATION_HORIZONTAL) {
+                    lastCardPositionX = (rootWidth - widthOfItem) - getRotationOffset(widthOfItem, heightOfItem);
                 } else {
-                    lastCardPositionX = (width - widthOfItem);
+                    lastCardPositionX = (rootWidth - widthOfItem) - getRotationOffset(widthOfItem, heightOfItem);
                 }
             } else if ((gravity & CENTER_HORIZONTAL) == CENTER_HORIZONTAL
                     || (gravity & CENTER) == CENTER) {
-                if (childOrientation == ORIENTATION_HORIZONTAL) {
-                    lastCardPositionX = (width - widthOfViews) / 2;
+                if (childListOrientation == ORIENTATION_HORIZONTAL) {
+                    lastCardPositionX = (rootWidth - widthOfViews) / 2;
                 } else {
-                    lastCardPositionX = width / 2 - widthOfItem / 2;
+                    lastCardPositionX = rootWidth / 2 - widthOfItem / 2;
                 }
             }
         }
+        lastCardPositionX += childList_paddingLeft;
         for (CardView card : cardViewList) {
+            if (card.getVisibility() == GONE) {
+                continue;
+            }
             card.getCardInfo().setCurrentPositionX(lastCardPositionX);
-            if (childOrientation == ORIENTATION_HORIZONTAL)
+            if (childListOrientation == ORIENTATION_HORIZONTAL)
                 lastCardPositionX += card.getWidth() - offset;
         }
     }
 
-    private void setPositionsY(int height) {
+    private void setPositionsY() {
+        int rootHeight = getHeight() - childList_paddingBottom - childList_paddingTop;
         int heightOfViews = calcHeightOfViews(cardViewList, 0);
-        int offset = heightOfViews - height;
-
+        int offset = heightOfViews - rootHeight;
         int lastCardPositionY = 0;
+        int widthOfItem = cardViewList.get(0).getWidth();
         int heightOfItem = cardViewList.get(0).getHeight();
         if (offset > 0) {
-            offset /= cardViewList.size() - 1;
+            offset /= getCardViewsCount() - 1;
             if ((gravity & TOP) == TOP) {
-                lastCardPositionY = 0;
+                lastCardPositionY = getRotationOffset(widthOfItem, heightOfItem);
             } else if ((gravity & BOTTOM) == BOTTOM) {
-                if (childOrientation == ORIENTATION_VERTICAL) {
-                    lastCardPositionY = (height - calcHeightOfViews(cardViewList, offset));
+                if (childListOrientation == ORIENTATION_VERTICAL) {
+                    lastCardPositionY = (rootHeight - calcHeightOfViews(cardViewList, offset)) - getRotationOffset(widthOfItem, heightOfItem);
                 } else {
-                    lastCardPositionY = (height - heightOfItem);
+                    lastCardPositionY = (rootHeight - heightOfItem) - getRotationOffset(widthOfItem, heightOfItem);
                 }
             } else if ((gravity & CENTER_VERTICAL) == CENTER_VERTICAL ||
                     (gravity & CENTER) == CENTER) {
-                if (childOrientation == ORIENTATION_VERTICAL) {
-                    lastCardPositionY = (height - calcHeightOfViews(cardViewList, offset)) / 2;
+                if (childListOrientation == ORIENTATION_VERTICAL) {
+                    lastCardPositionY = (rootHeight - calcHeightOfViews(cardViewList, offset)) / 2;
                 } else {
-                    lastCardPositionY = height / 2 - heightOfItem / 2;
+                    lastCardPositionY = rootHeight / 2 - heightOfItem / 2;
                 }
             }
         } else {
             offset = 0;
             if ((gravity & TOP) == TOP) {
-                lastCardPositionY = 0;
+                lastCardPositionY = getRotationOffset(widthOfItem, heightOfItem);
             } else if ((gravity & BOTTOM) == BOTTOM) {
-                if (childOrientation == ORIENTATION_VERTICAL) {
-                    lastCardPositionY = height - heightOfViews;
+                if (childListOrientation == ORIENTATION_VERTICAL) {
+                    lastCardPositionY = (rootHeight - heightOfItem) - getRotationOffset(widthOfItem, heightOfItem);
                 } else {
-                    lastCardPositionY = (height - heightOfItem);
+                    lastCardPositionY = (rootHeight - heightOfItem) - getRotationOffset(widthOfItem, heightOfItem);
                 }
             } else if ((gravity & CENTER_VERTICAL) == CENTER_VERTICAL
                     || (gravity & CENTER) == CENTER) {
-                if (childOrientation == ORIENTATION_VERTICAL) {
-                    lastCardPositionY = (height - heightOfViews) / 2;
+                if (childListOrientation == ORIENTATION_VERTICAL) {
+                    lastCardPositionY = (rootHeight - heightOfViews) / 2;
                 } else {
-                    lastCardPositionY = height / 2 - heightOfItem / 2;
+                    lastCardPositionY = rootHeight / 2 - heightOfItem / 2;
                 }
             }
         }
+        lastCardPositionY += childList_paddingTop;
         for (CardView card : cardViewList) {
+            if (card.getVisibility() == GONE) {
+                continue;
+            }
             card.getCardInfo().setCurrentPositionY(lastCardPositionY);
-            if (childOrientation == ORIENTATION_VERTICAL)
+            if (childListOrientation == ORIENTATION_VERTICAL)
                 lastCardPositionY += card.getHeight() - offset;
         }
+    }
+
+    private int getCardViewsCount() {
+        int count = 0;
+        for (CardView card : cardViewList) {
+            if (card.getVisibility() == GONE) {
+                continue;
+            }
+            count ++;
+        }
+        return count;
+    }
+
+    private int getRotationOffset(int width, int height) {
+        //todo fix
+        float currentWidth = (width < height ? width : height) / 2f;
+        float currentHeight = (width < height ? height : width) / 2f;
+        double radiusMax = Math.sqrt(currentWidth * currentWidth + currentHeight * currentHeight);
+        float corner1 = (float) Math.toDegrees(Math.sin(currentWidth / radiusMax));
+        float corner2 = 90f - validateRotation() - corner1;
+        long round = Math.round(radiusMax * Math.cos(Math.toRadians(corner2)) - width / 2f);
+        return (int) round;
+    }
+
+    private float validateRotation() {
+        int rotation = Math.abs(childRotation);
+        while (rotation > 90) {
+            rotation -= 90;
+        }
+        return rotation;
     }
 
     private int calcWidthOfViews(List<CardView> cards, int offset) {
         int widthOfViews = 0;
         for (CardView card : cards) {
+            if (card.getVisibility() == GONE) {
+                continue;
+            }
             widthOfViews += card.getWidth() - offset;
         }
         widthOfViews += offset;
@@ -346,6 +444,9 @@ public class CardsLayout extends FrameLayout implements OnCardTranslationListene
     private int calcHeightOfViews(List<CardView> cards, int offset) {
         int heightViews = 0;
         for (CardView card : cards) {
+            if (card.getVisibility() == GONE) {
+                continue;
+            }
             heightViews += card.getHeight() - offset;
         }
         heightViews += offset;
@@ -361,29 +462,9 @@ public class CardsLayout extends FrameLayout implements OnCardTranslationListene
         return false;
     }
 
-    private void moveViewsToStartPosition(List<CardView> cards, boolean isAnimated) {
-        for (int i = 0; i < cardViewList.size(); i++) {
-            CardView cardView = cards.get(i);
-            CardInfo cardInfo = cardView.getCardInfo();
-            if (isAnimated) {
-                ObjectAnimator animatorX = ObjectAnimator.ofFloat(cardView, "x", cardInfo.getLastPositionX(), cardInfo.getCurrentPositionX());
-                animatorX.setDuration(500);
-                animatorX.start();
-                ObjectAnimator animatorY = ObjectAnimator.ofFloat(cardView, "y", cardInfo.getLastPositionY(), cardInfo.getCurrentPositionY());
-                animatorY.setDuration(500);
-                animatorY.start();
-            } else {
-                cardView.setX(cardInfo.getCurrentPositionX());
-                cardView.setY(cardInfo.getCurrentPositionY());
-            }
-        }
-    }
+
 
     public interface OnConfigureList {
         void onConfiguration(List<CardView> cards);
-    }
-
-    public interface OnConfigureCard {
-        void onConfiguration(CardView card);
     }
 }

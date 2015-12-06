@@ -21,5 +21,12 @@
             <enum name="vertical" value="0" />
             <enum name="horizontal" value="1" />
         </attr>
+        <attr name="childRotation" format="integer">
+        </attr>
+        <attr name="childList_paddingLeft" format="dimension"/>
+        <attr name="childList_paddingRight" format="dimension"/>
+        <attr name="childList_paddingTop" format="dimension"/>
+        <attr name="childList_paddingBottom" format="dimension"/>
+
     </declare-styleable>
 </resources>

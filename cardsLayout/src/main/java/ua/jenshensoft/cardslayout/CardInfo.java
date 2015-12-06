@@ -2,8 +2,7 @@ package ua.jenshensoft.cardslayout;
 
 public class CardInfo {
 
-    private final int cardIndex;
-
+    private int cardIndex;
     private int lastPositionX;
     private int lastPositionY;
     private int currentPositionX;
@@ -49,5 +48,9 @@ public class CardInfo {
 
     public int getCardIndex() {
         return cardIndex;
+    }
+
+    public void setCardIndex(int cardIndex) {
+        this.cardIndex = cardIndex;
     }
 }
