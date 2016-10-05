@@ -1,50 +1,40 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.jfrog.bintray'
 
-def cfg = rootProject.ext.configuration
-def libs = rootProject.ext.libraries;
-def testLibs = rootProject.ext.testingLibraries;
+def siteUrl = 'https://github.com/JenshenSoft/CardsLayoutSample'
+def gitUrl = 'https://github.com/JenshenSoft/CardsLayoutSample.git'
+def libDesc = 'CardsLayout android library'
 
-ext {
-    bintrayRepo = 'maven'
-    bintrayName = 'compat'
+group = "ua.jenshensoft"
+version = "0.63"
 
-    publishedGroupId = 'ua.jenshensoft'
-    libraryName = 'CardsLayout'
-    artifact = 'cards-layout'
+allprojects {
+    repositories {
+        mavenCentral()
+    }
+}
 
-    libraryDescription = 'This library provide some useful classes for producing awesome apps more faster than usual'
-
-    siteUrl = 'https://github.com/JenshenSoft/JenshenSoftCompat'
-    gitUrl = 'https://github.com/JenshenSoft/JenshenSoftCompat.git'
-
-    libraryVersion = '0.1'
-
-    developerId = 'jenshen1992'
-    developerName = 'Yevhen Samoilov'
-    developerEmail = 'yevhen.samoilov@gmail.com'
-
-    licenseName = 'The Apache Software License, Version 2.0'
-    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-    allLicenses = ["Apache-2.0"]
+buildscript {
+    repositories {
+        mavenCentral()
+    }
 }
 
 android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
 
-    lintOptions {
-        warningsAsErrors = true;
-    }
+    resourcePrefix "cardsLayout__"
 
-    compileSdkVersion cfg.compileSdkVersion
-    buildToolsVersion cfg.buildToolsVersion
+    Properties props = new Properties()
+    props.load(new FileInputStream(file(project.rootProject.file("local.properties"))))
 
     defaultConfig {
-        minSdkVersion cfg.minSdkVersion
-        targetSdkVersion cfg.targetSdkVersion
-        versionCode cfg.versionCode
-        versionName cfg.versionName
-
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
+        minSdkVersion 14
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
     }
     buildTypes {
         release {
@@ -54,18 +44,87 @@ android {
     }
 }
 
-dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
 
-    //support
-    compile "com.android.support:appcompat-v7:${libs.supportVersion}"
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
-    //testing
-    testCompile "junit:junit:${testLibs.junit}"
+bintray {
+    user = properties.getProperty("bintray.user")
+    key = properties.getProperty("bintray.apikey")
+
+    configurations = ['archives']
+    pkg {
+        repo = group
+        name = project.name
+        desc = libDesc
+        websiteUrl = siteUrl
+        vcsUrl = gitUrl
+        licenses = ['Apache-2.0']
+        labels = ['aar', 'android', 'example']
+        publish = true
+    }
 }
 
-apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'
-apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/bintrayv1.gradle'
+install {
+    repositories.mavenInstaller {
+        pom {
+            project {
+                packaging 'aar'
+                name "CardsLayout android library"
+                url siteUrl
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id 'jenshen1992'
+                        name 'Yevhen'
+                        email 'samoilov.yevhen@gmail.com'
+                    }
+                }
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url siteUrl
+
+                }
+            }
+        }
+    }
+}
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+task javadoc(type: Javadoc) {
+    //options.encoding = 'UTF-8'
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+task findConventions << {
+    println project.getConvention()
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:appcompat-v7:23.1.1'
+    compile 'ua.zabelnikiov:swipeLayout:1.0'
+
+    //testing
+    testCompile "junit:junit:4.12"
+}
