@@ -14,7 +14,7 @@ def gitUrl = 'https://github.com/JenshenSoft/CardsLayoutSample.git'
 def libDesc = 'CardsLayout android library'
 
 group = "ua.jenshensoft"
-version = "0.63"
+version = "0.67"
 
 allprojects {
     repositories {
@@ -35,20 +35,18 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    resourcePrefix "cardsLayout_"
-
-    Properties props = new Properties()
-    props.load(new FileInputStream(file(project.rootProject.file("local.properties"))))
-
-
     compileSdkVersion cfg.compileSdkVersion
     buildToolsVersion cfg.buildToolsVersion
+    resourcePrefix "cardsLayout_"
 
     defaultConfig {
         minSdkVersion cfg.minSdkVersion
         targetSdkVersion cfg.targetSdkVersion
         versionCode cfg.versionCode
         versionName cfg.versionName
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
     }
     buildTypes {
         release {
@@ -84,7 +82,7 @@ install {
         pom {
             project {
                 packaging 'aar'
-                name "CardsLayout android library"
+                name "Cards layout library"
                 url siteUrl
                 licenses {
                     license {
@@ -116,7 +114,6 @@ task sourcesJar(type: Jar) {
 }
 
 task javadoc(type: Javadoc) {
-    //options.encoding = 'UTF-8'
     source = android.sourceSets.main.java.srcDirs
     classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
 }
