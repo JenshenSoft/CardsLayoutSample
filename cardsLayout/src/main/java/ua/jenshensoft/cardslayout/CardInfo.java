@@ -4,7 +4,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 public class CardInfo<Entity> {
-
     private int cardPositionInLayout;
     private int firstPositionX;
     private int firstPositionY;
@@ -32,13 +31,13 @@ public class CardInfo<Entity> {
         return firstPositionX;
     }
 
-    public int getFirstPositionY() {
-        return firstPositionY;
-    }
-
     public void setFirstPositionX(int firstPositionX) {
         this.firstPositionX = firstPositionX;
         setCurrentPositionX(firstPositionX);
+    }
+
+    public int getFirstPositionY() {
+        return firstPositionY;
     }
 
     public void setFirstPositionY(int firstPositionY) {
@@ -66,12 +65,12 @@ public class CardInfo<Entity> {
         return lastPositionX;
     }
 
-    public int getLastPositionY() {
-        return lastPositionY;
-    }
-
     public void setLastPositionX(int lastPositionX) {
         this.lastPositionX = lastPositionX;
+    }
+
+    public int getLastPositionY() {
+        return lastPositionY;
     }
 
     public void setLastPositionY(int lastPositionY) {
@@ -85,4 +84,5 @@ public class CardInfo<Entity> {
     public void setCardPositionInLayout(int cardPositionInLayout) {
         this.cardPositionInLayout = cardPositionInLayout;
     }
+
 }

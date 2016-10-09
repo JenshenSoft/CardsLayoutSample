@@ -36,7 +36,7 @@ public abstract class CardsLayoutWithAdditionalViews<
         GameInfoView extends View>
         extends CardsLayout<Entity> {
 
-    //additional ua.jenshensoft.cardslayout.views
+    //additional ua.jenshensoft.ua.jenshensoft.cardslayout.views
     @Nullable
     protected UserBarView userBarView;
     @Nullable
@@ -156,7 +156,7 @@ public abstract class CardsLayoutWithAdditionalViews<
                     }
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
-                    Log.e(getContext().getString(R.string.app_name), "You need to set your class name in layout attr!");
+                    Log.e(getContext().getString(R.string.cardsLayout_app_name), "You need to set your class name in layout attr!");
                 }
 
                 if (distributeBarsByHeight && distributeBarsByWidth) {

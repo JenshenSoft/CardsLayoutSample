@@ -1,6 +1,5 @@
 package ua.jenshensoft.cardslayout.listeners;
 
-
 import ua.jenshensoft.cardslayout.CardInfo;
 
 public interface OnCardPercentageChangeListener<Entity> {

@@ -21,7 +21,7 @@ public class CardView<Entity> extends FrameLayout {
     public static final int START_TO_CURRENT = 1;
     public static final int LAST_TO_CURRENT = 2;
 
-    private SwipeGestureManager swipeManager;
+    private SwipeGestureManager<Entity> swipeManager;
     private CardInfo<Entity> cardInfo;
     private boolean scrollAndClickable;
 
@@ -119,18 +119,18 @@ public class CardView<Entity> extends FrameLayout {
         swipeManager.setOrientationMode(orientationMode);
     }
 
-    public void setCardTranslationListener(final OnCardTranslationListener cardTranslationListener) {
+    public void setCardTranslationListener(final OnCardTranslationListener<Entity> cardTranslationListener) {
         swipeManager.setCardTranslationListener(cardTranslationListener);
     }
 
-    public void setCardSwipedListener(final OnCardSwipedListener cardSwipedListener) {
+    public void setCardSwipedListener(final OnCardSwipedListener<Entity> cardSwipedListener) {
         swipeManager.setCardSwipedListener(cardSwipedListener);
     }
 
     /**
      * @param mode 0 - START_TO_CURRENT , 1 - LAST_TO_CURRENT
      */
-    public void setCardPercentageChangeListener(final OnCardPercentageChangeListener cardPercentageChangeListener, int mode) {
+    public void setCardPercentageChangeListener(final OnCardPercentageChangeListener<Entity> cardPercentageChangeListener, int mode) {
         swipeManager.setCardPercentageChangeListener(cardPercentageChangeListener, mode);
     }
 
@@ -154,7 +154,7 @@ public class CardView<Entity> extends FrameLayout {
             }
         }
 
-        SwipeGestureManager.Builder builder = new SwipeGestureManager.Builder(context);
+        SwipeGestureManager.Builder<Entity> builder = new SwipeGestureManager.Builder<>(context);
         builder.setSwipeSpeed(swipeSpeed);
         builder.setSwipeOffset(swipeOffset);
         builder.setOrientationMode(swipeOrientationMode);

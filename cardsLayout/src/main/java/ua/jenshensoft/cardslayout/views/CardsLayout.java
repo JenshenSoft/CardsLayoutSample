@@ -55,7 +55,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
     private List<CardView<Entity>> cardViewList;
     private FlagManager gravityFlag;
 
-    //ua.jenshensoft.cardslayout.listeners
+    //ua.jenshensoft.ua.jenshensoft.cardslayout.listeners
     private OnCardSwipedListener<Entity> onCardSwipedListener;
     private OnCardPercentageChangeListener<Entity> onCardPercentageChangeListener;
     private OnCardTranslationListener<Entity> onCardTranslationListener;
@@ -201,7 +201,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
     }
 
     
-    /* ua.jenshensoft.cardslayout.listeners */
+    /* ua.jenshensoft.ua.jenshensoft.cardslayout.listeners */
 
     public void setCardTranslationListener(OnCardTranslationListener<Entity> cardTranslationListener) {
         this.onCardTranslationListener = cardTranslationListener;
@@ -568,7 +568,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
 
     private CardView<Entity> createCardView(View view) {
         CardView<Entity> cardView = new CardView<>(getContext());
-        FrameLayout.LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         cardView.setLayoutParams(layoutParams);
         cardView.addView(view);
         return cardView;

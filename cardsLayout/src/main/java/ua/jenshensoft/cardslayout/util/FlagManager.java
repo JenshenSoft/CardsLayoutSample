@@ -41,34 +41,16 @@ public class FlagManager {
         return (flagSet | flag) == flagSet; // or flagSet&flag) == flag
     }
 
-    /**
-     * @param flag current flag
-     */
     @SuppressWarnings("WrongConstant")
     public void addFlag(@Gravity int flag) {
         flagSet = flagSet | flag;
     }
 
-    /**
-     * Example 1: 110^010 = 100 (Binary)
-     * 6 ^ 2  =  4  (Decimal)
-     * Example 2: 100^010 = 110 (Binary)
-     * 4 ^ 2  =  6  (Decimal)
-     *
-     * @param flag current flag
-     */
     @SuppressWarnings("WrongConstant")
     public void toggleFlag(@Gravity int flag) {
         flagSet = flagSet ^ flag;
     }
 
-    /**
-     * Example
-     * 110&(~010) = 110&101 = 100 (Binary)
-     * 6 &(~ 2 ) =  6 & 5  =  4  (Decimal)
-     *
-     * @param flag current flag
-     */
     @SuppressWarnings("WrongConstant")
     public void removeFlag(@Gravity int flag) {
         flagSet = flagSet & (~flag);

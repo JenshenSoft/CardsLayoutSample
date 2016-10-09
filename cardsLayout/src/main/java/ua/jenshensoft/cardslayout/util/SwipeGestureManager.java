@@ -17,13 +17,13 @@ import ua.jenshensoft.cardslayout.listeners.OnCardSwipedListener;
 import ua.jenshensoft.cardslayout.listeners.OnCardTranslationListener;
 import ua.jenshensoft.cardslayout.views.CardView;
 
-public class SwipeGestureManager implements View.OnTouchListener {
+public class SwipeGestureManager<Entity> implements View.OnTouchListener {
 
     private final GestureDetector gestureDetector;
     //Listeners
-    private OnCardTranslationListener cardTranslationListener;
-    private OnCardSwipedListener cardSwipedListener;
-    private OnCardPercentageChangeListener cardPercentageChangeListener;
+    private OnCardTranslationListener<Entity> cardTranslationListener;
+    private OnCardSwipedListener<Entity> cardSwipedListener;
+    private OnCardPercentageChangeListener<Entity> cardPercentageChangeListener;
     // Configs
     private float swipeSpeed;
     private float swipeOffset;
@@ -37,7 +37,7 @@ public class SwipeGestureManager implements View.OnTouchListener {
     private float percentageX;
     private float percentageY;
     private int mode;
-    private CardInfoProvider cardInfoProvider;
+    private CardInfoProvider<Entity> cardInfoProvider;
 
     private SwipeGestureManager(Context context, float swipeSpeed, float swipeOffset, int orientationMode) {
         this.swipeSpeed = swipeSpeed;
@@ -103,20 +103,20 @@ public class SwipeGestureManager implements View.OnTouchListener {
         this.orientationMode = orientationMode;
     }
 
-    public void setCardTranslationListener(final OnCardTranslationListener cardTranslationListener) {
+    public void setCardTranslationListener(final OnCardTranslationListener<Entity> cardTranslationListener) {
         this.cardTranslationListener = cardTranslationListener;
     }
 
-    public void setCardSwipedListener(final OnCardSwipedListener cardSwipedListener) {
+    public void setCardSwipedListener(final OnCardSwipedListener<Entity> cardSwipedListener) {
         this.cardSwipedListener = cardSwipedListener;
     }
 
-    public void setCardPercentageChangeListener(final OnCardPercentageChangeListener cardPercentageChangeListener, int mode) {
+    public void setCardPercentageChangeListener(final OnCardPercentageChangeListener<Entity> cardPercentageChangeListener, int mode) {
         this.mode = mode;
         this.cardPercentageChangeListener = cardPercentageChangeListener;
     }
 
-    public void setCardInfoProvider(CardInfoProvider cardInfoProvider) {
+    public void setCardInfoProvider(CardInfoProvider<Entity> cardInfoProvider) {
         this.cardInfoProvider = cardInfoProvider;
     }
 
@@ -222,7 +222,7 @@ public class SwipeGestureManager implements View.OnTouchListener {
         animator.start();
     }
 
-    private CardInfo getCardInfo() {
+    private CardInfo<Entity> getCardInfo() {
         if (cardInfoProvider != null) {
             return cardInfoProvider.getCardInfo();
         }
@@ -232,7 +232,7 @@ public class SwipeGestureManager implements View.OnTouchListener {
     private void triggerPercentageListener(boolean state) {
         if (cardPercentageChangeListener != null && lastMotion != MotionEvent.ACTION_UP) {
             float percentageX, percentageY;
-            CardInfo cardInfo = getCardInfo();
+            CardInfo<Entity> cardInfo = getCardInfo();
             if (mode == CardView.START_TO_CURRENT) {
                 percentageX = getPercent(cardInfo.getFirstPositionX(), cardInfo.getCurrentPositionX());
                 percentageY = getPercent(cardInfo.getFirstPositionY(), cardInfo.getCurrentPositionY());
@@ -266,7 +266,7 @@ public class SwipeGestureManager implements View.OnTouchListener {
         this.swipeOffset = swipeOffset;
     }
 
-    public static class Builder {
+    public static class Builder<Entity> {
         private final Context context;
         private float swipeOffset;
         private float swipeSpeed;
@@ -288,16 +288,16 @@ public class SwipeGestureManager implements View.OnTouchListener {
             this.swipeOffset = swipeOffset;
         }
 
-        public SwipeGestureManager create() {
-            return new SwipeGestureManager(context, swipeSpeed, swipeOffset, mOrientationMode);
+        public SwipeGestureManager<Entity> create() {
+            return new SwipeGestureManager<>(context, swipeSpeed, swipeOffset, mOrientationMode);
         }
     }
 
 
     /* inner types */
 
-    public interface CardInfoProvider {
-        CardInfo getCardInfo();
+    public interface CardInfoProvider<Entity> {
+        CardInfo<Entity> getCardInfo();
     }
 
     private class FlingGestureDetector extends GestureDetector.SimpleOnGestureListener {

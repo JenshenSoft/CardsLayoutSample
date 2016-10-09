@@ -4,9 +4,7 @@ package ua.jenshensoft.cardslayout.util;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
-import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.support.annotation.StringDef;
 import android.util.Property;
 import android.view.View;
@@ -22,9 +20,10 @@ import static ua.jenshensoft.cardslayout.util.AwesomeAnimation.CoordinationMode.
 import static ua.jenshensoft.cardslayout.util.AwesomeAnimation.SizeMode.SCALE;
 import static ua.jenshensoft.cardslayout.util.AwesomeAnimation.SizeMode.SIZE;
 
+
 public class AwesomeAnimation {
 
-    public static final Property<View, Float> PROPERTY_WIDTH =
+    private static final Property<View, Float> PROPERTY_WIDTH =
             new Property<View, Float>(Float.class, "viewLayoutWidth") {
 
                 @Override
@@ -38,7 +37,7 @@ public class AwesomeAnimation {
                     return (float) object.getLayoutParams().width;
                 }
             };
-    public static final Property<View, Float> PROPERTY_HEIGHT =
+    private static final Property<View, Float> PROPERTY_HEIGHT =
             new Property<View, Float>(Float.class, "viewLayoutHeight") {
 
                 @Override
@@ -79,13 +78,6 @@ public class AwesomeAnimation {
         interpolator = builder.interpolator;
         duration = builder.duration;
         animatorSet = createAnimationSet();
-    }
-
-    public static void animateColorChange(Object objectToAnimate, String param, int... resIds) {
-        ValueAnimator colorAnim = ObjectAnimator.ofInt(objectToAnimate, param, resIds);
-        colorAnim.setDuration(1000);
-        colorAnim.setEvaluator(new ArgbEvaluator());
-        colorAnim.start();
     }
 
     public void start() {
@@ -303,7 +295,7 @@ public class AwesomeAnimation {
             }
         }
 
-        private void addTranslation(float [] array, float translation) {
+        private void addTranslation(float[] array, float translation) {
             if (array == null) {
                 return;
             }
@@ -313,17 +305,17 @@ public class AwesomeAnimation {
         }
     }
 
-    public static class AnimationParams {
+    private static class AnimationParams {
         public String attr;
-        public Property<View, Float> property;
+        private Property<View, Float> property;
         private float[] params;
 
-        public AnimationParams(String attr, float[] params) {
+        AnimationParams(String attr, float[] params) {
             this.attr = attr;
             this.params = params;
         }
 
-        public AnimationParams(Property<View, Float> property, float[] params) {
+        AnimationParams(Property<View, Float> property, float[] params) {
             this.property = property;
             this.params = params;
         }
