@@ -3,7 +3,7 @@ package ua.jenshensoft.cardslayout.listeners;
 
 import ua.jenshensoft.cardslayout.CardInfo;
 
-public interface OnCardTranslationListener {
+public interface OnCardTranslationListener<Entity> {
 
-    void onCardTranslation(float positionX, float positionY, CardInfo cardInfo, boolean isTouched);
+    void onCardTranslation(float positionX, float positionY, CardInfo<Entity> cardInfo, boolean isTouched);
 }

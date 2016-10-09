@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <declare-styleable name="CardsLayout">
-        <attr name="swipeChildSpeed" format="float" />
-        <attr name="swipeChildOrientation" format="enum">
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <declare-styleable name="SwipeableLayout" tools:ignore="ResourceName">
+        <attr name="card_speed" format="float"/>
+        <attr name="card_swipeOffset" format="float" />
+        <attr name="card_swipeOrientation" format="enum">
             <enum name="leftToRight" value="0" />
             <enum name="bottomToUp" value="1" />
             <enum name="both" value="2" />
             <enum name="none" value="3" />
         </attr>
-        <attr name="cardsGravity">
+        <attr name="card_scrollAndClickable" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="CardsLayout_Params">
+        <attr name="cardsLayout_animationDuration" format="integer" />
+        <attr name="cardsLayout_cardsGravity">
             <flag name="right" value="1" />
             <flag name="left" value="2" />
             <flag name="top" value="4" />
@@ -17,16 +23,68 @@
             <flag name="center_horizontal" value="32" />
             <flag name="center_vertical" value="64" />
         </attr>
-        <attr name="childListOrientation" format="enum">
-            <enum name="vertical" value="0" />
-            <enum name="horizontal" value="1" />
+        <attr name="cardsLayout_childList_orientation" format="enum">
+            <enum name="horizontal" value="0" />
+            <enum name="vertical" value="1" />
         </attr>
-        <attr name="childRotation" format="integer">
-        </attr>
-        <attr name="childList_paddingLeft" format="dimension"/>
-        <attr name="childList_paddingRight" format="dimension"/>
-        <attr name="childList_paddingTop" format="dimension"/>
-        <attr name="childList_paddingBottom" format="dimension"/>
+        <attr name="cardsLayout_childList_paddingLeft" format="dimension" />
+        <attr name="cardsLayout_childList_paddingRight" format="dimension" />
+        <attr name="cardsLayout_childList_paddingTop" format="dimension" />
+        <attr name="cardsLayout_childList_paddingBottom" format="dimension" />
+        <attr name="cardsLayout_childList_height" format="dimension" />
+        <attr name="cardsLayout_childList_width" format="dimension" />
 
+    </declare-styleable>
+
+    <declare-styleable name="CardsLayoutAV_Params" tools:ignore="ResourceName">
+        <attr name="cardsLayoutAV_userBar_anchorPosition" format="enum" >
+            <enum name="start" value="0" />
+            <enum name="end" value="1" />
+        </attr>
+        <attr name="cardsLayoutAV_userBar_anchorGravity" format="enum">
+            <enum name="left" value="0" />
+            <enum name="right" value="1" />
+            <enum name="top" value="2" />
+            <enum name="bottom" value="3" />
+        </attr>
+        <attr name="cardsLayoutAV_gameInfoBar_anchorPosition" format="enum">
+            <enum name="start" value="0" />
+            <enum name="end" value="1" />
+        </attr>
+        <attr name="cardsLayoutAV_gameInfoBar_anchorGravity" format="enum">
+            <enum name="left" value="0" />
+            <enum name="right" value="1" />
+            <enum name="top" value="2" />
+            <enum name="bottom" value="3" />
+        </attr>
+        <attr name="cardsLayoutAV_distributeBars_byWidth" format="boolean" />
+        <attr name="cardsLayoutAV_distributeBars_byHeight" format="boolean" />
+        <attr name="cardsLayoutAV_barsMargin" format="dimension" />
+        <attr name="cardsLayoutAV_userBarViewClass" format="string" />
+        <attr name="cardsLayoutAV_gameInfoBarViewClass" format="string" />
+    </declare-styleable>
+
+    <declare-styleable name="GameTableLayout_Params" tools:ignore="ResourceName">
+        <attr name="gameTableLayout_tintColor" format="color" />
+        <attr name="gameTableLayout_cardValidatorSwipe" format="boolean" />
+        <attr name="gameTableLayout_cardValidatorTransition" format="color" />
+        <attr name="gameTableLayout_duration_distributeAnimation" format="integer" />
+    </declare-styleable>
+
+    <declare-styleable name="DebertzGameTableLayout">
+        <attr name="deckOfCards_offsetFromBorder" format="dimension" />
+        <attr name="deckOfCards_location">
+            <flag name="right" value="1" />
+            <flag name="left" value="2" />
+            <flag name="top" value="4" />
+            <flag name="bottom" value="8" />
+            <flag name="center" value="16" />
+            <flag name="center_horizontal" value="32" />
+            <flag name="center_vertical" value="64" />
+        </attr>
+    </declare-styleable>
+
+    <declare-styleable name="DebertzCardsLayout_Params">
+        <attr name="debertzCardsLayout_childRotation" format="integer" />
     </declare-styleable>
 </resources>

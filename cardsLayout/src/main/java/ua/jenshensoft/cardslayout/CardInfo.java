@@ -1,15 +1,49 @@
 package ua.jenshensoft.cardslayout;
 
-public class CardInfo {
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-    private int cardIndex;
+public class CardInfo<Entity> {
+
+    private int cardPositionInLayout;
+    private int firstPositionX;
+    private int firstPositionY;
     private int lastPositionX;
     private int lastPositionY;
     private int currentPositionX;
     private int currentPositionY;
+    @Nullable
+    private Entity entity;
 
-    public CardInfo(int cardIndex) {
-        this.cardIndex = cardIndex;
+    public CardInfo(int cardPositionInLayout) {
+        this.cardPositionInLayout = cardPositionInLayout;
+    }
+
+    @Nullable
+    public Entity getEntity() {
+        return entity;
+    }
+
+    public void setEntity(@NonNull Entity entity) {
+        this.entity = entity;
+    }
+
+    public int getFirstPositionX() {
+        return firstPositionX;
+    }
+
+    public int getFirstPositionY() {
+        return firstPositionY;
+    }
+
+    public void setFirstPositionX(int firstPositionX) {
+        this.firstPositionX = firstPositionX;
+        setCurrentPositionX(firstPositionX);
+    }
+
+    public void setFirstPositionY(int firstPositionY) {
+        this.firstPositionY = firstPositionY;
+        setCurrentPositionY(firstPositionY);
     }
 
     public int getCurrentPositionX() {
@@ -17,7 +51,6 @@ public class CardInfo {
     }
 
     public void setCurrentPositionX(int currentPositionX) {
-        this.lastPositionX = this.currentPositionX;
         this.currentPositionX = currentPositionX;
     }
 
@@ -26,7 +59,6 @@ public class CardInfo {
     }
 
     public void setCurrentPositionY(int currentPositionY) {
-        this.lastPositionY = this.currentPositionY;
         this.currentPositionY = currentPositionY;
     }
 
@@ -46,11 +78,11 @@ public class CardInfo {
         this.lastPositionY = lastPositionY;
     }
 
-    public int getCardIndex() {
-        return cardIndex;
+    public int getCardPositionInLayout() {
+        return cardPositionInLayout;
     }
 
-    public void setCardIndex(int cardIndex) {
-        this.cardIndex = cardIndex;
+    public void setCardPositionInLayout(int cardPositionInLayout) {
+        this.cardPositionInLayout = cardPositionInLayout;
     }
 }
