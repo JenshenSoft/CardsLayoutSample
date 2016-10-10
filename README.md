@@ -11,9 +11,9 @@ If you are building with Gradle, simply add the following line to the `dependenc
 
 ```groovy
 
-compile 'ua.jenshensoft:cardsLayout:0.72'
+compile 'ua.jenshensoft:compat:0.12'
 ```
- [ ![Download](https://api.bintray.com/packages/jenshen1992/ua.jenshensoft/cardsLayout/images/download.svg) ](https://bintray.com/jenshen1992/ua.jenshensoft/cardsLayout/_latestVersion)
+ [ ![Download](https://api.bintray.com/packages/jenshen1992/ua.jenshensoft/compat/images/download.svg) ](https://bintray.com/jenshen1992/ua.jenshensoft/compat/_latestVersion)
 
 Getting started
 ==========
