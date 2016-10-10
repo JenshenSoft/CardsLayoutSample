@@ -3,7 +3,7 @@ This library provides layouts for creating a card game on Android.
 
 ## Requirements
 
-SwipeableLayout supports Android 4.0.0 (Ice Cream Sandwich) and later. 
+CardsLayout supports Android 4.0.0 (Ice Cream Sandwich) and later. 
 
 ## Gradle Dependency 
 
