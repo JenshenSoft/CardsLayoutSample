@@ -27,6 +27,7 @@ import static ua.jenshensoft.cardslayout.views.CardsLayoutWithAdditionalViews.An
 import static ua.jenshensoft.cardslayout.views.CardsLayoutWithAdditionalViews.AnchorGravity.VIEW_LOCATION_LEFT;
 import static ua.jenshensoft.cardslayout.views.CardsLayoutWithAdditionalViews.AnchorGravity.VIEW_LOCATION_RIGHT;
 import static ua.jenshensoft.cardslayout.views.CardsLayoutWithAdditionalViews.AnchorGravity.VIEW_LOCATION_TOP;
+import static ua.jenshensoft.cardslayout.views.CardsLayoutWithAdditionalViews.AnchorPosition.VIEW_POSITION_CENTER;
 import static ua.jenshensoft.cardslayout.views.CardsLayoutWithAdditionalViews.AnchorPosition.VIEW_POSITION_END;
 import static ua.jenshensoft.cardslayout.views.CardsLayoutWithAdditionalViews.AnchorPosition.VIEW_POSITION_START;
 
@@ -196,17 +197,17 @@ public abstract class CardsLayoutWithAdditionalViews<
         }
 
         if (userBarView != null) {
-            final int[] coordinatesForUserInfo = getBarCoordinates(userBarView, getAttachedView(userBarAnchorPosition), userBarAnchorGravity);
+            final int[] coordinatesForUserInfo = getBarCoordinates(userBarView, getAnchorViewInfo(userBarAnchorPosition), userBarAnchorGravity);
             moveUserBarToPosition(coordinatesForUserInfo, withAnimation);
         }
 
         if (gameInfoView != null) {
-            int[] coordinatesForGameInfoBar = getBarCoordinates(gameInfoView, getAttachedView(gameInfoBarAnchorPosition), gameInfoBarAnchorGravity);
+            int[] coordinatesForGameInfoBar = getBarCoordinates(gameInfoView, getAnchorViewInfo(gameInfoBarAnchorPosition), gameInfoBarAnchorGravity);
             moveGameInfoBarToPosition(coordinatesForGameInfoBar, withAnimation);
         }
     }
 
-    private CardView<Entity> getAttachedView(int position) {
+    private AnchorViewInfo getAnchorViewInfo(@AnchorPosition int position) {
         List<CardView<Entity>> cardViews = getCardViews();
         List<CardView<Entity>> visibleCardViews = new ArrayList<>();
         for (CardView<Entity> cardView : cardViews) {
@@ -214,11 +215,29 @@ public abstract class CardsLayoutWithAdditionalViews<
                 visibleCardViews.add(cardView);
             }
         }
+        CardView<Entity> cardView;
+        CardInfo<Entity> cardInfo;
         switch (position) {
             case VIEW_POSITION_START:
-                return visibleCardViews.iterator().next();
+                cardView = visibleCardViews.iterator().next();
+                cardInfo = cardView.getCardInfo();
+                return new AnchorViewInfo(cardInfo.getFirstPositionX(), cardInfo.getFirstPositionY(), cardView.getMeasuredWidth(), cardView.getMeasuredHeight());
+            case VIEW_POSITION_CENTER:
+                int firstPositionX;
+               int firstPositionY;
+                 int cardsLayoutWidth = getChildWidth(cardViews);
+                 float cardsLayoutHeight = getChildHeight(cardViews);
+                if (cardViews.size() % 2 == 0) {
+                    cardViews.get(cardViews.size() / 2 + 1);
+                } else {
+                    cardViews.get(cardViews.size() / 2 + 1);
+                }
+
+                return new AnchorViewInfo(cardInfo.getFirstPositionX(), cardInfo.getFirstPositionY(), getChildWidth(cardViews), getChildHeight(cardViews));
             case VIEW_POSITION_END:
-                return visibleCardViews.get(visibleCardViews.size() - 1);
+                cardView = visibleCardViews.get(visibleCardViews.size() - 1);
+                cardInfo = cardView.getCardInfo();
+                return new AnchorViewInfo(cardInfo.getFirstPositionX(), cardInfo.getFirstPositionY(), cardView.getMeasuredWidth(), cardView.getMeasuredHeight());
             default:
                 throw new RuntimeException("Unsupported position");
         }
@@ -271,28 +290,27 @@ public abstract class CardsLayoutWithAdditionalViews<
         setChildListPaddingRight(childListPaddingRight);
     }
 
-    private int[] getBarCoordinates(View view, CardView cardView, int viewLocation) {
-        CardInfo cardInfo = cardView.getCardInfo();
+    private int[] getBarCoordinates(View view, AnchorViewInfo anchorViewInfo, int viewLocation) {
         int viewHeight = view.getMeasuredHeight();
         int viewWidth = view.getMeasuredWidth();
         int x;
         int y;
         switch (viewLocation) {
             case VIEW_LOCATION_LEFT:
-                x = cardInfo.getFirstPositionX() - viewWidth - barsMargin;
-                y = cardInfo.getFirstPositionY();
+                x = anchorViewInfo.getFirstPositionX() - viewWidth - barsMargin;
+                y = anchorViewInfo.getFirstPositionY();
                 break;
             case VIEW_LOCATION_RIGHT:
-                x = cardInfo.getFirstPositionX() + cardView.getMeasuredWidth() + barsMargin;
-                y = cardInfo.getFirstPositionY();
+                x = anchorViewInfo.getFirstPositionX() + anchorViewInfo.getCardsLayoutWidth() + barsMargin;
+                y = anchorViewInfo.getFirstPositionY();
                 break;
             case VIEW_LOCATION_TOP:
-                x = cardInfo.getFirstPositionX();
-                y = cardInfo.getFirstPositionY() - viewHeight - barsMargin;
+                x = anchorViewInfo.getFirstPositionX();
+                y = anchorViewInfo.getFirstPositionY() - viewHeight - barsMargin;
                 break;
             case VIEW_LOCATION_BOTTOM:
-                x = cardInfo.getFirstPositionX();
-                y = cardInfo.getFirstPositionY() + cardView.getMeasuredHeight() + barsMargin;
+                x = anchorViewInfo.getFirstPositionX();
+                y = anchorViewInfo.getFirstPositionY() + anchorViewInfo.getCardsLayoutHeight() + barsMargin;
                 break;
             default:
                 throw new RuntimeException("Unsupported location");
@@ -408,6 +426,37 @@ public abstract class CardsLayoutWithAdditionalViews<
     @Retention(RetentionPolicy.SOURCE)
     public @interface AnchorPosition {
         int VIEW_POSITION_START = 0;
-        int VIEW_POSITION_END = 1;
+        int VIEW_POSITION_CENTER = 1;
+        int VIEW_POSITION_END = 2;
+    }
+
+    private static class AnchorViewInfo {
+        private int firstPositionX;
+        private int firstPositionY;
+        private int cardsLayoutWidth;
+        private int cardsLayoutHeight;
+
+        private AnchorViewInfo(int firstPositionX, int firstPositionY, int cardsLayoutWidth, int cardsLayoutHeight) {
+            this.firstPositionX = firstPositionX;
+            this.firstPositionY = firstPositionY;
+            this.cardsLayoutWidth = cardsLayoutWidth;
+            this.cardsLayoutHeight = cardsLayoutHeight;
+        }
+
+        public int getFirstPositionX() {
+            return firstPositionX;
+        }
+
+        public int getFirstPositionY() {
+            return firstPositionY;
+        }
+
+        public int getCardsLayoutWidth() {
+            return cardsLayoutWidth;
+        }
+
+        public int getCardsLayoutHeight() {
+            return cardsLayoutHeight;
+        }
     }
 }
