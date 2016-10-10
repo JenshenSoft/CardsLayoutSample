@@ -1,4 +1,4 @@
-# CardsLayoutSample
+# CardsLayout
 This library provides layouts for creation a card game on Android.
 
 ## Requirements
