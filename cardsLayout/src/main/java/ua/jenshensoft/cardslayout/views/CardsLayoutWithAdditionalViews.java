@@ -437,8 +437,8 @@ public abstract class CardsLayoutWithAdditionalViews<
     @Retention(RetentionPolicy.SOURCE)
     public @interface AnchorPosition {
         int VIEW_POSITION_START = 0;
-        int VIEW_POSITION_END = 2;
-        int VIEW_POSITION_CENTER = 1;
+        int VIEW_POSITION_END = 1;
+        int VIEW_POSITION_CENTER = 2;
     }
 
     private static class AnchorViewInfo {
