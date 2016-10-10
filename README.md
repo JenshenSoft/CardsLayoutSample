@@ -13,7 +13,7 @@ If you are building with Gradle, simply add the following line to the `dependenc
 
 compile 'ua.jenshensoft:cardsLayout:0.72'
 ```
-[ ![Download](https://dl.bintray.com/jenshen1992/ua.jenshensoft/ua/jenshensoft/cardsLayout/images/download.svg) ](https://dl.bintray.com/jenshen1992/ua.jenshensoft/ua/jenshensoft/cardsLayout/_latestVersion)
+ [ ![Download](https://api.bintray.com/packages/jenshen1992/ua.jenshensoft/cardsLayout/images/download.svg) ](https://bintray.com/jenshen1992/ua.jenshensoft/cardsLayout/_latestVersion)
 
 Getting started
 ==========
