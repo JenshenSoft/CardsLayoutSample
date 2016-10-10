@@ -18,7 +18,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 
-import ua.jenshensoft.cardslayout.CardInfo;
 import ua.jenshensoft.cardslayout.R;
 import ua.jenshensoft.cardslayout.util.AwesomeAnimation;
 import ua.jenshensoft.cardslayout.util.FlagManager;
@@ -37,7 +36,7 @@ public abstract class CardsLayoutWithAdditionalViews<
         GameInfoView extends View>
         extends CardsLayout<Entity> {
 
-    //additional ua.jenshensoft.ua.jenshensoft.cardslayout.views
+    //additional views
     @Nullable
     protected UserBarView userBarView;
     @Nullable
@@ -215,32 +214,44 @@ public abstract class CardsLayoutWithAdditionalViews<
                 visibleCardViews.add(cardView);
             }
         }
-        CardView<Entity> cardView;
-        CardInfo<Entity> cardInfo;
+        int firstPositionX;
+        int firstPositionY;
+        int cardsLayoutWidth;
+        int cardsLayoutHeight;
+
         switch (position) {
             case VIEW_POSITION_START:
-                cardView = visibleCardViews.iterator().next();
-                cardInfo = cardView.getCardInfo();
-                return new AnchorViewInfo(cardInfo.getFirstPositionX(), cardInfo.getFirstPositionY(), cardView.getMeasuredWidth(), cardView.getMeasuredHeight());
-            case VIEW_POSITION_CENTER:
-                int firstPositionX;
-               int firstPositionY;
-                 int cardsLayoutWidth = getChildWidth(cardViews);
-                 float cardsLayoutHeight = getChildHeight(cardViews);
-                if (cardViews.size() % 2 == 0) {
-                    cardViews.get(cardViews.size() / 2 + 1);
-                } else {
-                    cardViews.get(cardViews.size() / 2 + 1);
-                }
-
-                return new AnchorViewInfo(cardInfo.getFirstPositionX(), cardInfo.getFirstPositionY(), getChildWidth(cardViews), getChildHeight(cardViews));
+                final CardView<Entity> cardViewStart = visibleCardViews.iterator().next();
+                firstPositionX = cardViewStart.getCardInfo().getFirstPositionX();
+                firstPositionY = cardViewStart.getCardInfo().getFirstPositionY();
+                cardsLayoutWidth = cardViewStart.getMeasuredHeight();
+                cardsLayoutHeight = cardViewStart.getMeasuredHeight();
+                break;
             case VIEW_POSITION_END:
-                cardView = visibleCardViews.get(visibleCardViews.size() - 1);
-                cardInfo = cardView.getCardInfo();
-                return new AnchorViewInfo(cardInfo.getFirstPositionX(), cardInfo.getFirstPositionY(), cardView.getMeasuredWidth(), cardView.getMeasuredHeight());
+                final CardView<Entity> cardViewEnd = visibleCardViews.get(visibleCardViews.size() - 1);
+                firstPositionX = cardViewEnd.getCardInfo().getFirstPositionX();
+                firstPositionY = cardViewEnd.getCardInfo().getFirstPositionY();
+                cardsLayoutWidth = cardViewEnd.getMeasuredHeight();
+                cardsLayoutHeight = cardViewEnd.getMeasuredHeight();
+                break;
+            case VIEW_POSITION_CENTER:
+                if (cardViews.size() % 2 == 0) {
+                    final CardView<Entity> middleLeftCardView = cardViews.get(cardViews.size() / 2 - 1);
+                    final CardView<Entity> middleRightCardView = cardViews.get(cardViews.size() / 2);
+                    firstPositionX = Math.round((middleLeftCardView.getCardInfo().getFirstPositionX() + middleRightCardView.getCardInfo().getFirstPositionX()) / 2f);
+                    firstPositionY = Math.round((middleLeftCardView.getCardInfo().getFirstPositionY() + middleRightCardView.getCardInfo().getFirstPositionY()) / 2f);
+                } else {
+                    final CardView<Entity> middleCardView = cardViews.get(cardViews.size() / 2 + 1);
+                    firstPositionX = middleCardView.getCardInfo().getFirstPositionX();
+                    firstPositionY = middleCardView.getCardInfo().getFirstPositionY();
+                }
+                cardsLayoutWidth = (int) getChildWidth(cardViews);
+                cardsLayoutHeight = (int) getChildHeight(cardViews);
+                break;
             default:
                 throw new RuntimeException("Unsupported position");
         }
+        return new AnchorViewInfo(firstPositionX, firstPositionY, cardsLayoutWidth, cardsLayoutHeight);
     }
 
     private void moveViewToPosition(View view, int[] coordinates, boolean isAnimated) {
@@ -290,7 +301,7 @@ public abstract class CardsLayoutWithAdditionalViews<
         setChildListPaddingRight(childListPaddingRight);
     }
 
-    private int[] getBarCoordinates(View view, AnchorViewInfo anchorViewInfo, int viewLocation) {
+    private int[] getBarCoordinates(View view, AnchorViewInfo anchorViewInfo, @AnchorGravity int viewLocation) {
         int viewHeight = view.getMeasuredHeight();
         int viewWidth = view.getMeasuredWidth();
         int x;
@@ -360,7 +371,7 @@ public abstract class CardsLayoutWithAdditionalViews<
                 } else if (position == VIEW_POSITION_END) {
                     return VIEW_LOCATION_RIGHT;
                 } else {
-                    throw new RuntimeException("Can't support this anchor position");
+                    throw new RuntimeException("Can't support this anchor position " + position);
                 }
             } else {
                 return gravity;
@@ -390,7 +401,7 @@ public abstract class CardsLayoutWithAdditionalViews<
                 } else if (position == VIEW_POSITION_END) {
                     return VIEW_LOCATION_BOTTOM;
                 } else {
-                    throw new RuntimeException("Can't support this anchor position");
+                    throw new RuntimeException("Can't support this anchor position " + position);
                 }
             } else {
                 return gravity;
@@ -426,8 +437,8 @@ public abstract class CardsLayoutWithAdditionalViews<
     @Retention(RetentionPolicy.SOURCE)
     public @interface AnchorPosition {
         int VIEW_POSITION_START = 0;
-        int VIEW_POSITION_CENTER = 1;
         int VIEW_POSITION_END = 2;
+        int VIEW_POSITION_CENTER = 1;
     }
 
     private static class AnchorViewInfo {
@@ -443,19 +454,19 @@ public abstract class CardsLayoutWithAdditionalViews<
             this.cardsLayoutHeight = cardsLayoutHeight;
         }
 
-        public int getFirstPositionX() {
+        int getFirstPositionX() {
             return firstPositionX;
         }
 
-        public int getFirstPositionY() {
+        int getFirstPositionY() {
             return firstPositionY;
         }
 
-        public int getCardsLayoutWidth() {
+        int getCardsLayoutWidth() {
             return cardsLayoutWidth;
         }
 
-        public int getCardsLayoutHeight() {
+        int getCardsLayoutHeight() {
             return cardsLayoutHeight;
         }
     }
