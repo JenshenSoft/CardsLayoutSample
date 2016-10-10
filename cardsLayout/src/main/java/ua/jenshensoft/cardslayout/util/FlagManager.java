@@ -9,10 +9,10 @@ import static ua.jenshensoft.cardslayout.util.FlagManager.Gravity.BOTTOM;
 import static ua.jenshensoft.cardslayout.util.FlagManager.Gravity.CENTER;
 import static ua.jenshensoft.cardslayout.util.FlagManager.Gravity.CENTER_HORIZONTAL;
 import static ua.jenshensoft.cardslayout.util.FlagManager.Gravity.CENTER_VERTICAL;
-import static ua.jenshensoft.cardslayout.util.FlagManager.Gravity.EMPTY;
 import static ua.jenshensoft.cardslayout.util.FlagManager.Gravity.LEFT;
 import static ua.jenshensoft.cardslayout.util.FlagManager.Gravity.RIGHT;
 import static ua.jenshensoft.cardslayout.util.FlagManager.Gravity.TOP;
+import static ua.jenshensoft.cardslayout.views.CardsLayout.EMPTY;
 
 public class FlagManager {
 
@@ -41,16 +41,34 @@ public class FlagManager {
         return (flagSet | flag) == flagSet; // or flagSet&flag) == flag
     }
 
+    /**
+     * @param flag current flag
+     */
     @SuppressWarnings("WrongConstant")
     public void addFlag(@Gravity int flag) {
         flagSet = flagSet | flag;
     }
 
+    /**
+     * Example 1: 110^010 = 100 (Binary)
+     * 6 ^ 2  =  4  (Decimal)
+     * Example 2: 100^010 = 110 (Binary)
+     * 4 ^ 2  =  6  (Decimal)
+     *
+     * @param flag current flag
+     */
     @SuppressWarnings("WrongConstant")
     public void toggleFlag(@Gravity int flag) {
         flagSet = flagSet ^ flag;
     }
 
+    /**
+     * Example
+     * 110&amp;(~010) = 110&amp;101 = 100 (Binary)
+     * 6 &amp;(~ 2 ) =  6 &amp; 5  =  4  (Decimal)
+     *
+     * @param flag current flag
+     */
     @SuppressWarnings("WrongConstant")
     public void removeFlag(@Gravity int flag) {
         flagSet = flagSet & (~flag);
