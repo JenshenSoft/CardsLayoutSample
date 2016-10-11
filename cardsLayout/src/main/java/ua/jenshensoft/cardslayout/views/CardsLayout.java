@@ -45,9 +45,10 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
 
     //property
     private int childListOrientation;
+
     private int childListPaddingLeft;
     private int childListPaddingRight;
-    private int childLisPaddingTop;
+    private int childListPaddingTop;
     private int childListPaddingBottom;
     private int childList_height;
     private int childList_width;
@@ -55,7 +56,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
     private List<CardView<Entity>> cardViewList;
     private FlagManager gravityFlag;
 
-    //ua.jenshensoft.ua.jenshensoft.cardslayout.listeners
+    //listeners
     private OnCardSwipedListener<Entity> onCardSwipedListener;
     private OnCardPercentageChangeListener<Entity> onCardPercentageChangeListener;
     private OnCardTranslationListener<Entity> onCardTranslationListener;
@@ -113,18 +114,19 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
     public void onViewAdded(View child) {
         super.onViewAdded(child);
         if (child instanceof CardView) {
-            setUpCardView((CardView) child);
+            setUpCardView((CardView<Entity>) child);
         } else {
             ((ViewGroup) child.getParent()).removeView(child);
             addCardView(child);
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void onViewRemoved(View child) {
         super.onViewRemoved(child);
         if (child instanceof CardView) {
-            CardView cardView = (CardView) child;
+            CardView<Entity> cardView = (CardView<Entity>) child;
             cardView.setCardTranslationListener(null);
             cardView.setCardSwipedListener(null);
             cardView.setCardPercentageChangeListener(null, CardView.START_TO_CURRENT);
@@ -256,11 +258,11 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
     }
 
     public int getChildListPaddingTop() {
-        return childLisPaddingTop;
+        return childListPaddingTop;
     }
 
     public void setChildListPaddingTop(int childListPaddingTop) {
-        this.childLisPaddingTop = childListPaddingTop;
+        this.childListPaddingTop = childListPaddingTop;
     }
 
     @Override
@@ -540,7 +542,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
                 durationOfAnimation = attributes.getInt(R.styleable.CardsLayout_Params_cardsLayout_animationDuration, 500);
                 childListPaddingLeft = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_Params_cardsLayout_childList_paddingLeft, 0);
                 childListPaddingRight = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_Params_cardsLayout_childList_paddingRight, 0);
-                childLisPaddingTop = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_Params_cardsLayout_childList_paddingTop, 0);
+                childListPaddingTop = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_Params_cardsLayout_childList_paddingTop, 0);
                 childListPaddingBottom = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_Params_cardsLayout_childList_paddingBottom, 0);
                 childList_height = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_Params_cardsLayout_childList_height, EMPTY);
                 childList_width = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_Params_cardsLayout_childList_width, EMPTY);
@@ -653,7 +655,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
         public float startCoordinates;
         public float distanceBetweenViews;
 
-        public Config(float startCoordinates, float distanceBetweenViews) {
+        protected Config(float startCoordinates, float distanceBetweenViews) {
             this.startCoordinates = startCoordinates;
             this.distanceBetweenViews = distanceBetweenViews;
         }
