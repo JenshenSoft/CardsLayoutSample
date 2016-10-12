@@ -203,7 +203,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
     }
 
     
-    /* ua.jenshensoft.ua.jenshensoft.cardslayout.listeners */
+    /* listeners */
 
     public void setCardTranslationListener(OnCardTranslationListener<Entity> cardTranslationListener) {
         this.onCardTranslationListener = cardTranslationListener;

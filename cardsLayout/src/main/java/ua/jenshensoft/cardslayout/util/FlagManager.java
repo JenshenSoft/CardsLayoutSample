@@ -14,7 +14,7 @@ import static ua.jenshensoft.cardslayout.util.FlagManager.Gravity.RIGHT;
 import static ua.jenshensoft.cardslayout.util.FlagManager.Gravity.TOP;
 import static ua.jenshensoft.cardslayout.views.CardsLayout.EMPTY;
 
-public class FlagManager {
+public class FlagManager implements Cloneable {
 
     @Gravity
     private int flagSet;
@@ -72,6 +72,15 @@ public class FlagManager {
     @SuppressWarnings("WrongConstant")
     public void removeFlag(@Gravity int flag) {
         flagSet = flagSet & (~flag);
+    }
+
+    @Override
+    public FlagManager clone() {
+        try {
+            return (FlagManager) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException("Can't clone this object");
+        }
     }
 
     @IntDef({RIGHT, LEFT, TOP, BOTTOM, CENTER, CENTER_HORIZONTAL, CENTER_VERTICAL, EMPTY})

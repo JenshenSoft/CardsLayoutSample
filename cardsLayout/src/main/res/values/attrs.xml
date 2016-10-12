@@ -42,11 +42,14 @@
             <enum name="end" value="1" />
             <enum name="center" value="2" />
         </attr>
-        <attr name="cardsLayoutAV_userBar_anchorGravity" format="enum">
-            <enum name="left" value="0" />
-            <enum name="right" value="1" />
-            <enum name="top" value="2" />
-            <enum name="bottom" value="3" />
+        <attr name="cardsLayoutAV_userBar_anchorGravity" >
+            <flag name="right" value="1" />
+            <flag name="left" value="2" />
+            <flag name="top" value="4" />
+            <flag name="bottom" value="8" />
+            <flag name="center" value="16" />
+            <flag name="center_horizontal" value="32" />
+            <flag name="center_vertical" value="64" />
         </attr>
         <attr name="cardsLayoutAV_gameInfoBar_anchorPosition" format="enum">
             <enum name="start" value="0" />

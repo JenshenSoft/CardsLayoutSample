@@ -22,10 +22,6 @@ import ua.jenshensoft.cardslayout.R;
 import ua.jenshensoft.cardslayout.util.AwesomeAnimation;
 import ua.jenshensoft.cardslayout.util.FlagManager;
 
-import static ua.jenshensoft.cardslayout.views.CardsLayoutWithAdditionalViews.AnchorGravity.VIEW_LOCATION_BOTTOM;
-import static ua.jenshensoft.cardslayout.views.CardsLayoutWithAdditionalViews.AnchorGravity.VIEW_LOCATION_LEFT;
-import static ua.jenshensoft.cardslayout.views.CardsLayoutWithAdditionalViews.AnchorGravity.VIEW_LOCATION_RIGHT;
-import static ua.jenshensoft.cardslayout.views.CardsLayoutWithAdditionalViews.AnchorGravity.VIEW_LOCATION_TOP;
 import static ua.jenshensoft.cardslayout.views.CardsLayoutWithAdditionalViews.AnchorPosition.VIEW_POSITION_CENTER;
 import static ua.jenshensoft.cardslayout.views.CardsLayoutWithAdditionalViews.AnchorPosition.VIEW_POSITION_END;
 import static ua.jenshensoft.cardslayout.views.CardsLayoutWithAdditionalViews.AnchorPosition.VIEW_POSITION_START;
@@ -43,10 +39,8 @@ public abstract class CardsLayoutWithAdditionalViews<
     protected GameInfoView gameInfoView;
 
     //attr
-    @AnchorGravity
-    private int userBarAnchorGravity;
-    @AnchorGravity
-    private int gameInfoBarAnchorGravity;
+    private FlagManager userBarAnchorGravity;
+    private FlagManager gameInfoBarAnchorGravity;
     @AnchorPosition
     private int userBarAnchorPosition;
     @AnchorPosition
@@ -138,8 +132,8 @@ public abstract class CardsLayoutWithAdditionalViews<
         if (attrs != null) {
             TypedArray attributes = getContext().obtainStyledAttributes(attrs, R.styleable.CardsLayoutAV_Params);
             try {
-                userBarAnchorGravity = attributes.getInt(R.styleable.CardsLayoutAV_Params_cardsLayoutAV_userBar_anchorGravity, VIEW_LOCATION_LEFT);
-                gameInfoBarAnchorGravity = attributes.getInt(R.styleable.CardsLayoutAV_Params_cardsLayoutAV_gameInfoBar_anchorGravity, VIEW_LOCATION_RIGHT);
+                userBarAnchorGravity = new FlagManager(attributes.getInt(R.styleable.CardsLayoutAV_Params_cardsLayoutAV_userBar_anchorGravity, FlagManager.Gravity.CENTER));
+                gameInfoBarAnchorGravity = new FlagManager(attributes.getInt(R.styleable.CardsLayoutAV_Params_cardsLayoutAV_gameInfoBar_anchorGravity, FlagManager.Gravity.RIGHT | FlagManager.Gravity.CENTER_VERTICAL));
                 userBarAnchorPosition = attributes.getInt(R.styleable.CardsLayoutAV_Params_cardsLayoutAV_userBar_anchorPosition, VIEW_POSITION_START);
                 gameInfoBarAnchorPosition = attributes.getInt(R.styleable.CardsLayoutAV_Params_cardsLayoutAV_gameInfoBar_anchorPosition, VIEW_POSITION_END);
                 distributeBarsByWidth = attributes.getBoolean(R.styleable.CardsLayoutAV_Params_cardsLayoutAV_distributeBars_byWidth, false);
@@ -182,26 +176,26 @@ public abstract class CardsLayoutWithAdditionalViews<
             return;
         }
 
-        int userBarAnchorGravity = this.userBarAnchorGravity;
-        int gameInfoBarAnchorGravity = this.gameInfoBarAnchorGravity;
+        FlagManager userBarAnchorGravity = this.userBarAnchorGravity;
+        FlagManager gameInfoBarAnchorGravity = this.gameInfoBarAnchorGravity;
 
         if (distributeBarsByWidth) {
-            userBarAnchorGravity = validateAnchorGravityByWidthDistribution(userBarAnchorGravity, userBarAnchorPosition);
-            gameInfoBarAnchorGravity = validateAnchorGravityByWidthDistribution(gameInfoBarAnchorGravity, gameInfoBarAnchorPosition);
+            userBarAnchorGravity = validateAnchorGravityByWidthDistribution(userBarAnchorPosition);
+            gameInfoBarAnchorGravity = validateAnchorGravityByWidthDistribution(gameInfoBarAnchorPosition);
         }
 
         if (distributeBarsByHeight) {
-            userBarAnchorGravity = validateAnchorGravityByHeightDistribution(userBarAnchorGravity, userBarAnchorPosition);
-            gameInfoBarAnchorGravity = validateAnchorGravityByHeightDistribution(gameInfoBarAnchorGravity, gameInfoBarAnchorPosition);
+            userBarAnchorGravity = validateAnchorGravityByHeightDistribution(userBarAnchorPosition);
+            gameInfoBarAnchorGravity = validateAnchorGravityByHeightDistribution(gameInfoBarAnchorPosition);
         }
 
         if (userBarView != null) {
-            final int[] coordinatesForUserInfo = getBarCoordinates(userBarView, getAnchorViewInfo(userBarAnchorPosition), userBarAnchorGravity);
+            final int[] coordinatesForUserInfo = getBarCoordinates(userBarAnchorGravity, getAnchorViewInfo(userBarAnchorPosition), userBarView);
             moveUserBarToPosition(coordinatesForUserInfo, withAnimation);
         }
 
         if (gameInfoView != null) {
-            int[] coordinatesForGameInfoBar = getBarCoordinates(gameInfoView, getAnchorViewInfo(gameInfoBarAnchorPosition), gameInfoBarAnchorGravity);
+            int[] coordinatesForGameInfoBar = getBarCoordinates(gameInfoBarAnchorGravity, getAnchorViewInfo(gameInfoBarAnchorPosition), gameInfoView);
             moveGameInfoBarToPosition(coordinatesForGameInfoBar, withAnimation);
         }
     }
@@ -301,32 +295,40 @@ public abstract class CardsLayoutWithAdditionalViews<
         setChildListPaddingRight(childListPaddingRight);
     }
 
-    private int[] getBarCoordinates(View view, AnchorViewInfo anchorViewInfo, @AnchorGravity int viewLocation) {
-        int viewHeight = view.getMeasuredHeight();
-        int viewWidth = view.getMeasuredWidth();
-        int x;
-        int y;
-        switch (viewLocation) {
-            case VIEW_LOCATION_LEFT:
-                x = anchorViewInfo.getFirstPositionX() - viewWidth - barsMargin;
-                y = anchorViewInfo.getFirstPositionY();
-                break;
-            case VIEW_LOCATION_RIGHT:
-                x = anchorViewInfo.getFirstPositionX() + anchorViewInfo.getCardsLayoutWidth() + barsMargin;
-                y = anchorViewInfo.getFirstPositionY();
-                break;
-            case VIEW_LOCATION_TOP:
-                x = anchorViewInfo.getFirstPositionX();
-                y = anchorViewInfo.getFirstPositionY() - viewHeight - barsMargin;
-                break;
-            case VIEW_LOCATION_BOTTOM:
-                x = anchorViewInfo.getFirstPositionX();
-                y = anchorViewInfo.getFirstPositionY() + anchorViewInfo.getCardsLayoutHeight() + barsMargin;
-                break;
-            default:
-                throw new RuntimeException("Unsupported location");
-        }
+    private int [] getBarCoordinates(FlagManager flagManager, AnchorViewInfo anchorViewInfo,View view) {
+        int x = getXPositionForBar(flagManager , anchorViewInfo, view);
+        int y= getYPositionForBar(flagManager , anchorViewInfo, view);
         return new int[]{x, y};
+    }
+
+    protected int getXPositionForBar(FlagManager gravityFlag, AnchorViewInfo anchorViewInfo, View barView) {
+        int firstPositionX = anchorViewInfo.getFirstPositionX();
+        int cardsLayoutWidth = anchorViewInfo.getCardsLayoutWidth();
+        if (gravityFlag.containsFlag(FlagManager.Gravity.LEFT)) {
+            return firstPositionX - cardsLayoutWidth - barsMargin;
+        } else if (gravityFlag.containsFlag(FlagManager.Gravity.RIGHT)) {
+            return firstPositionX + cardsLayoutWidth + barsMargin;
+        } else if (gravityFlag.containsFlag(FlagManager.Gravity.CENTER_HORIZONTAL)
+                || gravityFlag.containsFlag(FlagManager.Gravity.CENTER)) {
+            return firstPositionX + cardsLayoutWidth /2 - barView.getMeasuredWidth() /2 ;
+        } else {
+            return firstPositionX;
+        }
+    }
+
+    protected int getYPositionForBar(FlagManager gravityFlag, AnchorViewInfo anchorViewInfo, View barView) {
+        int firstPositionY = anchorViewInfo.getFirstPositionY();
+        int cardsLayoutHeight = anchorViewInfo.getCardsLayoutHeight();
+        if (gravityFlag.containsFlag(FlagManager.Gravity.TOP)) {
+            return firstPositionY - cardsLayoutHeight - barsMargin;
+        } else if (gravityFlag.containsFlag(FlagManager.Gravity.BOTTOM)) {
+            return firstPositionY + cardsLayoutHeight + barsMargin;
+        } else if (gravityFlag.containsFlag(FlagManager.Gravity.CENTER_VERTICAL)
+                || gravityFlag.containsFlag(FlagManager.Gravity.CENTER)) {
+            return firstPositionY + cardsLayoutHeight /2 - barView.getMeasuredHeight() /2 ;
+        } else {
+            return firstPositionY;
+        }
     }
 
     @CheckResult
@@ -361,77 +363,60 @@ public abstract class CardsLayoutWithAdditionalViews<
         return difference >= additionalViewsHeight;
     }
 
-    @SuppressWarnings("SuspiciousNameCombination")
-    @AnchorGravity
-    private int validateAnchorGravityByWidthDistribution(@AnchorGravity int gravity, @AnchorPosition int position) {
+    private FlagManager validateAnchorGravityByWidthDistribution(@AnchorPosition int position) {
+        FlagManager flagManager = new FlagManager();
         if (canDistributeByWidth()) {
-            if (gravity == VIEW_LOCATION_TOP || gravity == VIEW_LOCATION_BOTTOM) {
-                if (position == VIEW_POSITION_START) {
-                    return VIEW_LOCATION_LEFT;
-                } else if (position == VIEW_POSITION_END) {
-                    return VIEW_LOCATION_RIGHT;
-                } else {
-                    throw new RuntimeException("Can't support this anchor position " + position);
-                }
+            if (position == VIEW_POSITION_START) {
+                flagManager.addFlag(FlagManager.Gravity.LEFT);
+                flagManager.addFlag(FlagManager.Gravity.CENTER_VERTICAL);
+            } else if (position == VIEW_POSITION_END) {
+                flagManager.addFlag(FlagManager.Gravity.RIGHT);
+                flagManager.addFlag(FlagManager.Gravity.CENTER_VERTICAL);
             } else {
-                return gravity;
+                throw new RuntimeException("Can't support this anchor position " + position);
             }
         } else {
-            if (gravity == VIEW_LOCATION_LEFT || gravity == VIEW_LOCATION_RIGHT) {
-                if (getGravityFlag().containsFlag(FlagManager.Gravity.BOTTOM)) {
-                    return VIEW_LOCATION_TOP;
-                } else if (getGravityFlag().containsFlag(FlagManager.Gravity.TOP)) {
-                    return VIEW_LOCATION_BOTTOM;
-                } else {
-                    throw new RuntimeException("DistributeByWidth attr support only TOP or BOTTOM cardsLayout gravity attr");
-                }
+            if (getGravityFlag().containsFlag(FlagManager.Gravity.BOTTOM)) {
+                flagManager.addFlag(FlagManager.Gravity.TOP);
+                flagManager.addFlag(FlagManager.Gravity.CENTER_HORIZONTAL);
+            } else if (getGravityFlag().containsFlag(FlagManager.Gravity.TOP)) {
+                flagManager.addFlag(FlagManager.Gravity.BOTTOM);
+                flagManager.addFlag(FlagManager.Gravity.CENTER_HORIZONTAL);
             } else {
-                return gravity;
+                throw new RuntimeException("DistributeByWidth attr support only TOP or BOTTOM cardsLayout gravity attr");
             }
         }
+        return flagManager;
     }
 
-    @SuppressWarnings("SuspiciousNameCombination")
-    @AnchorGravity
-    private int validateAnchorGravityByHeightDistribution(@AnchorGravity int gravity, @AnchorPosition int position) {
+    private FlagManager validateAnchorGravityByHeightDistribution(@AnchorPosition int position) {
+        FlagManager flagManager = new FlagManager();
         if (canDistributeByHeight()) {
-            if (gravity == VIEW_LOCATION_LEFT || gravity == VIEW_LOCATION_RIGHT) {
-                if (position == VIEW_POSITION_START) {
-                    return VIEW_LOCATION_TOP;
-                } else if (position == VIEW_POSITION_END) {
-                    return VIEW_LOCATION_BOTTOM;
-                } else {
-                    throw new RuntimeException("Can't support this anchor position " + position);
-                }
+            if (position == VIEW_POSITION_START) {
+                flagManager.addFlag(FlagManager.Gravity.TOP);
+                flagManager.addFlag(FlagManager.Gravity.CENTER_HORIZONTAL);
+            } else if (position == VIEW_POSITION_END) {
+                flagManager.addFlag(FlagManager.Gravity.BOTTOM);
+                flagManager.addFlag(FlagManager.Gravity.CENTER_HORIZONTAL);
             } else {
-                return gravity;
+                throw new RuntimeException("Can't support this anchor position " + position);
             }
         } else {
-            if (gravity == VIEW_LOCATION_TOP || gravity == VIEW_LOCATION_BOTTOM) {
-                if (getGravityFlag().containsFlag(FlagManager.Gravity.LEFT)) {
-                    return VIEW_LOCATION_RIGHT;
-                } else if (getGravityFlag().containsFlag(FlagManager.Gravity.RIGHT)) {
-                    return VIEW_LOCATION_LEFT;
-                } else {
-                    throw new RuntimeException("DistributeByHeight attr support only LEFT or RIGHT cardsLayout gravity attr");
-                }
+            if (getGravityFlag().containsFlag(FlagManager.Gravity.LEFT)) {
+                flagManager.addFlag(FlagManager.Gravity.RIGHT);
+                flagManager.addFlag(FlagManager.Gravity.CENTER_VERTICAL);
+            } else if (getGravityFlag().containsFlag(FlagManager.Gravity.RIGHT)) {
+                flagManager.addFlag(FlagManager.Gravity.LEFT);
+                flagManager.addFlag(FlagManager.Gravity.CENTER_VERTICAL);
             } else {
-                return gravity;
+                throw new RuntimeException("DistributeByHeight attr support only LEFT or RIGHT cardsLayout gravity attr");
             }
         }
+        return flagManager;
     }
 
 
     /* inner types */
-
-    @IntDef({VIEW_LOCATION_LEFT, VIEW_LOCATION_RIGHT, VIEW_LOCATION_TOP, VIEW_LOCATION_BOTTOM})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface AnchorGravity {
-        int VIEW_LOCATION_LEFT = 0;
-        int VIEW_LOCATION_RIGHT = 1;
-        int VIEW_LOCATION_TOP = 2;
-        int VIEW_LOCATION_BOTTOM = 3;
-    }
 
     @IntDef({VIEW_POSITION_START, VIEW_POSITION_END})
     @Retention(RetentionPolicy.SOURCE)
