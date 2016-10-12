@@ -132,7 +132,7 @@ public abstract class CardsLayoutWithAdditionalViews<
         if (attrs != null) {
             TypedArray attributes = getContext().obtainStyledAttributes(attrs, R.styleable.CardsLayoutAV_Params);
             try {
-                userBarAnchorGravity = new FlagManager(attributes.getInt(R.styleable.CardsLayoutAV_Params_cardsLayoutAV_userBar_anchorGravity, FlagManager.Gravity.CENTER));
+                userBarAnchorGravity = new FlagManager(attributes.getInt(R.styleable.CardsLayoutAV_Params_cardsLayoutAV_userBar_anchorGravity, FlagManager.Gravity.LEFT | FlagManager.Gravity.CENTER_VERTICAL));
                 gameInfoBarAnchorGravity = new FlagManager(attributes.getInt(R.styleable.CardsLayoutAV_Params_cardsLayoutAV_gameInfoBar_anchorGravity, FlagManager.Gravity.RIGHT | FlagManager.Gravity.CENTER_VERTICAL));
                 userBarAnchorPosition = attributes.getInt(R.styleable.CardsLayoutAV_Params_cardsLayoutAV_userBar_anchorPosition, VIEW_POSITION_START);
                 gameInfoBarAnchorPosition = attributes.getInt(R.styleable.CardsLayoutAV_Params_cardsLayoutAV_gameInfoBar_anchorPosition, VIEW_POSITION_END);
