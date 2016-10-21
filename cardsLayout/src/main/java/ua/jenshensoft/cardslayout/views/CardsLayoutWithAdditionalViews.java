@@ -18,7 +18,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 
-import ua.jenshensoft.cardslayout.R;
 import ua.jenshensoft.cardslayout.util.AwesomeAnimation;
 import ua.jenshensoft.cardslayout.util.FlagManager;
 
@@ -74,6 +73,7 @@ public abstract class CardsLayoutWithAdditionalViews<
         }
     }
 
+    @SuppressWarnings("unused")
     public CardsLayoutWithAdditionalViews(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         if (!isInEditMode()) {
@@ -124,33 +124,48 @@ public abstract class CardsLayoutWithAdditionalViews<
         moveViewToPosition(gameInfoView, coordinatesForGameInfoBar, withAnimation);
     }
 
+    protected void moveViewToPosition(View view, int[] coordinates, boolean isAnimated) {
+        if (isAnimated) {
+            AwesomeAnimation.Builder awesomeAnimation = new AwesomeAnimation.Builder(view)
+                    .setX(AwesomeAnimation.CoordinationMode.COORDINATES, view.getX(), coordinates[0])
+                    .setY(AwesomeAnimation.CoordinationMode.COORDINATES, view.getY(), coordinates[1])
+                    .setDuration(getDurationOfAnimation());
+            if (interpolator != null)
+                awesomeAnimation.setInterpolator(interpolator);
+            awesomeAnimation.build().start();
+        } else {
+            view.setX(coordinates[0]);
+            view.setY(coordinates[1]);
+        }
+    }
+
 
     /* private methods */
 
     @SuppressWarnings({"unchecked", "WrongConstant"})
     private void inflateAttributesWithAdditional(AttributeSet attrs) {
         if (attrs != null) {
-            TypedArray attributes = getContext().obtainStyledAttributes(attrs, R.styleable.CardsLayoutAV_Params);
+            TypedArray attributes = getContext().obtainStyledAttributes(attrs, ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params);
             try {
-                userBarAnchorGravity = new FlagManager(attributes.getInt(R.styleable.CardsLayoutAV_Params_cardsLayoutAV_userBar_anchorGravity, FlagManager.Gravity.LEFT | FlagManager.Gravity.CENTER_VERTICAL));
-                gameInfoBarAnchorGravity = new FlagManager(attributes.getInt(R.styleable.CardsLayoutAV_Params_cardsLayoutAV_gameInfoBar_anchorGravity, FlagManager.Gravity.RIGHT | FlagManager.Gravity.CENTER_VERTICAL));
-                userBarAnchorPosition = attributes.getInt(R.styleable.CardsLayoutAV_Params_cardsLayoutAV_userBar_anchorPosition, VIEW_POSITION_START);
-                gameInfoBarAnchorPosition = attributes.getInt(R.styleable.CardsLayoutAV_Params_cardsLayoutAV_gameInfoBar_anchorPosition, VIEW_POSITION_END);
-                distributeBarsByWidth = attributes.getBoolean(R.styleable.CardsLayoutAV_Params_cardsLayoutAV_distributeBars_byWidth, false);
-                distributeBarsByHeight = attributes.getBoolean(R.styleable.CardsLayoutAV_Params_cardsLayoutAV_distributeBars_byHeight, false);
-                barsMargin = attributes.getDimensionPixelOffset(R.styleable.CardsLayoutAV_Params_cardsLayoutAV_barsMargin, 0);
+                userBarAnchorGravity = new FlagManager(attributes.getInt(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params_cardsLayoutAV_userBar_anchorGravity, FlagManager.Gravity.LEFT | FlagManager.Gravity.CENTER_VERTICAL));
+                gameInfoBarAnchorGravity = new FlagManager(attributes.getInt(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params_cardsLayoutAV_gameInfoBar_anchorGravity, FlagManager.Gravity.RIGHT | FlagManager.Gravity.CENTER_VERTICAL));
+                userBarAnchorPosition = attributes.getInt(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params_cardsLayoutAV_userBar_anchorPosition, VIEW_POSITION_START);
+                gameInfoBarAnchorPosition = attributes.getInt(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params_cardsLayoutAV_gameInfoBar_anchorPosition, VIEW_POSITION_END);
+                distributeBarsByWidth = attributes.getBoolean(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params_cardsLayoutAV_distributeBars_byWidth, false);
+                distributeBarsByHeight = attributes.getBoolean(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params_cardsLayoutAV_distributeBars_byHeight, false);
+                barsMargin = attributes.getDimensionPixelOffset(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params_cardsLayoutAV_barsMargin, 0);
                 try {
-                    String userBarClassName = attributes.getString(R.styleable.CardsLayoutAV_Params_cardsLayoutAV_userBarViewClass);
+                    String userBarClassName = attributes.getString(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params_cardsLayoutAV_userBarViewClass);
                     if (userBarClassName != null) {
                         this.userBarClassName = (Class<UserBarView>) Class.forName(userBarClassName);
                     }
-                    String gamInfoBarClassName = attributes.getString(R.styleable.CardsLayoutAV_Params_cardsLayoutAV_gameInfoBarViewClass);
+                    String gamInfoBarClassName = attributes.getString(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params_cardsLayoutAV_gameInfoBarViewClass);
                     if (gamInfoBarClassName != null) {
                         this.gameInfoClassName = (Class<GameInfoView>) Class.forName(gamInfoBarClassName);
                     }
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
-                    Log.e(getContext().getString(R.string.cardsLayout_app_name), "You need to set your class name in layout attr!");
+                    Log.e(getContext().getString(ua.jenshensoft.cardslayout.R.string.cardsLayout_app_name), "You need to set your class name in layout attr!");
                 }
 
                 if (distributeBarsByHeight && distributeBarsByWidth) {
@@ -212,55 +227,44 @@ public abstract class CardsLayoutWithAdditionalViews<
         int firstPositionY;
         int cardsLayoutWidth;
         int cardsLayoutHeight;
-
+        final CardView<Entity> cardView;
         switch (position) {
             case VIEW_POSITION_START:
-                final CardView<Entity> cardViewStart = visibleCardViews.iterator().next();
-                firstPositionX = cardViewStart.getCardInfo().getFirstPositionX();
-                firstPositionY = cardViewStart.getCardInfo().getFirstPositionY();
-                cardsLayoutWidth = cardViewStart.getMeasuredHeight();
-                cardsLayoutHeight = cardViewStart.getMeasuredHeight();
+                cardView = visibleCardViews.iterator().next();
+                firstPositionX = cardView.getCardInfo().getFirstPositionX();
+                firstPositionY = cardView.getCardInfo().getFirstPositionY();
+                cardsLayoutWidth = cardView.getMeasuredHeight();
+                cardsLayoutHeight = cardView.getMeasuredHeight();
                 break;
             case VIEW_POSITION_END:
-                final CardView<Entity> cardViewEnd = visibleCardViews.get(visibleCardViews.size() - 1);
-                firstPositionX = cardViewEnd.getCardInfo().getFirstPositionX();
-                firstPositionY = cardViewEnd.getCardInfo().getFirstPositionY();
-                cardsLayoutWidth = cardViewEnd.getMeasuredHeight();
-                cardsLayoutHeight = cardViewEnd.getMeasuredHeight();
+                cardView = visibleCardViews.get(visibleCardViews.size() - 1);
+                firstPositionX = cardView.getCardInfo().getFirstPositionX();
+                firstPositionY = cardView.getCardInfo().getFirstPositionY();
+                cardsLayoutWidth = cardView.getMeasuredHeight();
+                cardsLayoutHeight = cardView.getMeasuredHeight();
                 break;
             case VIEW_POSITION_CENTER:
-                if (cardViews.size() % 2 == 0) {
-                    final CardView<Entity> middleLeftCardView = cardViews.get(cardViews.size() / 2 - 1);
-                    final CardView<Entity> middleRightCardView = cardViews.get(cardViews.size() / 2);
-                    firstPositionX = Math.round((middleLeftCardView.getCardInfo().getFirstPositionX() + middleRightCardView.getCardInfo().getFirstPositionX()) / 2f);
-                    firstPositionY = Math.round((middleLeftCardView.getCardInfo().getFirstPositionY() + middleRightCardView.getCardInfo().getFirstPositionY()) / 2f);
+                if (visibleCardViews.size() == 1) {
+                    cardView = visibleCardViews.iterator().next();
+                    firstPositionX = cardView.getCardInfo().getFirstPositionX();
+                    firstPositionY = cardView.getCardInfo().getFirstPositionY();
+                } else if (visibleCardViews.size() % 2 == 0) {
+                    cardView = visibleCardViews.get(visibleCardViews.size() / 2 - 1);
+                    final CardView<Entity> middleRightCardView = visibleCardViews.get(visibleCardViews.size() / 2);
+                    firstPositionX = Math.round((cardView.getCardInfo().getFirstPositionX() + middleRightCardView.getCardInfo().getFirstPositionX()) / 2f);
+                    firstPositionY = Math.round((cardView.getCardInfo().getFirstPositionY() + middleRightCardView.getCardInfo().getFirstPositionY()) / 2f);
                 } else {
-                    final CardView<Entity> middleCardView = cardViews.get(cardViews.size() / 2 + 1);
-                    firstPositionX = middleCardView.getCardInfo().getFirstPositionX();
-                    firstPositionY = middleCardView.getCardInfo().getFirstPositionY();
+                    cardView = visibleCardViews.get(visibleCardViews.size() / 2);
+                    firstPositionX = cardView.getCardInfo().getFirstPositionX();
+                    firstPositionY = cardView.getCardInfo().getFirstPositionY();
                 }
-                cardsLayoutWidth = (int) getChildWidth(cardViews);
-                cardsLayoutHeight = (int) getChildHeight(cardViews);
+                cardsLayoutWidth = (int) getChildWidth(visibleCardViews);
+                cardsLayoutHeight = (int) getChildHeight(visibleCardViews);
                 break;
             default:
                 throw new RuntimeException("Unsupported position");
         }
         return new AnchorViewInfo(firstPositionX, firstPositionY, cardsLayoutWidth, cardsLayoutHeight);
-    }
-
-    private void moveViewToPosition(View view, int[] coordinates, boolean isAnimated) {
-        if (isAnimated) {
-            AwesomeAnimation.Builder awesomeAnimation = new AwesomeAnimation.Builder(view)
-                    .setX(AwesomeAnimation.CoordinationMode.COORDINATES, view.getX(), coordinates[0])
-                    .setY(AwesomeAnimation.CoordinationMode.COORDINATES, view.getY(), coordinates[1])
-                    .setDuration(getDurationOfAnimation());
-            if (interpolator != null)
-                awesomeAnimation.setInterpolator(interpolator);
-            awesomeAnimation.build().start();
-        } else {
-            view.setX(coordinates[0]);
-            view.setY(coordinates[1]);
-        }
     }
 
     /**
@@ -295,9 +299,9 @@ public abstract class CardsLayoutWithAdditionalViews<
         setChildListPaddingRight(childListPaddingRight);
     }
 
-    private int [] getBarCoordinates(FlagManager flagManager, AnchorViewInfo anchorViewInfo,View view) {
-        int x = getXPositionForBar(flagManager , anchorViewInfo, view);
-        int y= getYPositionForBar(flagManager , anchorViewInfo, view);
+    private int[] getBarCoordinates(FlagManager flagManager, AnchorViewInfo anchorViewInfo, View view) {
+        int x = getXPositionForBar(flagManager, anchorViewInfo, view);
+        int y = getYPositionForBar(flagManager, anchorViewInfo, view);
         return new int[]{x, y};
     }
 
@@ -305,12 +309,12 @@ public abstract class CardsLayoutWithAdditionalViews<
         int firstPositionX = anchorViewInfo.getFirstPositionX();
         int cardsLayoutWidth = anchorViewInfo.getCardsLayoutWidth();
         if (gravityFlag.containsFlag(FlagManager.Gravity.LEFT)) {
-            return firstPositionX - cardsLayoutWidth - barsMargin;
+            return firstPositionX - barView.getMeasuredWidth() - barsMargin;
         } else if (gravityFlag.containsFlag(FlagManager.Gravity.RIGHT)) {
             return firstPositionX + cardsLayoutWidth + barsMargin;
         } else if (gravityFlag.containsFlag(FlagManager.Gravity.CENTER_HORIZONTAL)
                 || gravityFlag.containsFlag(FlagManager.Gravity.CENTER)) {
-            return firstPositionX + cardsLayoutWidth /2 - barView.getMeasuredWidth() /2 ;
+            return firstPositionX + cardsLayoutWidth / 2 - barView.getMeasuredWidth() / 2;
         } else {
             return firstPositionX;
         }
@@ -320,12 +324,12 @@ public abstract class CardsLayoutWithAdditionalViews<
         int firstPositionY = anchorViewInfo.getFirstPositionY();
         int cardsLayoutHeight = anchorViewInfo.getCardsLayoutHeight();
         if (gravityFlag.containsFlag(FlagManager.Gravity.TOP)) {
-            return firstPositionY - cardsLayoutHeight - barsMargin;
+            return firstPositionY - barView.getMeasuredHeight() - barsMargin;
         } else if (gravityFlag.containsFlag(FlagManager.Gravity.BOTTOM)) {
             return firstPositionY + cardsLayoutHeight + barsMargin;
         } else if (gravityFlag.containsFlag(FlagManager.Gravity.CENTER_VERTICAL)
                 || gravityFlag.containsFlag(FlagManager.Gravity.CENTER)) {
-            return firstPositionY + cardsLayoutHeight /2 - barView.getMeasuredHeight() /2 ;
+            return firstPositionY + cardsLayoutHeight / 2 - barView.getMeasuredHeight() / 2;
         } else {
             return firstPositionY;
         }
@@ -418,7 +422,7 @@ public abstract class CardsLayoutWithAdditionalViews<
 
     /* inner types */
 
-    @IntDef({VIEW_POSITION_START, VIEW_POSITION_END})
+    @IntDef({VIEW_POSITION_START, VIEW_POSITION_END, VIEW_POSITION_CENTER})
     @Retention(RetentionPolicy.SOURCE)
     public @interface AnchorPosition {
         int VIEW_POSITION_START = 0;

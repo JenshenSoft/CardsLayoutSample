@@ -33,6 +33,7 @@
         <attr name="cardsLayout_childList_paddingBottom" format="dimension" />
         <attr name="cardsLayout_childList_height" format="dimension" />
         <attr name="cardsLayout_childList_width" format="dimension" />
+        <attr name="cardsLayout_childList_radius" format="dimension" />
 
     </declare-styleable>
 

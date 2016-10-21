@@ -9,10 +9,10 @@ import static ua.jenshensoft.cardslayout.util.FlagManager.Gravity.BOTTOM;
 import static ua.jenshensoft.cardslayout.util.FlagManager.Gravity.CENTER;
 import static ua.jenshensoft.cardslayout.util.FlagManager.Gravity.CENTER_HORIZONTAL;
 import static ua.jenshensoft.cardslayout.util.FlagManager.Gravity.CENTER_VERTICAL;
+import static ua.jenshensoft.cardslayout.util.FlagManager.Gravity.EMPTY;
 import static ua.jenshensoft.cardslayout.util.FlagManager.Gravity.LEFT;
 import static ua.jenshensoft.cardslayout.util.FlagManager.Gravity.RIGHT;
 import static ua.jenshensoft.cardslayout.util.FlagManager.Gravity.TOP;
-import static ua.jenshensoft.cardslayout.views.CardsLayout.EMPTY;
 
 public class FlagManager implements Cloneable {
 

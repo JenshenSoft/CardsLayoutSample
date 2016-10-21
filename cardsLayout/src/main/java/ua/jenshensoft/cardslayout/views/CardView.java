@@ -10,7 +10,6 @@ import android.view.MotionEvent;
 import android.widget.FrameLayout;
 
 import ua.jenshensoft.cardslayout.CardInfo;
-import ua.jenshensoft.cardslayout.R;
 import ua.jenshensoft.cardslayout.listeners.OnCardPercentageChangeListener;
 import ua.jenshensoft.cardslayout.listeners.OnCardSwipedListener;
 import ua.jenshensoft.cardslayout.listeners.OnCardTranslationListener;
@@ -143,12 +142,12 @@ public class CardView<Entity> extends FrameLayout {
         float swipeOffset = -1;
 
         if (attributeSet != null) {
-            TypedArray attributes = context.obtainStyledAttributes(attributeSet, R.styleable.SwipeableLayout);
+            TypedArray attributes = context.obtainStyledAttributes(attributeSet, ua.jenshensoft.cardslayout.R.styleable.SwipeableLayout);
             try {
-                swipeSpeed = attributes.getFloat(R.styleable.SwipeableLayout_card_speed, swipeSpeed);
-                swipeOrientationMode = attributes.getInt(R.styleable.SwipeableLayout_card_swipeOrientation, swipeOrientationMode);
-                swipeOffset = attributes.getFloat(R.styleable.SwipeableLayout_card_swipeOffset, swipeOffset);
-                scrollAndClickable = attributes.getBoolean(R.styleable.SwipeableLayout_card_scrollAndClickable, scrollAndClickable);
+                swipeSpeed = attributes.getFloat(ua.jenshensoft.cardslayout.R.styleable.SwipeableLayout_card_speed, swipeSpeed);
+                swipeOrientationMode = attributes.getInt(ua.jenshensoft.cardslayout.R.styleable.SwipeableLayout_card_swipeOrientation, swipeOrientationMode);
+                swipeOffset = attributes.getFloat(ua.jenshensoft.cardslayout.R.styleable.SwipeableLayout_card_swipeOffset, swipeOffset);
+                scrollAndClickable = attributes.getBoolean(ua.jenshensoft.cardslayout.R.styleable.SwipeableLayout_card_scrollAndClickable, scrollAndClickable);
             } finally {
                 attributes.recycle();
             }

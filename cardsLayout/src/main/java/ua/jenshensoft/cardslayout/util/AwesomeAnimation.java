@@ -1,10 +1,12 @@
 package ua.jenshensoft.cardslayout.util;
 
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.animation.TypeEvaluator;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringDef;
 import android.util.Property;
 import android.view.View;
@@ -19,7 +21,6 @@ import static ua.jenshensoft.cardslayout.util.AwesomeAnimation.CoordinationMode.
 import static ua.jenshensoft.cardslayout.util.AwesomeAnimation.CoordinationMode.TRANSITION;
 import static ua.jenshensoft.cardslayout.util.AwesomeAnimation.SizeMode.SCALE;
 import static ua.jenshensoft.cardslayout.util.AwesomeAnimation.SizeMode.SIZE;
-
 
 public class AwesomeAnimation {
 
@@ -51,14 +52,10 @@ public class AwesomeAnimation {
                     return (float) object.getLayoutParams().height;
                 }
             };
-    private AnimationParams x;
-    private AnimationParams y;
-    private AnimationParams sizeX;
-    private AnimationParams sizeY;
-    private float[] rotation;
-    private float[] alpha;
     private View view;
+    @NonNull
     private List<AnimationParams> objectAnimations;
+    @Nullable
     private List<Animator> animators;
     //animation params
     private Interpolator interpolator;
@@ -69,12 +66,6 @@ public class AwesomeAnimation {
         view = builder.view;
         objectAnimations = builder.objectAnimations;
         animators = builder.animators;
-        x = builder.x;
-        y = builder.y;
-        sizeX = builder.sizeX;
-        sizeY = builder.sizeY;
-        rotation = builder.rotation;
-        alpha = builder.alpha;
         interpolator = builder.interpolator;
         duration = builder.duration;
         animatorSet = createAnimationSet();
@@ -92,31 +83,7 @@ public class AwesomeAnimation {
         List<Animator> animators = new ArrayList<>();
         view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
 
-        if (x != null && x.params != null) {
-            animators.add(createAnimation(view, x));
-        }
-
-        if (y != null && y.params != null) {
-            animators.add(createAnimation(view, y));
-        }
-
-        if (sizeX != null && sizeX.params != null) {
-            animators.add(createAnimation(view, sizeX));
-        }
-
-        if (sizeY != null && sizeY.params != null) {
-            animators.add(createAnimation(view, sizeY));
-        }
-
-        if (rotation != null) {
-            animators.add(ObjectAnimator.ofFloat(view, "rotation", rotation));
-        }
-
-        if (alpha != null) {
-            animators.add(ObjectAnimator.ofFloat(view, "alpha", alpha));
-        }
-
-        if (objectAnimations != null)
+        if (!objectAnimations.isEmpty())
             for (AnimationParams customAnimation : objectAnimations) {
                 animators.add(createAnimation(view, customAnimation));
             }
@@ -148,11 +115,30 @@ public class AwesomeAnimation {
     }
 
     private ObjectAnimator createAnimation(View view, AnimationParams params) {
+        ObjectAnimator animator = null;
         if (params.attr != null) {
-            return ObjectAnimator.ofFloat(view, params.attr, params.params);
+            if (params.paramsFloat != null) {
+                animator = ObjectAnimator.ofFloat(view, params.attr, params.paramsFloat);
+            } else if (params.paramsInt != null) {
+                animator = ObjectAnimator.ofInt(view, params.attr, params.paramsInt);
+            }
         } else {
-            return ObjectAnimator.ofFloat(view, params.property, params.params);
+            if (params.paramsFloat != null && params.propertyFloat != null) {
+                animator = ObjectAnimator.ofFloat(view, params.propertyFloat, params.paramsFloat);
+            } else if (params.paramsInt != null && params.propertyInt != null) {
+                animator = ObjectAnimator.ofInt(view, params.propertyInt, params.paramsInt);
+            }
         }
+        if (animator == null) {
+            throw new RuntimeException("Can't support this animation params");
+        }
+        if (params.evaluator != null) {
+            animator.setEvaluator(params.evaluator);
+        }
+        if (params.interpolator != null) {
+            animator.setInterpolator(params.interpolator);
+        }
+        return animator;
     }
 
     @StringDef({SCALE, SIZE})
@@ -171,29 +157,28 @@ public class AwesomeAnimation {
 
     public static class Builder {
 
+        @NonNull
         private View view;
+        @NonNull
         private List<AnimationParams> objectAnimations;
+        @Nullable
         private List<Animator> animators;
-        private AnimationParams x;
-        private AnimationParams y;
-        private AnimationParams sizeX;
-        private AnimationParams sizeY;
-        private float[] rotation;
-        private float[] alpha;
+        @Nullable
         private Interpolator interpolator;
         private int duration = 1000;
 
-        public Builder(View view) {
+        public Builder(@NonNull View view) {
             this.view = view;
+            objectAnimations = new ArrayList<>();
         }
 
         public Builder setX(@CoordinationMode String mode, float... x) {
             if (mode.equals(COORDINATES)) {
-                this.x = new AnimationParams(View.X, x);
+                objectAnimations.add(new AnimationParams.Builder(View.X, x).build());
             } else if (mode.equals(TRANSITION)) {
                 addTranslation(x, view.getTranslationX());
                 x = deleteZeroFromArray(x);
-                this.x = new AnimationParams(View.TRANSLATION_X, x);
+                objectAnimations.add(new AnimationParams.Builder(View.TRANSLATION_X, x).build());
             } else {
                 throw new RuntimeException("Can't support this mode");
             }
@@ -202,11 +187,11 @@ public class AwesomeAnimation {
 
         public Builder setY(@CoordinationMode String mode, float... y) {
             if (mode.equals(COORDINATES)) {
-                this.y = new AnimationParams(View.Y, y);
+                objectAnimations.add(new AnimationParams.Builder(View.Y, y).build());
             } else if (mode.equals(TRANSITION)) {
                 addTranslation(y, view.getTranslationY());
                 y = deleteZeroFromArray(y);
-                this.y = new AnimationParams(View.TRANSLATION_Y, y);
+                objectAnimations.add(new AnimationParams.Builder(View.TRANSLATION_Y, y).build());
             } else {
                 throw new RuntimeException("Can't support this mode");
             }
@@ -215,9 +200,9 @@ public class AwesomeAnimation {
 
         public Builder setSizeX(@SizeMode String mode, float... x) {
             if (mode.equals(SCALE)) {
-                this.sizeX = new AnimationParams(View.SCALE_X, x);
+                objectAnimations.add(new AnimationParams.Builder(View.SCALE_X, x).build());
             } else if (mode.equals(SIZE)) {
-                this.sizeX = new AnimationParams(PROPERTY_WIDTH, x);
+                objectAnimations.add(new AnimationParams.Builder(PROPERTY_WIDTH, x).build());
             } else {
                 throw new RuntimeException("Can't support this mode");
             }
@@ -226,9 +211,9 @@ public class AwesomeAnimation {
 
         public Builder setSizeY(@SizeMode String mode, float... y) {
             if (mode.equals(SCALE)) {
-                this.sizeY = new AnimationParams(View.SCALE_Y, y);
+                objectAnimations.add(new AnimationParams.Builder(View.SCALE_Y, y).build());
             } else if (mode.equals(SIZE)) {
-                this.sizeY = new AnimationParams(PROPERTY_HEIGHT, y);
+                objectAnimations.add(new AnimationParams.Builder(PROPERTY_HEIGHT, y).build());
             } else {
                 throw new RuntimeException("Can't support this mode");
             }
@@ -236,24 +221,31 @@ public class AwesomeAnimation {
         }
 
         public Builder setRotation(float... rotation) {
-            this.rotation = rotation;
+            objectAnimations.add(new AnimationParams.Builder(View.ROTATION, rotation).build());
             return this;
         }
 
         public Builder setAlpha(float... alpha) {
-            this.alpha = alpha;
+            objectAnimations.add(new AnimationParams.Builder(View.ALPHA, alpha).build());
+            return this;
+        }
+
+        public Builder addObjectAnimation(AnimationParams animationParams) {
+            objectAnimations.add(animationParams);
             return this;
         }
 
         public Builder addObjectAnimation(String attr, float... params) {
-            if (objectAnimations == null) {
-                objectAnimations = new ArrayList<>();
-            }
-            objectAnimations.add(new AnimationParams(attr, params));
+            objectAnimations.add(new AnimationParams.Builder(attr, params).build());
             return this;
         }
 
-        public Builder addAnimator(Animator animator) {
+        public Builder addObjectAnimation(String attr, int... params) {
+            objectAnimations.add(new AnimationParams.Builder(attr, params).build());
+            return this;
+        }
+
+        public Builder addAnimator(@NonNull Animator animator) {
             if (animators == null) {
                 animators = new ArrayList<>();
             }
@@ -261,7 +253,7 @@ public class AwesomeAnimation {
             return this;
         }
 
-        public Builder setInterpolator(Interpolator interpolator) {
+        public Builder setInterpolator(@NonNull Interpolator interpolator) {
             this.interpolator = interpolator;
             return this;
         }
@@ -305,19 +297,81 @@ public class AwesomeAnimation {
         }
     }
 
-    private static class AnimationParams {
+    public static class AnimationParams {
         public String attr;
-        private Property<View, Float> property;
-        private float[] params;
+        @Nullable
+        private Property<View, Float> propertyFloat;
+        @Nullable
+        private Property<View, Integer> propertyInt;
+        @Nullable
+        private Interpolator interpolator;
+        @Nullable
+        private TypeEvaluator evaluator;
+        @Nullable
+        private float[] paramsFloat;
+        @Nullable
+        private int[] paramsInt;
 
-        AnimationParams(String attr, float[] params) {
-            this.attr = attr;
-            this.params = params;
+        private AnimationParams(Builder builder) {
+            this.attr = builder.attr;
+            this.propertyFloat = builder.propertyFloat;
+            this.propertyInt = builder.propertyInt;
+            this.interpolator = builder.interpolator;
+            this.evaluator = builder.evaluator;
+            this.paramsFloat = builder.paramsFloat;
+            this.paramsInt = builder.paramsInt;
         }
 
-        AnimationParams(Property<View, Float> property, float[] params) {
-            this.property = property;
-            this.params = params;
+        public static class Builder {
+            public String attr;
+            @Nullable
+            private Property<View, Float> propertyFloat;
+            @Nullable
+            private Property<View, Integer> propertyInt;
+            @Nullable
+            private float[] paramsFloat;
+            @Nullable
+            private int[] paramsInt;
+
+            //optional
+            @Nullable
+            private Interpolator interpolator;
+            @Nullable
+            private TypeEvaluator evaluator;
+
+            public Builder(String attr, @NonNull float... params) {
+                this.attr = attr;
+                this.paramsFloat = params;
+            }
+
+            public Builder(String attr, @NonNull int... params) {
+                this.attr = attr;
+                this.paramsInt = params;
+            }
+
+            public Builder(@NonNull Property<View, Float> property, @NonNull float... params) {
+                this.propertyFloat = property;
+                this.paramsFloat = params;
+            }
+
+            public Builder(@NonNull Property<View, Integer> property, @NonNull int... params) {
+                this.propertyInt = property;
+                this.paramsInt = params;
+            }
+
+            public Builder setInterpolator(@NonNull Interpolator interpolator) {
+                this.interpolator = interpolator;
+                return this;
+            }
+
+            public Builder setEvaluator(@NonNull TypeEvaluator evaluator) {
+                this.evaluator = evaluator;
+                return this;
+            }
+
+            public AnimationParams build() {
+                return new AnimationParams(this);
+            }
         }
     }
 }

@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import ua.jenshensoft.cardslayout.R;
 import ua.jenshensoft.cardslayout.util.AwesomeAnimation;
 
 public abstract class GameTableLayout<
@@ -87,10 +86,6 @@ public abstract class GameTableLayout<
                 startDistributeCards(
                         distributionState.getPredicateForCardsForDistribution(),
                         distributionState.provideCoordinateForDistribution());
-            } else {
-                if (onDistributedCardsListener != null) {
-                    onDistributedCardsListener.onDistributedCards();
-                }
             }
         }
         isCardDistributed = true;
@@ -222,18 +217,18 @@ public abstract class GameTableLayout<
     @SuppressWarnings({"unchecked"})
     private void initLayout(AttributeSet attrs) {
         if (attrs != null) {
-            TypedArray attributes = getContext().obtainStyledAttributes(attrs, R.styleable.GameTableLayout_Params);
+            TypedArray attributes = getContext().obtainStyledAttributes(attrs, ua.jenshensoft.cardslayout.R.styleable.GameTableLayout_Params);
             try {
-                final int color = attributes.getColor(R.styleable.GameTableLayout_Params_gameTableLayout_tintColor, -1);
-                durationOfDistributeAnimation = attributes.getInteger(R.styleable.GameTableLayout_Params_gameTableLayout_duration_distributeAnimation, 3000);
+                final int color = attributes.getColor(ua.jenshensoft.cardslayout.R.styleable.GameTableLayout_Params_gameTableLayout_tintColor, -1);
+                durationOfDistributeAnimation = attributes.getInteger(ua.jenshensoft.cardslayout.R.styleable.GameTableLayout_Params_gameTableLayout_duration_distributeAnimation, 3000);
                 if (color != -1) {
                     colorFilter = new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY);
                 }
 
-                if (attributes.getBoolean(R.styleable.GameTableLayout_Params_gameTableLayout_cardValidatorSwipe, false)) {
+                if (attributes.getBoolean(ua.jenshensoft.cardslayout.R.styleable.GameTableLayout_Params_gameTableLayout_cardValidatorSwipe, false)) {
                     setSwipeValidatorEnabled(true);
                 }
-                if (attributes.getBoolean(R.styleable.GameTableLayout_Params_gameTableLayout_cardValidatorTransition, false)) {
+                if (attributes.getBoolean(ua.jenshensoft.cardslayout.R.styleable.GameTableLayout_Params_gameTableLayout_cardValidatorTransition, false)) {
                     setTransitionValidatorEnabled(true);
                 }
             } finally {

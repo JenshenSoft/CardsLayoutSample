@@ -1,6 +1,5 @@
 package ua.jenshensoft.cardslayout.views;
 
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
@@ -34,6 +33,7 @@ import ua.jenshensoft.cardslayout.util.DrawableUtils;
 import ua.jenshensoft.cardslayout.util.FlagManager;
 import ua.jenshensoft.cardslayout.util.SwipeGestureManager;
 
+
 public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardTranslationListener<Entity>, OnCardSwipedListener<Entity>, OnCardPercentageChangeListener<Entity> {
 
     public static final int EMPTY = -1;
@@ -52,6 +52,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
     private int childListPaddingBottom;
     private int childList_height;
     private int childList_width;
+    private int childList_radius;
     private int durationOfAnimation;
     private List<CardView<Entity>> cardViewList;
     private FlagManager gravityFlag;
@@ -506,27 +507,37 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
     }
 
     protected void setXForViews(float cardPositionX, float distanceBetweenViews) {
+        float x = cardPositionX;
         for (CardView<Entity> view : cardViewList) {
             if (view.getVisibility() != VISIBLE) {
                 continue;
             }
-            CardInfo<Entity> cardInfo = view.getCardInfo();
-            cardInfo.setFirstPositionX(Math.round(cardPositionX));
+            setXForView(view, x);
             if (childListOrientation == LinearLayout.HORIZONTAL)
-                cardPositionX += view.getMeasuredWidth() - distanceBetweenViews;
+                x += view.getMeasuredWidth() - distanceBetweenViews;
         }
     }
 
     protected void setYForViews(float cardPositionY, float distanceBetweenViews) {
+        float y = cardPositionY;
         for (CardView<Entity> view : cardViewList) {
             if (view.getVisibility() != VISIBLE) {
                 continue;
             }
-            CardInfo<Entity> cardInfo = view.getCardInfo();
-            cardInfo.setFirstPositionY(Math.round(cardPositionY));
+            setYForView(view, y);
             if (childListOrientation == LinearLayout.VERTICAL)
-                cardPositionY += view.getMeasuredHeight() - distanceBetweenViews;
+                y += view.getMeasuredHeight() - distanceBetweenViews;
         }
+    }
+
+    protected void setXForView(CardView<Entity> cardView, float cardPositionX) {
+        CardInfo<Entity> cardInfo = cardView.getCardInfo();
+        cardInfo.setFirstPositionX(Math.round(cardPositionX));
+    }
+
+    protected void setYForView(CardView<Entity> cardView, float cardPositionY) {
+        CardInfo<Entity> cardInfo = cardView.getCardInfo();
+        cardInfo.setFirstPositionY(Math.round(cardPositionY));
     }
 
 
@@ -546,6 +557,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
                 childListPaddingBottom = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_Params_cardsLayout_childList_paddingBottom, 0);
                 childList_height = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_Params_cardsLayout_childList_height, EMPTY);
                 childList_width = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_Params_cardsLayout_childList_width, EMPTY);
+                childList_radius = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_Params_cardsLayout_childList_radius, EMPTY);
             } finally {
                 attributes.recycle();
             }
