@@ -44,6 +44,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
     protected OnCreateAnimatorAction defaultAnimatorAction;
 
     //property
+    @LinearLayoutCompat.OrientationMode
     private int childListOrientation;
 
     private int childListPaddingLeft;
@@ -325,10 +326,38 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
     /* protected methods */
 
     protected void setViewsCoordinatesToStartPosition() {
-        Config config = getXConfiguration(cardViewList);
-        setXForViews(config.startCoordinates, config.distanceBetweenViews);
-        config = getYConfiguration(cardViewList);
-        setYForViews(config.startCoordinates, config.distanceBetweenViews);
+        if (childList_radius == EMPTY) {
+            Config config = getXConfiguration(cardViewList);
+            setXForViews(config.startCoordinates, config.distanceBetweenViews);
+            config = getYConfiguration(cardViewList);
+            setYForViews(config.startCoordinates, config.distanceBetweenViews);
+        } else {
+            float cardsLayoutLength;
+            switch (childListOrientation) {
+                case LinearLayoutCompat.HORIZONTAL:
+                    cardsLayoutLength = getRootWidth();
+                    break;
+                case LinearLayoutCompat.VERTICAL:
+                    cardsLayoutLength = getRootHeight();
+                    break;
+                default:
+                    throw new RuntimeException("Can't support this orientation");
+            }
+            CardsCoordinatesProvider cardsCoordinatesProvider = new CardsCoordinatesProvider(
+                    childList_radius,
+                    cardViewList.size(),
+                    getChildWidth(cardViewList),
+                    getChildHeight(cardViewList),
+                    childListOrientation, cardsLayoutLength);
+            final List<CardCoordinates> cardsCoordinates = cardsCoordinatesProvider.getCardsCoordinates();
+            for (int i = 0; i < cardsCoordinates.size(); i++) {
+                final CardView<Entity> cardView = cardViewList.get(i);
+                final CardCoordinates cardCoordinates = cardsCoordinates.get(i);
+                setXForView(cardView, cardCoordinates.getX());
+                setYForView(cardView, cardCoordinates.getY());
+                cardView.setRotation(cardCoordinates.getAngle());
+            }
+        }
     }
 
     protected void moveViewsToStartPosition(boolean withAnimation, @Nullable OnCreateAnimatorAction animationCreateAction, @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
@@ -370,7 +399,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
             widthOfViews = getWidthOfViews(views, distanceBetweenViews);
         }
         float startXPositionFromList = getStartXPositionForList(getChildWidth(views), widthOfViews, rootWidth);
-        return new Config(startXPositionFromList, distanceBetweenViews);
+        return new Config(startXPositionFromList, distanceBetweenViews, widthOfViews);
     }
 
     protected <T extends View> Config getYConfiguration(List<T> views) {
@@ -383,7 +412,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
             heightOfViews = getHeightOfViews(views, distanceBetweenViews);
         }
         float startYPositionFromList = getStartYPositionForList(getChildHeight(views), heightOfViews, rootHeight);
-        return new Config(startYPositionFromList, distanceBetweenViews);
+        return new Config(startYPositionFromList, distanceBetweenViews, heightOfViews);
     }
 
     protected <T extends View> float getDistanceBetweenViews(float difference, List<T> views) {
@@ -409,14 +438,14 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
         if (gravityFlag.containsFlag(FlagManager.Gravity.LEFT)) {
             cardPositionX = 0;
         } else if (gravityFlag.containsFlag(FlagManager.Gravity.RIGHT)) {
-            if (childListOrientation == LinearLayout.HORIZONTAL) {
+            if (childListOrientation == LinearLayoutCompat.HORIZONTAL) {
                 cardPositionX = (rootWidth - widthOfViews);
             } else {
                 cardPositionX = (rootWidth - widthOfItem);
             }
         } else if (gravityFlag.containsFlag(FlagManager.Gravity.CENTER_HORIZONTAL)
                 || gravityFlag.containsFlag(FlagManager.Gravity.CENTER)) {
-            if (childListOrientation == LinearLayout.HORIZONTAL) {
+            if (childListOrientation == LinearLayoutCompat.HORIZONTAL) {
                 cardPositionX = (rootWidth - widthOfViews) / 2f;
             } else {
                 cardPositionX = rootWidth / 2f - widthOfItem / 2f;
@@ -435,14 +464,14 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
         if (gravityFlag.containsFlag(FlagManager.Gravity.TOP)) {
             cardPositionY = 0;
         } else if (gravityFlag.containsFlag(FlagManager.Gravity.BOTTOM)) {
-            if (childListOrientation == LinearLayout.VERTICAL) {
+            if (childListOrientation == LinearLayoutCompat.VERTICAL) {
                 cardPositionY = (rootHeight - heightOfViews);
             } else {
                 cardPositionY = (rootHeight - heightOfItem);
             }
         } else if (gravityFlag.containsFlag(FlagManager.Gravity.CENTER_VERTICAL)
                 || gravityFlag.containsFlag(FlagManager.Gravity.CENTER)) {
-            if (childListOrientation == LinearLayout.VERTICAL) {
+            if (childListOrientation == LinearLayoutCompat.VERTICAL) {
                 cardPositionY = (rootHeight - heightOfViews) / 2f;
             } else {
                 cardPositionY = rootHeight / 2f - heightOfItem / 2f;
@@ -664,12 +693,214 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
     }
 
     protected static class Config {
+        public final float distanceBetweenViews;
+        public final float distanceForCards;
         public float startCoordinates;
-        public float distanceBetweenViews;
 
-        protected Config(float startCoordinates, float distanceBetweenViews) {
+        protected Config(float startCoordinates, float distanceBetweenViews, float distanceForCards) {
             this.startCoordinates = startCoordinates;
             this.distanceBetweenViews = distanceBetweenViews;
+            this.distanceForCards = distanceForCards;
+        }
+    }
+
+    public static class CardCoordinates {
+        private final float x;
+        private final float y;
+        private final int angle;
+
+        public CardCoordinates(float x, float y, int angle) {
+            this.x = x;
+            this.y = y;
+            this.angle = angle;
+        }
+
+        public int getAngle() {
+            return angle;
+        }
+
+        public float getX() {
+            return x;
+        }
+
+        public float getY() {
+            return y;
+        }
+    }
+
+    public class CardsCoordinatesProvider {
+
+        private final int radius;
+        private final int cardsCount;
+        @LinearLayoutCompat.OrientationMode
+        private final int orientation;
+        private final float[] center;
+        //angles
+        private final int cardSectorAngle;
+        private final int cardAngle;
+        private final int allCardsAngle;
+        private final int startAngle;
+        private final int endAngle;
+
+        public CardsCoordinatesProvider(int radius, int cardsCount, float cardWidth, float cardHeight, @LinearLayoutCompat.OrientationMode int orientation, float cardsLayoutLength) {
+            this.radius = radius;
+            this.cardsCount = cardsCount;
+            this.orientation = orientation;
+            this.center = considerCenterCoordinates();
+
+            //arcs
+            float cardArc = calcCardArc(radius, cardWidth, cardHeight);
+            float maxArc = calcArcFromChord(radius, cardsLayoutLength);
+            float allCardArc = calcGeneralArc(maxArc, cardArc, cardsCount) - cardArc;
+
+            //angles
+            this.allCardsAngle = calcAngleFromArc(allCardArc, radius);
+            this.cardAngle = calcAngleFromArc(cardArc, radius);
+            this.cardSectorAngle = allCardsAngle / (cardsCount - 1);
+            this.startAngle = 90 - (allCardsAngle / 2);
+            this.endAngle = 90 - (allCardsAngle / 2) - cardAngle;
+        }
+
+        public List<CardCoordinates> getCardsCoordinates() {
+            List<CardCoordinates> cardsCoordinates = new ArrayList<>();
+            boolean isLeftArc = true;
+            int angle = 0;
+            for (int i = 0; i < cardsCount; i++) {
+                if (i == 0) {// for first card
+                    angle = startAngle;
+                } else {
+                    if (isLeftArc) { //left side of arc
+                        if (angle + cardSectorAngle >= 0 && angle + cardSectorAngle <= 90) {
+                            angle += cardSectorAngle;
+                        } else if (angle + cardSectorAngle > 90) {
+                            isLeftArc = false;
+                            angle = calcMiddleAngle(endAngle, cardSectorAngle);
+                        } else {
+                            throw new RuntimeException("Something went wrong");
+                        }
+                    } else {
+                        if (angle - cardSectorAngle > endAngle && angle - cardSectorAngle <= 90) {
+                            angle -= cardSectorAngle;
+                        } else {
+                            throw new RuntimeException("Something went wrong");
+                        }
+                    }
+                }
+                final float[] coordinatesForCard = getCoordinatesForCard(angle, isLeftArc);
+                cardsCoordinates.add(new CardCoordinates(coordinatesForCard[0], coordinatesForCard[1], validateAngle(angle, isLeftArc)));
+            }
+            return cardsCoordinates;
+        }
+
+
+        /* private methods */
+
+        private int validateAngle(int angle, boolean isLeftArc) {
+            if (isLeftArc) {
+                return -90 + angle;
+            } else {
+                return 90 - angle;
+            }
+        }
+
+        private int calcMiddleAngle(int endAngle, int cardSectorAngle) {
+            int middleAngle = endAngle;
+            while (middleAngle + cardSectorAngle < 90) {
+                middleAngle += cardSectorAngle;
+            }
+            return middleAngle;
+        }
+
+        private int calcAngleFromArc(float arc, int radius) {
+            return (int) Math.round(Math.toDegrees(arc / radius));
+        }
+
+        private float[] getCoordinatesForCard(int angle, boolean isLeftArc) {
+            float x;
+            float y;
+
+            switch (orientation) {
+                case LinearLayoutCompat.HORIZONTAL:
+                    if (isLeftArc) {
+                        x = Math.round(center[0] - radius * Math.cos(Math.toRadians(angle)));
+                    } else {
+                        x = Math.round(center[0] + radius * Math.cos(Math.toRadians(angle)));
+                    }
+                    y = Math.round(center[1] - radius * Math.sin(Math.toRadians(angle)));
+                    return new float[]{x, y};
+                case LinearLayoutCompat.VERTICAL:
+                    if (isLeftArc) {
+                        y = Math.round(center[1] - radius * Math.sin(Math.toRadians(angle)));
+                    } else {
+                        y = Math.round(center[1] + radius * Math.sin(Math.toRadians(angle)));
+                    }
+                    x = Math.round(center[0] + radius * Math.cos(Math.toRadians(angle)));
+                    return new float[]{x, y};
+                default:
+                    throw new RuntimeException("Can't support this orientation " + orientation);
+            }
+        }
+
+        private float[] considerCenterCoordinates() {
+            final Config xConfiguration = getXConfiguration(cardViewList);
+            final Config yConfiguration = getYConfiguration(cardViewList);
+            float halfOfLength;
+            float x;
+            float y;
+            switch (orientation) {
+                case LinearLayoutCompat.HORIZONTAL:
+                    halfOfLength = xConfiguration.distanceForCards / 2;
+                    x = xConfiguration.startCoordinates + halfOfLength;
+                    y = Math.round(yConfiguration.startCoordinates + Math.sqrt(Math.pow(radius, 2) - Math.pow(halfOfLength, 2)));
+                    return new float[]{x, y};
+                case LinearLayoutCompat.VERTICAL:
+                    halfOfLength = yConfiguration.distanceForCards / 2;
+                    x = Math.round(xConfiguration.startCoordinates + Math.sqrt(Math.pow(radius, 2) - Math.pow(halfOfLength, 2)));
+                    y = yConfiguration.startCoordinates + halfOfLength;
+                    return new float[]{x, y};
+                default:
+                    throw new RuntimeException("Can't support this orientation " + orientation);
+            }
+        }
+
+        private float calcGeneralArc(float maxArc, float cardArc, int cardsCount) {
+            float cardsArc = cardsCount * cardArc;
+            return maxArc < cardsArc ? maxArc : cardsArc;
+        }
+
+        private float calcCardArc(float radius, float cardWidth, float cardHeight) {
+            if (radius >= cardWidth) {
+                float RB = (float) Math.sqrt(Math.pow(cardWidth, 2) + Math.pow(radius, 2));
+                float BN = RB - radius;
+                float angleDegreesARB = (float) Math.toDegrees(Math.atan(cardWidth / radius));
+                float angleDegreesANR = (180f - angleDegreesARB) / 2f;
+                float angleDegreesBAN = 90f - angleDegreesANR;
+                float angleDegreesANB = 180f - angleDegreesANR;
+                float angleDegreesABN = 180f - angleDegreesANB - angleDegreesBAN;
+                float angleDegreesNBM = 90f - angleDegreesABN;
+                float BM = (float) (BN * Math.cos(Math.toRadians(angleDegreesNBM)));
+                float NM = (float) (BN * Math.tan(Math.toRadians(angleDegreesNBM)));
+                float angleDegreesNRM = (float) Math.toDegrees(Math.asin(NM / (radius * 2f)));
+                float angleDegreesARM = angleDegreesNRM + angleDegreesARB;
+                return calcArc(radius, angleDegreesARM);
+            } else if (2 * radius >= cardHeight) {
+                throw new RuntimeException();
+            } else {
+                return calcArc(radius * 2, 180);
+            }
+        }
+
+        private float calcArc(float radius, float angleDegrees) {
+            return Math.round((Math.PI * radius) / 180f * angleDegrees);
+        }
+
+        private float calcСhord(float radius, float angleDegrees) {
+            return Math.round(2f * radius * Math.sin(Math.toRadians(angleDegrees)));
+        }
+
+        private float calcArcFromChord(float radius, float сhordLenght) {
+            float angleDegrees = (float) Math.toDegrees(Math.asin((сhordLenght / 2) / radius)) * 2f;
+            return calcArc(radius, angleDegrees);
         }
     }
 }
