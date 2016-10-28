@@ -63,8 +63,6 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
     private OnCardPercentageChangeListener<Entity> onCardPercentageChangeListener;
     private OnCardTranslationListener<Entity> onCardTranslationListener;
 
-    private boolean isCardPositionIsValided;
-
     public CardsLayout(Context context) {
         super(context);
         if (!isInEditMode()) {
@@ -104,11 +102,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        if (isCardPositionIsValided) {
-            return;
-        }
         invalidateCardsPosition();
-        isCardPositionIsValided = true;
     }
 
     @SuppressWarnings("unchecked")

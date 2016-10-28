@@ -22,7 +22,7 @@ public class CardView<Entity> extends FrameLayout {
 
     private SwipeGestureManager<Entity> swipeManager;
     private CardInfo<Entity> cardInfo;
-    private boolean scrollAndClickable;
+    private boolean scrollAndClickable = true;
 
     public CardView(Context context) {
         super(context);
