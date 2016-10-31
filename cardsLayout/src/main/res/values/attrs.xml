@@ -33,7 +33,15 @@
         <attr name="cardsLayout_childList_paddingBottom" format="dimension" />
         <attr name="cardsLayout_childList_height" format="dimension" />
         <attr name="cardsLayout_childList_width" format="dimension" />
-        <attr name="cardsLayout_childList_radius" format="dimension" />
+        <attr name="cardsLayout_childList_distributeCardsBy" format="enum">
+            <enum name="circle" value="0" />
+            <enum name="line" value="1" />
+        </attr>
+        <attr name="cardsLayout_childList_circleRadius" format="dimension" />
+        <attr name="cardsLayout_childList_circleCenterLocation" format="enum">
+            <enum name="top" value="0" />
+            <enum name="bottom" value="1" />
+        </attr>
 
     </declare-styleable>
 

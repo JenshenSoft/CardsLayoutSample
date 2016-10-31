@@ -11,7 +11,9 @@
         android:layout_width="match_parent"
         tools:fitsSystemWindows="true"
         android:layout_height="match_parent"
-        app:cardsLayout_childList_radius="1000dp"
+        app:cardsLayout_childList_circleRadius="50dp"
+        app:cardsLayout_childList_circleCenterLocation="bottom"
+        app:cardsLayout_childList_width="50dp"
         app:cardsLayout_cardsGravity="bottom|center_horizontal">
 
         <ImageView

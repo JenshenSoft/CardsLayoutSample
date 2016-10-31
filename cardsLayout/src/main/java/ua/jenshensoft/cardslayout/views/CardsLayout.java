@@ -9,10 +9,12 @@ import android.content.res.TypedArray;
 import android.graphics.ColorFilter;
 import android.os.Build;
 import android.support.annotation.CallSuper;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -20,6 +22,8 @@ import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +36,11 @@ import ua.jenshensoft.cardslayout.util.AwesomeAnimation;
 import ua.jenshensoft.cardslayout.util.DrawableUtils;
 import ua.jenshensoft.cardslayout.util.FlagManager;
 import ua.jenshensoft.cardslayout.util.SwipeGestureManager;
+
+import static ua.jenshensoft.cardslayout.views.CardsLayout.CircleCenterLocation.BOTTOM;
+import static ua.jenshensoft.cardslayout.views.CardsLayout.CircleCenterLocation.TOP;
+import static ua.jenshensoft.cardslayout.views.CardsLayout.DistributeCradsBy.CIRCLE;
+import static ua.jenshensoft.cardslayout.views.CardsLayout.DistributeCradsBy.LINE;
 
 
 public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardTranslationListener<Entity>, OnCardSwipedListener<Entity>, OnCardPercentageChangeListener<Entity> {
@@ -53,8 +62,13 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
     private int childListPaddingBottom;
     private int childList_height;
     private int childList_width;
-    private int childList_radius;
+    private int childList_circleRadius;
     private int durationOfAnimation;
+    //distribution
+    @DistributeCradsBy
+    private int childList_distributeCardsBy;
+    @CircleCenterLocation
+    private int childList_circleCenterLocation;
     private List<CardView<Entity>> cardViewList;
     private FlagManager gravityFlag;
 
@@ -320,29 +334,32 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
     /* protected methods */
 
     protected void setViewsCoordinatesToStartPosition() {
-        if (childList_radius == EMPTY) {
-            Config config = getXConfiguration(cardViewList);
-            setXForViews(config.startCoordinates, config.distanceBetweenViews);
-            config = getYConfiguration(cardViewList);
-            setYForViews(config.startCoordinates, config.distanceBetweenViews);
+        Config xConfig = getXConfiguration(cardViewList);
+        Config yConfig = getYConfiguration(cardViewList);
+
+        if (childList_distributeCardsBy == LINE) {
+            setXForViews(xConfig.startCoordinates, xConfig.distanceBetweenViews);
+            setYForViews(yConfig.startCoordinates, yConfig.distanceBetweenViews);
         } else {
-            float cardsLayoutLength;
-            switch (childListOrientation) {
-                case LinearLayoutCompat.HORIZONTAL:
-                    cardsLayoutLength = getRootWidth();
-                    break;
-                case LinearLayoutCompat.VERTICAL:
-                    cardsLayoutLength = getRootHeight();
-                    break;
-                default:
-                    throw new RuntimeException("Can't support this orientation");
+            if (childList_circleRadius == EMPTY) {
+                throw new RuntimeException("You need to set radius");
+            }
+            final float cardsLayoutLength;
+            if (childListOrientation == LinearLayoutCompat.HORIZONTAL) {
+                cardsLayoutLength = getRootWidth();
+            } else {
+                cardsLayoutLength = getRootHeight();
             }
             CardsCoordinatesProvider cardsCoordinatesProvider = new CardsCoordinatesProvider(
-                    childList_radius,
+                    childList_circleRadius,
+                    childList_circleCenterLocation,
                     cardViewList.size(),
                     getChildWidth(cardViewList),
                     getChildHeight(cardViewList),
-                    childListOrientation, cardsLayoutLength);
+                    childListOrientation,
+                    cardsLayoutLength,
+                    xConfig,
+                    yConfig);
             final List<CardCoordinates> cardsCoordinates = cardsCoordinatesProvider.getCardsCoordinates();
             for (int i = 0; i < cardsCoordinates.size(); i++) {
                 final CardView<Entity> cardView = cardViewList.get(i);
@@ -580,7 +597,10 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
                 childListPaddingBottom = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_Params_cardsLayout_childList_paddingBottom, 0);
                 childList_height = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_Params_cardsLayout_childList_height, EMPTY);
                 childList_width = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_Params_cardsLayout_childList_width, EMPTY);
-                childList_radius = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_Params_cardsLayout_childList_radius, EMPTY);
+                //distribution
+                childList_distributeCardsBy = attributes.getInt(R.styleable.CardsLayout_Params_cardsLayout_childList_distributeCardsBy, LINE);
+                childList_circleRadius = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_Params_cardsLayout_childList_circleRadius, EMPTY);
+                childList_circleCenterLocation = attributes.getInt(R.styleable.CardsLayout_Params_cardsLayout_childList_circleCenterLocation, BOTTOM);
             } finally {
                 attributes.recycle();
             }
@@ -686,6 +706,20 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
         Animator createAnimation(CardView cardView);
     }
 
+    @IntDef({TOP, BOTTOM})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface CircleCenterLocation {
+        int TOP = 0;
+        int BOTTOM = 1;
+    }
+
+    @IntDef({LINE, CIRCLE})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface DistributeCradsBy {
+        int LINE = 0;
+        int CIRCLE = 1;
+    }
+
     protected static class Config {
         public final float distanceBetweenViews;
         public final float distanceForCards;
@@ -701,15 +735,15 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
     public static class CardCoordinates {
         private final float x;
         private final float y;
-        private final int angle;
+        private final float angle;
 
-        public CardCoordinates(float x, float y, int angle) {
+        public CardCoordinates(float x, float y, float angle) {
             this.x = x;
             this.y = y;
             this.angle = angle;
         }
 
-        public int getAngle() {
+        public float getAngle() {
             return angle;
         }
 
@@ -722,58 +756,77 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
         }
     }
 
-    public class CardsCoordinatesProvider {
+    public static class CardsCoordinatesProvider {
 
-        private final int radius;
+        private final float radius;
         private final int cardsCount;
         @LinearLayoutCompat.OrientationMode
         private final int orientation;
         private final float[] center;
         //angles
-        private final int cardSectorAngle;
-        private final int cardAngle;
-        private final int allCardsAngle;
-        private final int startAngle;
-        private final int endAngle;
+        private final float cardSectorAngle;
+        //private final float cardAngle;
+        private final float allCardsAngle;
+        private final float startAngle;
+        private final float endAngle;
+        private final float cardWidth;
 
-        public CardsCoordinatesProvider(int radius, int cardsCount, float cardWidth, float cardHeight, @LinearLayoutCompat.OrientationMode int orientation, float cardsLayoutLength) {
+        public CardsCoordinatesProvider(float radius,
+                                        @CircleCenterLocation int circleCenterLocation,
+                                        int cardsCount,
+                                        float cardWidth,
+                                        float cardHeight,
+                                        @LinearLayoutCompat.OrientationMode int orientation, float cardsLayoutLength,
+                                        Config xConfig,
+                                        Config yConfig) {
+            this.cardWidth = cardWidth;
+            if (cardsLayoutLength > radius * 2f) {
+                radius = cardsLayoutLength / 2f;
+                Log.e("CardsLayout", "Diameter can't be bigger then CardsLayoutLength");
+            }
             this.radius = radius;
+
             this.cardsCount = cardsCount;
             this.orientation = orientation;
-            this.center = considerCenterCoordinates();
+            this.center = getCoordinatesForCenter(orientation, circleCenterLocation, radius, xConfig, yConfig);
 
             //arcs
-            float cardArc = calcCardArc(radius, cardWidth, cardHeight);
-            float maxArc = calcArcFromChord(radius, cardsLayoutLength);
-            float allCardArc = calcGeneralArc(maxArc, cardArc, cardsCount) - cardArc;
+            //final float cardArc = calcCardArc(radius, cardWidth, cardHeight);
+            final float maxArc = calcArcFromChord(radius, cardsLayoutLength);
+            final float generalArc = maxArc; //calcGeneralArc(maxArc, cardArc, cardsCount);
+
 
             //angles
-            this.allCardsAngle = calcAngleFromArc(allCardArc, radius);
-            this.cardAngle = calcAngleFromArc(cardArc, radius);
-            this.cardSectorAngle = allCardsAngle / (cardsCount - 1);
-            this.startAngle = 90 - (allCardsAngle / 2);
-            this.endAngle = 90 - (allCardsAngle / 2) - cardAngle;
+            final float generalAngle = calcAngleFromArc(generalArc, radius);
+            //this.cardAngle = calcAngleFromArc(cardArc, radius);
+            this.allCardsAngle = round(generalAngle, 6); //- cardAngle;
+            this.cardSectorAngle = round(allCardsAngle / (cardsCount - 1), 6);
+            this.startAngle = round(90f - (generalAngle / 2f), 6);
+            this.endAngle = round(90f - ((generalAngle / 2f)), 6);// - cardAngle);
         }
 
         public List<CardCoordinates> getCardsCoordinates() {
             List<CardCoordinates> cardsCoordinates = new ArrayList<>();
             boolean isLeftArc = true;
-            int angle = 0;
+            float fault = 0.0001f;
+            float angle = 0f;
             for (int i = 0; i < cardsCount; i++) {
                 if (i == 0) {// for first card
                     angle = startAngle;
                 } else {
                     if (isLeftArc) { //left side of arc
-                        if (angle + cardSectorAngle >= 0 && angle + cardSectorAngle <= 90) {
+                        if (angle + cardSectorAngle - fault >= startAngle && angle + cardSectorAngle - fault <= 90) {
                             angle += cardSectorAngle;
                         } else if (angle + cardSectorAngle > 90) {
                             isLeftArc = false;
-                            angle = calcMiddleAngle(endAngle, cardSectorAngle);
+                            angle += cardSectorAngle;
+                            angle -= 90f;
+                            angle = 90f - angle;
                         } else {
                             throw new RuntimeException("Something went wrong");
                         }
                     } else {
-                        if (angle - cardSectorAngle > endAngle && angle - cardSectorAngle <= 90) {
+                        if (angle - cardSectorAngle + fault >= endAngle && angle - cardSectorAngle + fault <= 90) {
                             angle -= cardSectorAngle;
                         } else {
                             throw new RuntimeException("Something went wrong");
@@ -781,6 +834,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
                     }
                 }
                 final float[] coordinatesForCard = getCoordinatesForCard(angle, isLeftArc);
+                coordinatesForCard[0] -= cardWidth / 2f;
                 cardsCoordinates.add(new CardCoordinates(coordinatesForCard[0], coordinatesForCard[1], validateAngle(angle, isLeftArc)));
             }
             return cardsCoordinates;
@@ -789,53 +843,68 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
 
         /* private methods */
 
-        private int validateAngle(int angle, boolean isLeftArc) {
+        private float validateAngle(float angle, boolean isLeftArc) {
             if (isLeftArc) {
-                return -90 + angle;
+                return -90f + angle;
             } else {
-                return 90 - angle;
+                return 90f - angle;
             }
         }
 
-        private int calcMiddleAngle(int endAngle, int cardSectorAngle) {
-            int middleAngle = endAngle;
-            while (middleAngle + cardSectorAngle < 90) {
-                middleAngle += cardSectorAngle;
-            }
-            return middleAngle;
+        private float calcAngleFromArc(float arc, float radius) {
+            return (float) Math.toDegrees(arc / radius);
         }
 
-        private int calcAngleFromArc(float arc, int radius) {
-            return (int) Math.round(Math.toDegrees(arc / radius));
-        }
-
-        private float[] getCoordinatesForCard(int angle, boolean isLeftArc) {
+        private float[] getCoordinatesForCard(float angle, boolean isLeftArc) {
             float x;
             float y;
 
-            switch (orientation) {
-                case LinearLayoutCompat.HORIZONTAL:
-                    if (isLeftArc) {
-                        x = Math.round(center[0] - radius * Math.cos(Math.toRadians(angle)));
-                    } else {
-                        x = Math.round(center[0] + radius * Math.cos(Math.toRadians(angle)));
-                    }
-                    y = Math.round(center[1] - radius * Math.sin(Math.toRadians(angle)));
-                    return new float[]{x, y};
-                case LinearLayoutCompat.VERTICAL:
-                    if (isLeftArc) {
-                        y = Math.round(center[1] - radius * Math.sin(Math.toRadians(angle)));
-                    } else {
-                        y = Math.round(center[1] + radius * Math.sin(Math.toRadians(angle)));
-                    }
-                    x = Math.round(center[0] + radius * Math.cos(Math.toRadians(angle)));
-                    return new float[]{x, y};
-                default:
-                    throw new RuntimeException("Can't support this orientation " + orientation);
+            if (orientation == LinearLayoutCompat.HORIZONTAL) {
+                if (isLeftArc) {
+                    x = (float) (center[0] - radius * Math.cos(Math.toRadians(angle)));
+                } else {
+                    x = (float) (center[0] + radius * Math.cos(Math.toRadians(angle)));
+                }
+                y = (float) (center[1] - radius * Math.sin(Math.toRadians(angle)));
+                return new float[]{x, y};
+            } else {
+                if (isLeftArc) {
+                    y = (float) (center[1] - radius * Math.sin(Math.toRadians(angle)));
+                } else {
+                    y = (float) (center[1] + radius * Math.sin(Math.toRadians(angle)));
+                }
+                x = (float) (center[0] + radius * Math.cos(Math.toRadians(angle)));
+                return new float[]{x, y};
             }
         }
 
-        private float[] considerCenterCoordinates() {
+        protected float[] getCoordinatesForCenter(@LinearLayoutCompat.OrientationMode int orientation,
+                                                  @CircleCenterLocation int circleCenterLocation,
+                                                  float radius,
+                                                  Config xConfig,
+                                                  Config yConfig) {
+            float x;
+            float y;
+            if (orientation == LinearLayoutCompat.HORIZONTAL) {
+                x = xConfig.startCoordinates + (xConfig.distanceForCards / 2);
+                if (circleCenterLocation == BOTTOM) {
+                    y = yConfig.startCoordinates + radius;
+                } else {
+                    y = yConfig.startCoordinates - radius;
+                }
+                return new float[]{x, y};
+            } else {
+                y = yConfig.startCoordinates + (yConfig.distanceForCards / 2);
+                if (circleCenterLocation == BOTTOM) {
+                    x = xConfig.startCoordinates + radius;
+                } else {
+                    x = xConfig.startCoordinates - radius;
+                }
+                return new float[]{x, y};
+            }
+        }
+
+        /*private float[] considerCenterCoordinates() {
             final Config xConfiguration = getXConfiguration(cardViewList);
             final Config yConfiguration = getYConfiguration(cardViewList);
             float halfOfLength;
@@ -845,17 +914,17 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
                 case LinearLayoutCompat.HORIZONTAL:
                     halfOfLength = xConfiguration.distanceForCards / 2;
                     x = xConfiguration.startCoordinates + halfOfLength;
-                    y = Math.round(yConfiguration.startCoordinates + Math.sqrt(Math.pow(radius, 2) - Math.pow(halfOfLength, 2)));
+                    y = Math.round(yConfiguration.startCoordinates + Math.sqrt(Math.pow(radius, 2f) - Math.pow(halfOfLength, 2f)));
                     return new float[]{x, y};
                 case LinearLayoutCompat.VERTICAL:
                     halfOfLength = yConfiguration.distanceForCards / 2;
-                    x = Math.round(xConfiguration.startCoordinates + Math.sqrt(Math.pow(radius, 2) - Math.pow(halfOfLength, 2)));
+                    x = Math.round(xConfiguration.startCoordinates + Math.sqrt(Math.pow(radius, 2f) - Math.pow(halfOfLength, 2f)));
                     y = yConfiguration.startCoordinates + halfOfLength;
                     return new float[]{x, y};
                 default:
                     throw new RuntimeException("Can't support this orientation " + orientation);
             }
-        }
+        }*/
 
         private float calcGeneralArc(float maxArc, float cardArc, int cardsCount) {
             float cardsArc = cardsCount * cardArc;
@@ -880,21 +949,29 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
             } else if (2 * radius >= cardHeight) {
                 throw new RuntimeException();
             } else {
-                return calcArc(radius * 2, 180);
+                return calcArc(radius * 2f, 180f);
             }
         }
 
         private float calcArc(float radius, float angleDegrees) {
-            return Math.round((Math.PI * radius) / 180f * angleDegrees);
+            return (float) ((Math.PI * radius) / 180f * angleDegrees);
         }
 
         private float calcСhord(float radius, float angleDegrees) {
-            return Math.round(2f * radius * Math.sin(Math.toRadians(angleDegrees)));
+            return (float) (2f * radius * Math.sin(Math.toRadians(angleDegrees)));
         }
 
         private float calcArcFromChord(float radius, float сhordLenght) {
-            float angleDegrees = (float) Math.toDegrees(Math.asin((сhordLenght / 2) / radius)) * 2f;
+            float angleDegrees = (float) Math.toDegrees(Math.asin((сhordLenght / 2f) / radius)) * 2f;
             return calcArc(radius, angleDegrees);
+        }
+
+        private float round(float number, int scale) {
+            int pow = 10;
+            for (int i = 1; i < scale; i++)
+                pow *= 10;
+            float tmp = number * pow;
+            return (float) (int) ((tmp - (int) tmp) >= 0.5f ? tmp + 1 : tmp) / pow;
         }
     }
 }
