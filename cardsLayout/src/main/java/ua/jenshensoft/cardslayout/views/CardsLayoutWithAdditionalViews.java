@@ -105,14 +105,14 @@ public abstract class CardsLayoutWithAdditionalViews<
     protected <T extends View> void setPositionsForViews(Config xConfig, Config yConfig, List<T> views, boolean withAnimation) {
         int[] coordinates = new int[2];
         for (T view : views) {
-            coordinates[0] = (int) xConfig.startCoordinates;
-            coordinates[1] = (int) yConfig.startCoordinates;
+            coordinates[0] = (int) xConfig.getStartCoordinates();
+            coordinates[1] = (int) yConfig.getStartCoordinates();
             moveViewToPosition(view, coordinates, withAnimation);
             if (getChildListOrientation() == LinearLayout.HORIZONTAL)
-                xConfig.startCoordinates += view.getMeasuredWidth() - xConfig.distanceBetweenViews;
+                xConfig.setStartCoordinates(xConfig.getStartCoordinates() + view.getMeasuredWidth() - xConfig.getDistanceBetweenViews());
 
             if (getChildListOrientation() == LinearLayout.VERTICAL)
-                yConfig.startCoordinates += view.getMeasuredHeight() - yConfig.distanceBetweenViews;
+                yConfig.setStartCoordinates(yConfig.getStartCoordinates() + view.getMeasuredWidth() - yConfig.getDistanceBetweenViews());
         }
     }
 

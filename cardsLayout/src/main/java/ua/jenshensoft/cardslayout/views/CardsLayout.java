@@ -744,5 +744,9 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
         public float getStartCoordinates() {
             return startCoordinates;
         }
+
+        public void setStartCoordinates(float startCoordinates) {
+            this.startCoordinates = startCoordinates;
+        }
     }
 }
