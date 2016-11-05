@@ -13,6 +13,10 @@
     </declare-styleable>
 
     <declare-styleable name="CardsLayout_Params">
+        <attr name="cardsLayout_cardsDirection" format="enum">
+            <enum name="leftToRight" value="0" />
+            <enum name="rightToLeft" value="1" />
+        </attr>
         <attr name="cardsLayout_animationDuration" format="integer" />
         <attr name="cardsLayout_cardsGravity">
             <flag name="right" value="1" />

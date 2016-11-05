@@ -246,5 +246,4 @@
           android:contentDescription="@null"
           android:src="@drawable/ic_card7" />
   </ua.jenshensoft.cardslayoutsample.CardsLayoutDefault>
-
 </FrameLayout>

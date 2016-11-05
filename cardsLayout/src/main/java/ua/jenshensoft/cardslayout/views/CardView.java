@@ -19,7 +19,10 @@ public class CardView<Entity> extends FrameLayout {
 
     public static final int START_TO_CURRENT = 1;
     public static final int LAST_TO_CURRENT = 2;
-
+    //attr
+    private float swipeSpeed = 1.0f;
+    private float swipeOffset = -1;
+    private int swipeOrientationMode =SwipeGestureManager.OrientationMode.UP_BOTTOM;
     private SwipeGestureManager<Entity> swipeManager;
     private CardInfo<Entity> cardInfo;
     private boolean scrollAndClickable = true;
@@ -29,6 +32,7 @@ public class CardView<Entity> extends FrameLayout {
         if (!isInEditMode()) {
             inflateAttributes(context, null);
         }
+        init();
     }
 
     public CardView(Context context, AttributeSet attrs) {
@@ -36,6 +40,7 @@ public class CardView<Entity> extends FrameLayout {
         if (!isInEditMode()) {
             inflateAttributes(context, attrs);
         }
+        init();
     }
 
     public CardView(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -43,6 +48,7 @@ public class CardView<Entity> extends FrameLayout {
         if (!isInEditMode()) {
             inflateAttributes(context, attrs);
         }
+        init();
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -51,6 +57,7 @@ public class CardView<Entity> extends FrameLayout {
         if (!isInEditMode()) {
             inflateAttributes(context, attrs);
         }
+        init();
     }
 
     @Override
@@ -137,10 +144,6 @@ public class CardView<Entity> extends FrameLayout {
     /* private methods */
 
     private void inflateAttributes(Context context, @Nullable AttributeSet attributeSet) {
-        float swipeSpeed = 1.0f;
-        int swipeOrientationMode = SwipeGestureManager.OrientationMode.UP_BOTTOM;
-        float swipeOffset = -1;
-
         if (attributeSet != null) {
             TypedArray attributes = context.obtainStyledAttributes(attributeSet, ua.jenshensoft.cardslayout.R.styleable.SwipeableLayout);
             try {
@@ -152,8 +155,10 @@ public class CardView<Entity> extends FrameLayout {
                 attributes.recycle();
             }
         }
+    }
 
-        SwipeGestureManager.Builder<Entity> builder = new SwipeGestureManager.Builder<>(context);
+    private void init() {
+        SwipeGestureManager.Builder<Entity> builder = new SwipeGestureManager.Builder<>(getContext());
         builder.setSwipeSpeed(swipeSpeed);
         builder.setSwipeOffset(swipeOffset);
         builder.setOrientationMode(swipeOrientationMode);

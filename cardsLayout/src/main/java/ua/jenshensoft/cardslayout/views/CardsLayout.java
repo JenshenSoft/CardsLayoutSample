@@ -38,6 +38,8 @@ import ua.jenshensoft.cardslayout.util.DrawableUtils;
 import ua.jenshensoft.cardslayout.util.FlagManager;
 import ua.jenshensoft.cardslayout.util.SwipeGestureManager;
 
+import static ua.jenshensoft.cardslayout.views.CardsLayout.CardsDirection.LEFT_TO_RIGHT;
+import static ua.jenshensoft.cardslayout.views.CardsLayout.CardsDirection.RIGHT_TO_LEFT;
 import static ua.jenshensoft.cardslayout.views.CardsLayout.CircleCenterLocation.BOTTOM;
 import static ua.jenshensoft.cardslayout.views.CardsLayout.CircleCenterLocation.TOP;
 import static ua.jenshensoft.cardslayout.views.CardsLayout.DistributeCardsBy.CIRCLE;
@@ -56,6 +58,8 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
     //property
     @LinearLayoutCompat.OrientationMode
     private int childListOrientation;
+    @CardsDirection
+    private int cardsLayout_cardsDirection;
 
     private int childListPaddingLeft;
     private int childListPaddingRight;
@@ -590,6 +594,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
         if (attributeSet != null) {
             TypedArray attributes = context.obtainStyledAttributes(attributeSet, R.styleable.CardsLayout_Params);
             try {
+                cardsLayout_cardsDirection = attributes.getInt(R.styleable.CardsLayout_Params_cardsLayout_cardsDirection, CardsDirection.LEFT_TO_RIGHT);
                 gravityFlag = new FlagManager(attributes.getInt(R.styleable.CardsLayout_Params_cardsLayout_cardsGravity, FlagManager.Gravity.CENTER));
                 childListOrientation = attributes.getInt(R.styleable.CardsLayout_Params_cardsLayout_childList_orientation, LinearLayout.HORIZONTAL);
                 durationOfAnimation = attributes.getInt(R.styleable.CardsLayout_Params_cardsLayout_animationDuration, 500);
@@ -611,6 +616,9 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
 
     private void init() {
         cardViewList = new ArrayList<>();
+        if (gravityFlag == null) {
+            gravityFlag = new FlagManager(FlagManager.Gravity.CENTER);
+        }
         defaultAnimatorAction = cardView -> {
             AwesomeAnimation.Builder awesomeAnimation = new AwesomeAnimation.Builder(cardView)
                     .setX(AwesomeAnimation.CoordinationMode.COORDINATES, cardView.getX(), cardView.getCardInfo().getFirstPositionX())
@@ -644,7 +652,11 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
         CardView<Entity> cardView = createCardView(view);
         cardView.setCardInfo(new CardInfo<>(cardViewList.size()));
         this.addView(cardView);
-        cardViewList.add(cardView);
+        if (cardsLayout_cardsDirection == LEFT_TO_RIGHT) {
+            cardViewList.add(cardView);
+        } else {
+            cardViewList.add(0, cardView);
+        }
     }
 
     private void addCardViewToRootView(View view, int position) {
@@ -720,6 +732,13 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardT
     public @interface DistributeCardsBy {
         int LINE = 0;
         int CIRCLE = 1;
+    }
+
+    @IntDef({LEFT_TO_RIGHT, RIGHT_TO_LEFT})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface CardsDirection {
+        int LEFT_TO_RIGHT = 0;
+        int RIGHT_TO_LEFT = 1;
     }
 
     public static class Config {
