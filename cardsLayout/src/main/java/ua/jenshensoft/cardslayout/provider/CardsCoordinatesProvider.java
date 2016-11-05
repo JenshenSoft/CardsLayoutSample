@@ -45,7 +45,6 @@ public class CardsCoordinatesProvider {
         this.cardsCount = cardsCount;
         this.orientation = orientation;
         this.center = getCoordinatesForCenter(orientation, this.circleCenterLocation, cardWidth, cardHeight, radius, xConfig, yConfig);
-
         //arcs
         final float generalArc = calcArcFromChord(radius, cardsLayoutLength);
         //angles

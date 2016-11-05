@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.FrameLayout;
@@ -160,6 +159,5 @@ public class CardView<Entity> extends FrameLayout {
         builder.setOrientationMode(swipeOrientationMode);
         swipeManager = builder.create();
         this.setOnTouchListener(swipeManager);
-        setBackgroundColor(ContextCompat.getColor(getContext(), android.R.color.background_dark));
     }
 }
