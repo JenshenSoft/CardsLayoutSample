@@ -285,9 +285,11 @@ public abstract class GameTableLayout<
                 AwesomeAnimation.Builder awesomeAnimation = new AwesomeAnimation.Builder(view)
                         .setX(AwesomeAnimation.CoordinationMode.COORDINATES, distributeFromCoordinates[0], view.getCardInfo().getFirstPositionX())
                         .setY(AwesomeAnimation.CoordinationMode.COORDINATES, distributeFromCoordinates[1], view.getCardInfo().getFirstPositionY())
-                        .setRotation(0, 180)
-                        .setDuration(durationOfDistributeAnimation)
-                        .setInterpolator(cardsLayout.interpolator);
+                        .setRotation(180, view.getRotation())
+                        .setDuration(durationOfDistributeAnimation);
+                if (cardsLayout.interpolator != null) {
+                    awesomeAnimation.setInterpolator(cardsLayout.interpolator);
+                }
                 return awesomeAnimation.build().getAnimatorSet();
             } else {
                 return cardsLayout.getDefaultCreateAnimatorAction().createAnimation(view);

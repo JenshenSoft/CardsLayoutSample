@@ -26,24 +26,29 @@ public class CardsCoordinatesProvider {
     private final float startAngle;
     private final float endAngle;
 
-    public CardsCoordinatesProvider(float radius,
+    public CardsCoordinatesProvider(@LinearLayoutCompat.OrientationMode int orientation,
                                     @CardsLayout.CircleCenterLocation int circleCenterLocation,
                                     int cardsCount,
+                                    float radius,
                                     float cardWidth,
                                     float cardHeight,
-                                    @LinearLayoutCompat.OrientationMode int orientation, float cardsLayoutLength,
+                                    float cardsLayoutLength,
                                     FlagManager flagManager,
                                     CardsLayout.Config xConfig,
                                     CardsLayout.Config yConfig) {
+        this.orientation = orientation;
+        if (orientation == LinearLayoutCompat.HORIZONTAL) {
+            cardsLayoutLength -= cardWidth;
+        } else {
+            cardsLayoutLength -= cardHeight;
+        }
         this.circleCenterLocation = validateCircleLocation(circleCenterLocation, flagManager);
         if (cardsLayoutLength > radius * 2f) {
             radius = cardsLayoutLength / 2f;
             Log.e("CardsLayout", "Diameter can't be bigger then CardsLayoutLength");
         }
         this.radius = radius;
-
         this.cardsCount = cardsCount;
-        this.orientation = orientation;
         this.center = getCoordinatesForCenter(orientation, this.circleCenterLocation, cardWidth, cardHeight, radius, xConfig, yConfig);
         //arcs
         final float generalArc = calcArcFromChord(radius, cardsLayoutLength);
