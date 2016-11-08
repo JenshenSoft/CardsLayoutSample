@@ -38,9 +38,17 @@ public class CardsCoordinatesProvider {
                                     CardsLayout.Config yConfig) {
         this.orientation = orientation;
         if (orientation == LinearLayoutCompat.HORIZONTAL) {
-            cardsLayoutLength -= cardWidth;
+            if (cardsLayoutLength - cardWidth >= 0) {
+                cardsLayoutLength -= cardWidth;
+            } else {
+                cardsLayoutLength =0;
+            }
         } else {
-            cardsLayoutLength -= cardHeight;
+            if (cardsLayoutLength - cardHeight >= 0) {
+                cardsLayoutLength -= cardHeight;
+            } else {
+                cardsLayoutLength =0;
+            }
         }
         this.circleCenterLocation = validateCircleLocation(circleCenterLocation, flagManager);
         if (cardsLayoutLength > radius * 2f) {
