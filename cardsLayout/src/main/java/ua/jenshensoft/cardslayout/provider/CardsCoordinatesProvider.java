@@ -41,13 +41,13 @@ public class CardsCoordinatesProvider {
             if (cardsLayoutLength - cardWidth >= 0) {
                 cardsLayoutLength -= cardWidth;
             } else {
-                cardsLayoutLength =0;
+                cardsLayoutLength = 0;
             }
         } else {
             if (cardsLayoutLength - cardHeight >= 0) {
                 cardsLayoutLength -= cardHeight;
             } else {
-                cardsLayoutLength =0;
+                cardsLayoutLength = 0;
             }
         }
         this.circleCenterLocation = validateCircleLocation(circleCenterLocation, flagManager);
@@ -78,7 +78,7 @@ public class CardsCoordinatesProvider {
                 angle = startAngle;
             } else {
                 if (isLeftArc) { //left side of arc
-                    if (angle + cardSectorAngle - fault >= startAngle && angle + cardSectorAngle - fault <= 90) {
+                    if (angle + cardSectorAngle + fault >= startAngle && angle + cardSectorAngle - fault <= 90) {
                         angle += cardSectorAngle;
                     } else if (angle + cardSectorAngle > 90) {
                         isLeftArc = false;
@@ -89,7 +89,7 @@ public class CardsCoordinatesProvider {
                         throw new RuntimeException("Something went wrong");
                     }
                 } else {
-                    if (angle - cardSectorAngle + fault >= endAngle && angle - cardSectorAngle + fault <= 90) {
+                    if (angle - cardSectorAngle + fault >= endAngle && angle - cardSectorAngle - fault <= 90) {
                         angle -= cardSectorAngle;
                     } else {
                         throw new RuntimeException("Something went wrong");
