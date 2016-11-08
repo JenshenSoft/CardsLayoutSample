@@ -233,14 +233,14 @@ public abstract class CardsLayoutWithAdditionalViews<
                 cardView = visibleCardViews.iterator().next();
                 firstPositionX = cardView.getCardInfo().getFirstPositionX();
                 firstPositionY = cardView.getCardInfo().getFirstPositionY();
-                cardsLayoutWidth = cardView.getMeasuredHeight();
+                cardsLayoutWidth = cardView.getMeasuredWidth();
                 cardsLayoutHeight = cardView.getMeasuredHeight();
                 break;
             case VIEW_POSITION_END:
                 cardView = visibleCardViews.get(visibleCardViews.size() - 1);
                 firstPositionX = cardView.getCardInfo().getFirstPositionX();
                 firstPositionY = cardView.getCardInfo().getFirstPositionY();
-                cardsLayoutWidth = cardView.getMeasuredHeight();
+                cardsLayoutWidth = cardView.getMeasuredWidth();
                 cardsLayoutHeight = cardView.getMeasuredHeight();
                 break;
             case VIEW_POSITION_CENTER:

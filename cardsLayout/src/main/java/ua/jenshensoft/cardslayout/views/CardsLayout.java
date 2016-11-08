@@ -46,7 +46,10 @@ import static ua.jenshensoft.cardslayout.views.CardsLayout.DistributeCardsBy.CIR
 import static ua.jenshensoft.cardslayout.views.CardsLayout.DistributeCardsBy.LINE;
 
 
-public abstract class CardsLayout<Entity> extends FrameLayout implements OnCardTranslationListener<Entity>, OnCardSwipedListener<Entity>, OnCardPercentageChangeListener<Entity> {
+public abstract class CardsLayout<Entity> extends FrameLayout implements
+        OnCardTranslationListener<Entity>,
+        OnCardSwipedListener<Entity>,
+        OnCardPercentageChangeListener<Entity> {
 
     public static final int EMPTY = -1;
 
