@@ -8,6 +8,8 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.jenshen.awesomeanimation.AwesomeAnimation;
+
 import java.util.HashSet;
 import java.util.Set;
 

@@ -8,17 +8,18 @@ import android.support.annotation.CallSuper;
 import android.support.annotation.CheckResult;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
-import android.widget.LinearLayout;
+
+import com.jenshen.awesomeanimation.AwesomeAnimation;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 
-import ua.jenshensoft.cardslayout.util.AwesomeAnimation;
 import ua.jenshensoft.cardslayout.util.FlagManager;
 
 import static ua.jenshensoft.cardslayout.views.CardsLayoutWithAdditionalViews.AnchorPosition.VIEW_POSITION_CENTER;
@@ -108,10 +109,10 @@ public abstract class CardsLayoutWithAdditionalViews<
             coordinates[0] = (int) xConfig.getStartCoordinates();
             coordinates[1] = (int) yConfig.getStartCoordinates();
             moveViewToPosition(view, coordinates, withAnimation);
-            if (getChildListOrientation() == LinearLayout.HORIZONTAL)
+            if (getChildListOrientation() == LinearLayoutCompat.HORIZONTAL)
                 xConfig.setStartCoordinates(xConfig.getStartCoordinates() + view.getMeasuredWidth() - xConfig.getDistanceBetweenViews());
 
-            if (getChildListOrientation() == LinearLayout.VERTICAL)
+            if (getChildListOrientation() == LinearLayoutCompat.VERTICAL)
                 yConfig.setStartCoordinates(yConfig.getStartCoordinates() + view.getMeasuredWidth() - yConfig.getDistanceBetweenViews());
         }
     }

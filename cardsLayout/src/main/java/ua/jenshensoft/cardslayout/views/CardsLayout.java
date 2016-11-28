@@ -21,6 +21,8 @@ import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
+import com.jenshen.awesomeanimation.AwesomeAnimation;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
@@ -33,7 +35,6 @@ import ua.jenshensoft.cardslayout.listeners.OnCardSwipedListener;
 import ua.jenshensoft.cardslayout.listeners.OnCardTranslationListener;
 import ua.jenshensoft.cardslayout.provider.CardCoordinates;
 import ua.jenshensoft.cardslayout.provider.CardsCoordinatesProvider;
-import ua.jenshensoft.cardslayout.util.AwesomeAnimation;
 import ua.jenshensoft.cardslayout.util.DrawableUtils;
 import ua.jenshensoft.cardslayout.util.FlagManager;
 import ua.jenshensoft.cardslayout.util.SwipeGestureManager;
@@ -598,7 +599,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
 
     private void init() {
         //attr
-        childListOrientation = LinearLayout.HORIZONTAL;
+        childListOrientation = LinearLayoutCompat.HORIZONTAL;
         cardsLayout_cardsDirection = CardsDirection.LEFT_TO_RIGHT;
         childListPaddingLeft = 0;
         childListPaddingRight = 0;

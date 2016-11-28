@@ -15,12 +15,11 @@ import android.util.AttributeSet;
 import android.widget.FrameLayout;
 
 import com.android.internal.util.Predicate;
+import com.jenshen.awesomeanimation.AwesomeAnimation;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import ua.jenshensoft.cardslayout.util.AwesomeAnimation;
 
 public abstract class GameTableLayout<
         Entity,
