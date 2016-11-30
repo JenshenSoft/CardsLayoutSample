@@ -666,17 +666,17 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
         cardView.setCardTranslationListener(this);
         cardView.setCardSwipedListener(this);
         cardView.setCardPercentageChangeListener(this, CardView.START_TO_CURRENT);
+        if (cardsLayout_cardsDirection == LEFT_TO_RIGHT) {
+            cardViewList.add(cardView);
+        } else {
+            cardViewList.add(0, cardView);
+        }
     }
 
     private void addCardViewToRootView(View view) {
         CardView<Entity> cardView = createCardView(view);
         cardView.setCardInfo(new CardInfo<>(cardViewList.size()));
         this.addView(cardView);
-        if (cardsLayout_cardsDirection == LEFT_TO_RIGHT) {
-            cardViewList.add(cardView);
-        } else {
-            cardViewList.add(0, cardView);
-        }
     }
 
     private void addCardViewToRootView(View view, int position) {
