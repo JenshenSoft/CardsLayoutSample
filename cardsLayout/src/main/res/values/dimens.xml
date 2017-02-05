@@ -1,3 +1,5 @@
 <resources>
     <dimen name="cardsLayout_test_card_offset">32dp</dimen>
+    <dimen name="cardsLayout_card_elevation_normal">8dp</dimen>
+    <dimen name="cardsLayout_card_elevation_pressed">16dp</dimen>
 </resources>

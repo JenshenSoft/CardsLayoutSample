@@ -2,6 +2,7 @@ package ua.jenshensoft.cardslayout.util;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 import android.util.Property;
 import android.view.GestureDetector;
@@ -14,6 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import ua.jenshensoft.cardslayout.CardInfo;
+import ua.jenshensoft.cardslayout.R;
 import ua.jenshensoft.cardslayout.listeners.OnCardPercentageChangeListener;
 import ua.jenshensoft.cardslayout.listeners.OnCardSwipedListener;
 import ua.jenshensoft.cardslayout.listeners.OnCardTranslationListener;
@@ -22,6 +24,7 @@ import ua.jenshensoft.cardslayout.views.CardView;
 public class SwipeGestureManager<Entity> implements View.OnTouchListener {
 
     private final GestureDetector gestureDetector;
+    private final Context context;
     //Listeners
     private OnCardTranslationListener<Entity> cardTranslationListener;
     private OnCardSwipedListener<Entity> cardSwipedListener;
@@ -42,6 +45,7 @@ public class SwipeGestureManager<Entity> implements View.OnTouchListener {
     private CardInfoProvider<Entity> cardInfoProvider;
 
     private SwipeGestureManager(Context context, float swipeSpeed, float swipeOffset, int orientationMode) {
+        this.context = context;
         this.swipeSpeed = swipeSpeed;
         this.swipeOffset = swipeOffset;
         this.orientationMode = orientationMode;
@@ -62,6 +66,10 @@ public class SwipeGestureManager<Entity> implements View.OnTouchListener {
                     .setDuration(200)
                     .build();
             awesomeAnimation.start();
+            int cardElevationNormal = context.getResources().getDimensionPixelOffset(R.dimen.cardsLayout_card_elevation_pressed);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                view.setElevation(cardElevationNormal);
+            }
         } else if (event.getActionMasked() == MotionEvent.ACTION_UP) {
             AwesomeAnimation awesomeAnimation = new AwesomeAnimation.Builder(view)
                     .setSizeX(AwesomeAnimation.SizeMode.SCALE, 1f)
@@ -69,6 +77,10 @@ public class SwipeGestureManager<Entity> implements View.OnTouchListener {
                     .setDuration(200)
                     .build();
             awesomeAnimation.start();
+            int cardElevationPressed = context.getResources().getDimensionPixelOffset(R.dimen.cardsLayout_card_elevation_normal);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                view.setElevation(cardElevationPressed);
+            }
         }
 
         boolean status;
@@ -268,6 +280,13 @@ public class SwipeGestureManager<Entity> implements View.OnTouchListener {
         this.swipeOffset = swipeOffset;
     }
 
+    public interface CardInfoProvider<Entity> {
+        CardInfo<Entity> getCardInfo();
+    }
+
+
+    /* inner types */
+
     public static class Builder<Entity> {
         private final Context context;
         private float swipeOffset;
@@ -293,13 +312,6 @@ public class SwipeGestureManager<Entity> implements View.OnTouchListener {
         public SwipeGestureManager<Entity> create() {
             return new SwipeGestureManager<>(context, swipeSpeed, swipeOffset, mOrientationMode);
         }
-    }
-
-
-    /* inner types */
-
-    public interface CardInfoProvider<Entity> {
-        CardInfo<Entity> getCardInfo();
     }
 
     private class FlingGestureDetector extends GestureDetector.SimpleOnGestureListener {

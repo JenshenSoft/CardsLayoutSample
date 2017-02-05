@@ -671,6 +671,9 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
         } else {
             cardViewList.add(0, cardView);
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            cardView.setElevation(getResources().getDimensionPixelOffset(R.dimen.cardsLayout_card_elevation_normal));
+        }
     }
 
     private void addCardViewToRootView(View view) {

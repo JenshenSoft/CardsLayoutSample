@@ -7,7 +7,7 @@
     android:background="@android:color/darker_gray"
     tools:context="ua.jenshensoft.cardslayoutsample.MainActivity">
 
-<!--
+
     <ua.jenshensoft.cardslayoutsample.CardsLayoutDefault
         android:id="@+id/cardsLayout1"
         android:layout_width="match_parent"
@@ -185,7 +185,7 @@
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
             android:src="@drawable/ic_card7" />
-    </ua.jenshensoft.cardslayoutsample.CardsLayoutDefault>-->
+    </ua.jenshensoft.cardslayoutsample.CardsLayoutDefault>
 
     <ua.jenshensoft.cardslayoutsample.CardsLayoutDefault
         android:id="@+id/cardsLayout"
@@ -199,22 +199,49 @@
         <ImageView
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
-            android:background="@color/colorAccent"
             android:contentDescription="@null"
             android:src="@drawable/ic_card0" />
 
         <ImageView
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
-            android:background="@color/colorPrimary"
             android:contentDescription="@null"
             android:src="@drawable/ic_card1" />
 
         <ImageView
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
-            android:background="@color/colorPrimaryDark"
             android:contentDescription="@null"
             android:src="@drawable/ic_card2" />
+
+        <ImageView
+            android:layout_width="@dimen/card_width"
+            android:layout_height="@dimen/card_height"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_card3" />
+
+        <ImageView
+            android:layout_width="@dimen/card_width"
+            android:layout_height="@dimen/card_height"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_card4" />
+
+        <ImageView
+            android:layout_width="@dimen/card_width"
+            android:layout_height="@dimen/card_height"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_card5" />
+
+        <ImageView
+            android:layout_width="@dimen/card_width"
+            android:layout_height="@dimen/card_height"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_card6" />
+
+        <ImageView
+            android:layout_width="@dimen/card_width"
+            android:layout_height="@dimen/card_height"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_card7" />
     </ua.jenshensoft.cardslayoutsample.CardsLayoutDefault>
 </FrameLayout>

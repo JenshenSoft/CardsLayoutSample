@@ -22,52 +22,52 @@ import java.util.List;
 
 import ua.jenshensoft.cardslayout.util.FlagManager;
 
-import static ua.jenshensoft.cardslayout.views.CardsLayoutWithAdditionalViews.AnchorPosition.VIEW_POSITION_CENTER;
-import static ua.jenshensoft.cardslayout.views.CardsLayoutWithAdditionalViews.AnchorPosition.VIEW_POSITION_END;
-import static ua.jenshensoft.cardslayout.views.CardsLayoutWithAdditionalViews.AnchorPosition.VIEW_POSITION_START;
+import static ua.jenshensoft.cardslayout.views.CardsLayoutWithBars.AnchorPosition.VIEW_POSITION_CENTER;
+import static ua.jenshensoft.cardslayout.views.CardsLayoutWithBars.AnchorPosition.VIEW_POSITION_END;
+import static ua.jenshensoft.cardslayout.views.CardsLayoutWithBars.AnchorPosition.VIEW_POSITION_START;
 
-public abstract class CardsLayoutWithAdditionalViews<
+public abstract class CardsLayoutWithBars<
         Entity,
-        UserBarView extends View,
-        GameInfoView extends View>
+        FirstBarView extends View,
+        SecondBarView extends View>
         extends CardsLayout<Entity> {
 
     //additional views
     @Nullable
-    protected UserBarView userBarView;
+    protected FirstBarView firstBarView;
     @Nullable
-    protected GameInfoView gameInfoView;
+    protected SecondBarView secondBarView;
 
     //attr
-    private FlagManager userBarAnchorGravity;
-    private FlagManager gameInfoBarAnchorGravity;
+    private FlagManager firstBarAnchorGravity;
+    private FlagManager secondBarAnchorGravity;
     @AnchorPosition
-    private int userBarAnchorPosition;
+    private int firstBarAnchorPosition;
     @AnchorPosition
-    private int gameInfoBarAnchorPosition;
+    private int secondBarAnchorPosition;
     private int barsMargin;
     private boolean distributeBarsByWidth;
     private boolean distributeBarsByHeight;
     @Nullable
-    private Class<UserBarView> userBarClassName;
+    private Class<FirstBarView> firstBarClassName;
     @Nullable
-    private Class<GameInfoView> gameInfoClassName;
+    private Class<SecondBarView> secondBarClassName;
 
-    public CardsLayoutWithAdditionalViews(Context context) {
+    public CardsLayoutWithBars(Context context) {
         super(context);
         if (!isInEditMode()) {
             inflateAttributesWithAdditional(null);
         }
     }
 
-    public CardsLayoutWithAdditionalViews(Context context, AttributeSet attrs) {
+    public CardsLayoutWithBars(Context context, AttributeSet attrs) {
         super(context, attrs);
         if (!isInEditMode()) {
             inflateAttributesWithAdditional(attrs);
         }
     }
 
-    public CardsLayoutWithAdditionalViews(Context context, AttributeSet attrs, int defStyleAttr) {
+    public CardsLayoutWithBars(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         if (!isInEditMode()) {
             inflateAttributesWithAdditional(attrs);
@@ -75,7 +75,7 @@ public abstract class CardsLayoutWithAdditionalViews<
     }
 
     @SuppressWarnings("unused")
-    public CardsLayoutWithAdditionalViews(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public CardsLayoutWithBars(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         if (!isInEditMode()) {
             inflateAttributesWithAdditional(attrs);
@@ -85,10 +85,10 @@ public abstract class CardsLayoutWithAdditionalViews<
     @SuppressWarnings("unchecked")
     @Override
     public void onViewAdded(View child) {
-        if (userBarClassName != null && userBarClassName.isInstance(child)) {
-            userBarView = (UserBarView) child;
-        } else if (gameInfoClassName != null && gameInfoClassName.isInstance(child)) {
-            gameInfoView = (GameInfoView) child;
+        if (firstBarClassName != null && firstBarClassName.isInstance(child)) {
+            firstBarView = (FirstBarView) child;
+        } else if (secondBarClassName != null && secondBarClassName.isInstance(child)) {
+            secondBarView = (SecondBarView) child;
         } else {
             super.onViewAdded(child);
         }
@@ -118,11 +118,11 @@ public abstract class CardsLayoutWithAdditionalViews<
     }
 
     protected void moveUserBarToPosition(int[] coordinatesForUserInfo, boolean withAnimation) {
-        moveViewToPosition(userBarView, coordinatesForUserInfo, withAnimation);
+        moveViewToPosition(firstBarView, coordinatesForUserInfo, withAnimation);
     }
 
     protected void moveGameInfoBarToPosition(int[] coordinatesForGameInfoBar, boolean withAnimation) {
-        moveViewToPosition(gameInfoView, coordinatesForGameInfoBar, withAnimation);
+        moveViewToPosition(secondBarView, coordinatesForGameInfoBar, withAnimation);
     }
 
     protected void moveViewToPosition(View view, int[] coordinates, boolean isAnimated) {
@@ -148,21 +148,21 @@ public abstract class CardsLayoutWithAdditionalViews<
         if (attrs != null) {
             TypedArray attributes = getContext().obtainStyledAttributes(attrs, ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params);
             try {
-                userBarAnchorGravity = new FlagManager(attributes.getInt(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params_cardsLayoutAV_userBar_anchorGravity, FlagManager.Gravity.LEFT | FlagManager.Gravity.CENTER_VERTICAL));
-                gameInfoBarAnchorGravity = new FlagManager(attributes.getInt(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params_cardsLayoutAV_gameInfoBar_anchorGravity, FlagManager.Gravity.RIGHT | FlagManager.Gravity.CENTER_VERTICAL));
-                userBarAnchorPosition = attributes.getInt(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params_cardsLayoutAV_userBar_anchorPosition, VIEW_POSITION_START);
-                gameInfoBarAnchorPosition = attributes.getInt(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params_cardsLayoutAV_gameInfoBar_anchorPosition, VIEW_POSITION_END);
+                firstBarAnchorGravity = new FlagManager(attributes.getInt(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params_cardsLayoutAV_firstBar_anchorGravity, FlagManager.Gravity.LEFT | FlagManager.Gravity.CENTER_VERTICAL));
+                secondBarAnchorGravity = new FlagManager(attributes.getInt(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params_cardsLayoutAV_secondBar_anchorGravity, FlagManager.Gravity.RIGHT | FlagManager.Gravity.CENTER_VERTICAL));
+                firstBarAnchorPosition = attributes.getInt(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params_cardsLayoutAV_firstBar_anchorPosition, VIEW_POSITION_START);
+                secondBarAnchorPosition = attributes.getInt(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params_cardsLayoutAV_secondBar_anchorPosition, VIEW_POSITION_END);
                 distributeBarsByWidth = attributes.getBoolean(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params_cardsLayoutAV_distributeBars_byWidth, false);
                 distributeBarsByHeight = attributes.getBoolean(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params_cardsLayoutAV_distributeBars_byHeight, false);
                 barsMargin = attributes.getDimensionPixelOffset(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params_cardsLayoutAV_barsMargin, 0);
                 try {
-                    String userBarClassName = attributes.getString(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params_cardsLayoutAV_userBarViewClass);
+                    String userBarClassName = attributes.getString(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params_cardsLayoutAV_firstBarViewClass);
                     if (userBarClassName != null) {
-                        this.userBarClassName = (Class<UserBarView>) Class.forName(userBarClassName);
+                        this.firstBarClassName = (Class<FirstBarView>) Class.forName(userBarClassName);
                     }
-                    String gamInfoBarClassName = attributes.getString(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params_cardsLayoutAV_gameInfoBarViewClass);
+                    String gamInfoBarClassName = attributes.getString(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params_cardsLayoutAV_secondBarViewClass);
                     if (gamInfoBarClassName != null) {
-                        this.gameInfoClassName = (Class<GameInfoView>) Class.forName(gamInfoBarClassName);
+                        this.secondBarClassName = (Class<SecondBarView>) Class.forName(gamInfoBarClassName);
                     }
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
@@ -192,26 +192,26 @@ public abstract class CardsLayoutWithAdditionalViews<
             return;
         }
 
-        FlagManager userBarAnchorGravity = this.userBarAnchorGravity;
-        FlagManager gameInfoBarAnchorGravity = this.gameInfoBarAnchorGravity;
+        FlagManager userBarAnchorGravity = this.firstBarAnchorGravity;
+        FlagManager gameInfoBarAnchorGravity = this.secondBarAnchorGravity;
 
         if (distributeBarsByWidth) {
-            userBarAnchorGravity = validateAnchorGravityByWidthDistribution(userBarAnchorPosition);
-            gameInfoBarAnchorGravity = validateAnchorGravityByWidthDistribution(gameInfoBarAnchorPosition);
+            userBarAnchorGravity = validateAnchorGravityByWidthDistribution(firstBarAnchorPosition);
+            gameInfoBarAnchorGravity = validateAnchorGravityByWidthDistribution(secondBarAnchorPosition);
         }
 
         if (distributeBarsByHeight) {
-            userBarAnchorGravity = validateAnchorGravityByHeightDistribution(userBarAnchorPosition);
-            gameInfoBarAnchorGravity = validateAnchorGravityByHeightDistribution(gameInfoBarAnchorPosition);
+            userBarAnchorGravity = validateAnchorGravityByHeightDistribution(firstBarAnchorPosition);
+            gameInfoBarAnchorGravity = validateAnchorGravityByHeightDistribution(secondBarAnchorPosition);
         }
 
-        if (userBarView != null) {
-            final int[] coordinatesForUserInfo = getBarCoordinates(userBarAnchorGravity, getAnchorViewInfo(userBarAnchorPosition), userBarView);
+        if (firstBarView != null) {
+            final int[] coordinatesForUserInfo = getBarCoordinates(userBarAnchorGravity, getAnchorViewInfo(firstBarAnchorPosition), firstBarView);
             moveUserBarToPosition(coordinatesForUserInfo, withAnimation);
         }
 
-        if (gameInfoView != null) {
-            int[] coordinatesForGameInfoBar = getBarCoordinates(gameInfoBarAnchorGravity, getAnchorViewInfo(gameInfoBarAnchorPosition), gameInfoView);
+        if (secondBarView != null) {
+            int[] coordinatesForGameInfoBar = getBarCoordinates(gameInfoBarAnchorGravity, getAnchorViewInfo(secondBarAnchorPosition), secondBarView);
             moveGameInfoBarToPosition(coordinatesForGameInfoBar, withAnimation);
         }
     }
@@ -273,11 +273,11 @@ public abstract class CardsLayoutWithAdditionalViews<
      */
     private void setBarsStartPosition(boolean withAnimation) {
         List<View> views = new ArrayList<>();
-        if (userBarView != null) {
-            views.add(userBarView);
+        if (firstBarView != null) {
+            views.add(firstBarView);
         }
-        if (gameInfoView != null) {
-            views.add(gameInfoView);
+        if (secondBarView != null) {
+            views.add(secondBarView);
         }
 
         final int childListPaddingBottom = getChildListPaddingBottom();
@@ -343,11 +343,11 @@ public abstract class CardsLayoutWithAdditionalViews<
         float difference = rootWidth - widthOfViews;
 
         int additionalViewsWidth = 0;
-        if (userBarView != null) {
-            additionalViewsWidth += userBarView.getMeasuredWidth();
+        if (firstBarView != null) {
+            additionalViewsWidth += firstBarView.getMeasuredWidth();
         }
-        if (gameInfoView != null) {
-            additionalViewsWidth += gameInfoView.getMeasuredWidth();
+        if (secondBarView != null) {
+            additionalViewsWidth += secondBarView.getMeasuredWidth();
         }
         return difference >= additionalViewsWidth;
     }
@@ -359,11 +359,11 @@ public abstract class CardsLayoutWithAdditionalViews<
         float difference = rootHeight - heightOfViews;
 
         int additionalViewsHeight = 0;
-        if (userBarView != null) {
-            additionalViewsHeight += userBarView.getMeasuredHeight();
+        if (firstBarView != null) {
+            additionalViewsHeight += firstBarView.getMeasuredHeight();
         }
-        if (gameInfoView != null) {
-            additionalViewsHeight += gameInfoView.getMeasuredHeight();
+        if (secondBarView != null) {
+            additionalViewsHeight += secondBarView.getMeasuredHeight();
         }
         return difference >= additionalViewsHeight;
     }

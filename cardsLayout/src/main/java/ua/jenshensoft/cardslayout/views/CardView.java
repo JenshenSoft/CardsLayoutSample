@@ -1,9 +1,7 @@
 package ua.jenshensoft.cardslayout.views;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.os.Build;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -22,7 +20,7 @@ public class CardView<Entity> extends FrameLayout {
     //attr
     private float swipeSpeed = 1.0f;
     private float swipeOffset = -1;
-    private int swipeOrientationMode =SwipeGestureManager.OrientationMode.UP_BOTTOM;
+    private int swipeOrientationMode = SwipeGestureManager.OrientationMode.UP_BOTTOM;
     private SwipeGestureManager<Entity> swipeManager;
     private CardInfo<Entity> cardInfo;
     private boolean scrollAndClickable = true;
@@ -45,15 +43,6 @@ public class CardView<Entity> extends FrameLayout {
 
     public CardView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        if (!isInEditMode()) {
-            inflateAttributes(context, attrs);
-        }
-        init();
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public CardView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
         if (!isInEditMode()) {
             inflateAttributes(context, attrs);
         }

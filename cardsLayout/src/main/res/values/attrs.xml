@@ -50,12 +50,12 @@
     </declare-styleable>
 
     <declare-styleable name="CardsLayoutAV_Params" tools:ignore="ResourceName">
-        <attr name="cardsLayoutAV_userBar_anchorPosition" format="enum">
+        <attr name="cardsLayoutAV_firstBar_anchorPosition" format="enum">
             <enum name="start" value="0" />
             <enum name="end" value="1" />
             <enum name="center" value="2" />
         </attr>
-        <attr name="cardsLayoutAV_userBar_anchorGravity">
+        <attr name="cardsLayoutAV_firstBar_anchorGravity">
             <flag name="right" value="1" />
             <flag name="left" value="2" />
             <flag name="top" value="4" />
@@ -64,12 +64,12 @@
             <flag name="center_horizontal" value="32" />
             <flag name="center_vertical" value="64" />
         </attr>
-        <attr name="cardsLayoutAV_gameInfoBar_anchorPosition" format="enum">
+        <attr name="cardsLayoutAV_secondBar_anchorPosition" format="enum">
             <enum name="start" value="0" />
             <enum name="end" value="1" />
             <enum name="center" value="2" />
         </attr>
-        <attr name="cardsLayoutAV_gameInfoBar_anchorGravity">
+        <attr name="cardsLayoutAV_secondBar_anchorGravity">
             <flag name="right" value="1" />
             <flag name="left" value="2" />
             <flag name="top" value="4" />
@@ -80,8 +80,8 @@
         <attr name="cardsLayoutAV_distributeBars_byWidth" format="boolean" />
         <attr name="cardsLayoutAV_distributeBars_byHeight" format="boolean" />
         <attr name="cardsLayoutAV_barsMargin" format="dimension" />
-        <attr name="cardsLayoutAV_userBarViewClass" format="string" />
-        <attr name="cardsLayoutAV_gameInfoBarViewClass" format="string" />
+        <attr name="cardsLayoutAV_firstBarViewClass" format="string" />
+        <attr name="cardsLayoutAV_secondBarViewClass" format="string" />
     </declare-styleable>
 
     <declare-styleable name="GameTableLayout_Params" tools:ignore="ResourceName">
