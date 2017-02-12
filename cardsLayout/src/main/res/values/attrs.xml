@@ -37,6 +37,7 @@
         <attr name="cardsLayout_childList_paddingBottom" format="dimension" />
         <attr name="cardsLayout_childList_height" format="dimension" />
         <attr name="cardsLayout_childList_width" format="dimension" />
+        <attr name="cardsLayout_tintColor" format="color" />
         <attr name="cardsLayout_childList_distributeCardsBy" format="enum">
             <enum name="line" value="0" />
             <enum name="circle" value="1" />
@@ -85,7 +86,6 @@
     </declare-styleable>
 
     <declare-styleable name="GameTableLayout_Params" tools:ignore="ResourceName">
-        <attr name="gameTableLayout_tintColor" format="color" />
         <attr name="gameTableLayout_cardValidatorSwipe" format="boolean" />
         <attr name="gameTableLayout_cardValidatorTransition" format="color" />
         <attr name="gameTableLayout_duration_distributeAnimation" format="integer" />

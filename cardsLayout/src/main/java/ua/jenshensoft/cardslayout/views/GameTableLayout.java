@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import ua.jenshensoft.cardslayout.R;
+
 public abstract class GameTableLayout<
         Entity,
         Layout extends CardsLayout<Entity>>
@@ -28,9 +30,11 @@ public abstract class GameTableLayout<
 
     //Views
     protected List<Layout> cardsLayouts;
-    @Nullable
-    protected ColorFilter colorFilter;
+
+    //attr
     private int durationOfDistributeAnimation;
+    private boolean isEnableSwipe;
+    private boolean isEnableTransition;
 
     @Nullable
     private OnCardClickListener<Entity> onCardClickListener;
@@ -42,35 +46,35 @@ public abstract class GameTableLayout<
 
     public GameTableLayout(Context context) {
         super(context);
-        inflateLayout();
         if (!isInEditMode()) {
             initLayout(null);
         }
+        inflateLayout();
     }
 
     public GameTableLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
-        inflateLayout();
         if (!isInEditMode()) {
             initLayout(attrs);
         }
+        inflateLayout();
     }
 
     public GameTableLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        inflateLayout();
         if (!isInEditMode()) {
             initLayout(attrs);
         }
+        inflateLayout();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public GameTableLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        inflateLayout();
         if (!isInEditMode()) {
             initLayout(attrs);
         }
+        inflateLayout();
     }
 
     @Override
@@ -93,11 +97,7 @@ public abstract class GameTableLayout<
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
-        if (colorFilter != null) {
-            getCardsLayoutCurrentPlayer().setEnabledExceptViewsWithPositionsWithFilter(enabled, colorFilter);
-        } else {
-            getCardsLayoutCurrentPlayer().setEnabled(enabled);
-        }
+        getCardsLayoutCurrentPlayer().setEnabled(enabled);
     }
 
 
@@ -109,10 +109,6 @@ public abstract class GameTableLayout<
 
     public void setOnDistributedCardsListener(@Nullable OnDistributedCardsListener onDistributedCardsListener) {
         this.onDistributedCardsListener = onDistributedCardsListener;
-    }
-
-    public void setColorFilter(@ColorInt int color) {
-        this.colorFilter = new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY);
     }
 
     public Layout getCardsLayoutCurrentPlayer() {
@@ -137,17 +133,9 @@ public abstract class GameTableLayout<
                         onActionWithCard(cardInfo.getEntity());
                         return;
                     }
-                    if (colorFilter != null) {
-                        cardsLayout.setEnabledExceptViewsWithPositionsWithFilter(true, null);
-                    } else {
-                        cardsLayout.setEnabled(true);
-                    }
+                    cardsLayout.setEnabled(true);
                 } else {
-                    if (colorFilter != null) {
-                        cardsLayout.setEnabledExceptViewsWithPositionsWithFilter(false, colorFilter, cardInfo.getCardPositionInLayout());
-                    } else {
-                        cardsLayout.setEnabledExceptViewsWithPositions(false, cardInfo.getCardPositionInLayout());
-                    }
+                    cardsLayout.setEnabledExceptPositions(false, cardInfo.getCardPositionInLayout());
                 }
             });
         } else {
@@ -198,42 +186,37 @@ public abstract class GameTableLayout<
 
     /* private methods */
 
+    @SuppressWarnings({"unchecked"})
+    private void initLayout(AttributeSet attrs) {
+        if (attrs != null) {
+            TypedArray attributes = getContext().obtainStyledAttributes(attrs, ua.jenshensoft.cardslayout.R.styleable.GameTableLayout_Params);
+            try {
+                durationOfDistributeAnimation = attributes.getInteger(ua.jenshensoft.cardslayout.R.styleable.GameTableLayout_Params_gameTableLayout_duration_distributeAnimation, 3000);
+                isEnableSwipe = attributes.getBoolean(R.styleable.GameTableLayout_Params_gameTableLayout_cardValidatorSwipe, false);
+                isEnableTransition = attributes.getBoolean(R.styleable.GameTableLayout_Params_gameTableLayout_cardValidatorTransition, false);
+            } finally {
+                attributes.recycle();
+            }
+        }
+    }
+
     @SuppressWarnings({"unchecked", "ForLoopReplaceableByForEach"})
     private void inflateLayout() {
         inflate(getContext(), getLayoutId(), this);
         cardsLayouts = new ArrayList<>();
         int[] layoutsIds = provideCardsLayoutsIds();
         for (int i = 0; i < layoutsIds.length; i++) {
-            cardsLayouts.add((Layout) findViewById(layoutsIds[i]));
+            Layout layout = (Layout) findViewById(layoutsIds[i]);
+            cardsLayouts.add(layout);
         }
         DistributionState<Entity> distributionState = provideDistributionState();
         if (distributionState != null) {
             Predicate<CardView<Entity>> beforeDistributionPredicate = distributionState.getPredicateForCardsBeforeDistribution();
             setCardsBeforeDistribution(beforeDistributionPredicate);
         }
-    }
 
-    @SuppressWarnings({"unchecked"})
-    private void initLayout(AttributeSet attrs) {
-        if (attrs != null) {
-            TypedArray attributes = getContext().obtainStyledAttributes(attrs, ua.jenshensoft.cardslayout.R.styleable.GameTableLayout_Params);
-            try {
-                final int color = attributes.getColor(ua.jenshensoft.cardslayout.R.styleable.GameTableLayout_Params_gameTableLayout_tintColor, -1);
-                durationOfDistributeAnimation = attributes.getInteger(ua.jenshensoft.cardslayout.R.styleable.GameTableLayout_Params_gameTableLayout_duration_distributeAnimation, 3000);
-                if (color != -1) {
-                    colorFilter = new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY);
-                }
-
-                if (attributes.getBoolean(ua.jenshensoft.cardslayout.R.styleable.GameTableLayout_Params_gameTableLayout_cardValidatorSwipe, false)) {
-                    setSwipeValidatorEnabled(true);
-                }
-                if (attributes.getBoolean(ua.jenshensoft.cardslayout.R.styleable.GameTableLayout_Params_gameTableLayout_cardValidatorTransition, false)) {
-                    setTransitionValidatorEnabled(true);
-                }
-            } finally {
-                attributes.recycle();
-            }
-        }
+        setSwipeValidatorEnabled(isEnableSwipe);
+        setTransitionValidatorEnabled(isEnableTransition);
     }
 
     private void onActionWithCard(Entity entity) {

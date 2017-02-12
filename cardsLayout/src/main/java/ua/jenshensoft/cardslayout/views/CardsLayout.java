@@ -7,6 +7,8 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.ColorFilter;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.os.Build;
 import android.support.annotation.CallSuper;
 import android.support.annotation.IntDef;
@@ -80,6 +82,8 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
     private int childList_circleCenterLocation;
     private List<CardView<Entity>> cardViewList;
     private FlagManager gravityFlag;
+    @Nullable
+    private ColorFilter colorFilter;
 
     //listeners
     private OnCardSwipedListener<Entity> onCardSwipedListener;
@@ -291,16 +295,16 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
-        setEnabledExceptViewsWithPositions(enabled, EMPTY);
+        setEnabledExceptViewsWithPositions(enabled);
     }
 
-    public void setEnabledExceptViewsWithPositions(boolean state, @Nullable int... position) {
-        setEnabledExceptViewsWithPositions(state, null, position);
-    }
-
-    public void setEnabledExceptViewsWithPositionsWithFilter(boolean enabled, @Nullable ColorFilter colorFilter, @Nullable int... position) {
+    public void setEnabledExceptPositions(boolean enabled, @Nullable int... position) {
         super.setEnabled(enabled);
-        setEnabledExceptViewsWithPositions(enabled, colorFilter, position);
+        setEnabledExceptViewsWithPositions(enabled, position);
+    }
+
+    public void setColorFilter(@Nullable ColorFilter colorFilter) {
+        this.colorFilter = colorFilter;
     }
 
     /* animation property */
@@ -612,7 +616,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
         //distribution
         childList_distributeCardsBy = LINE;
         childList_circleCenterLocation = BOTTOM;
-        gravityFlag = new FlagManager(FlagManager.Gravity.CENTER);
+        gravityFlag = new FlagManager(FlagManager.Gravity.BOTTOM);
         cardViewList = new ArrayList<>();
         defaultAnimatorAction = cardView -> {
             AwesomeAnimation.Builder awesomeAnimation = new AwesomeAnimation.Builder(cardView)
@@ -640,6 +644,11 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
                 childListPaddingBottom = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_Params_cardsLayout_childList_paddingBottom, childListPaddingBottom);
                 childList_height = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_Params_cardsLayout_childList_height, childList_height);
                 childList_width = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_Params_cardsLayout_childList_width, childList_width);
+                final int color = attributes.getColor(R.styleable.CardsLayout_Params_cardsLayout_tintColor, -1);
+                if (color != -1) {
+                    colorFilter = new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY);
+                }
+
                 //distribution
                 childList_distributeCardsBy = attributes.getInt(R.styleable.CardsLayout_Params_cardsLayout_childList_distributeCardsBy, childList_distributeCardsBy);
                 childList_circleRadius = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_Params_cardsLayout_childList_circleRadius, childList_circleRadius);
@@ -709,7 +718,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
         return count;
     }
 
-    private void setEnabledExceptViewsWithPositions(boolean state, @Nullable ColorFilter colorFilter, @Nullable int... positions) {
+    private void setEnabledExceptViewsWithPositions(boolean state, @Nullable int... positions) {
         List<Integer> positionsList = null;
         if (positions != null) {
             positionsList = new ArrayList<>();
@@ -725,8 +734,9 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
                 }
                 cardView.setEnabled(true);
             } else {
-                if (cardView.getCardInfo() == null || (positionsList != null && !positionsList.contains(cardView.getCardInfo().getCardPositionInLayout()))) {
-                    if (cardView.isEnabled()) {
+                if (cardView.getCardInfo() == null ||
+                        (positionsList != null && !positionsList.contains(cardView.getCardInfo().getCardPositionInLayout()))) {
+                    if (cardView.isEnabled() && colorFilter != null) {
                         DrawableUtils.setColorFilter(cardView, colorFilter);
                     }
                     cardView.setEnabled(false);
