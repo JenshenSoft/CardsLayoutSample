@@ -90,6 +90,8 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
     private OnCardPercentageChangeListener<Entity> onCardPercentageChangeListener;
     private OnCardTranslationListener<Entity> onCardTranslationListener;
 
+    private boolean animateOnMeasure;
+
     public CardsLayout(Context context) {
         super(context);
         init();
@@ -129,7 +131,8 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        invalidateCardsPosition();
+        invalidateCardsPosition(animateOnMeasure);
+        animateOnMeasure = false;
     }
 
     @SuppressWarnings("unchecked")
@@ -183,7 +186,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
                 cardInfo.setCardPositionInLayout(cardPosition - 1);
             }
         }
-        invalidateCardsPosition(true);
+        animateOnMeasure = true;
     }
 
     public void setIsTestMode() {
@@ -384,7 +387,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
                 final CardCoordinates cardCoordinates = cardsCoordinates.get(i);
                 setXForView(cardView, cardCoordinates.getX());
                 setYForView(cardView, cardCoordinates.getY());
-                cardView.setRotation(cardCoordinates.getAngle());
+                setRotation(cardView, cardCoordinates.getAngle());
             }
         }
     }
@@ -406,6 +409,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
             } else {
                 cardView.setX(cardInfo.getFirstPositionX());
                 cardView.setY(cardInfo.getFirstPositionY());
+                cardView.setRotation(cardInfo.getFirstRotation());
             }
         }
         if (!animators.isEmpty()) {
@@ -598,6 +602,11 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
         cardInfo.setFirstPositionY(Math.round(cardPositionY));
     }
 
+    protected void setRotation(CardView<Entity> cardView, float rotation) {
+        CardInfo<Entity> cardInfo = cardView.getCardInfo();
+        cardInfo.setFirstRotation(Math.round(rotation));
+    }
+
 
     /* private methods */
 
@@ -622,6 +631,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
             AwesomeAnimation.Builder awesomeAnimation = new AwesomeAnimation.Builder(cardView)
                     .setX(AwesomeAnimation.CoordinationMode.COORDINATES, cardView.getX(), cardView.getCardInfo().getFirstPositionX())
                     .setY(AwesomeAnimation.CoordinationMode.COORDINATES, cardView.getY(), cardView.getCardInfo().getFirstPositionY())
+                    .setRotation(cardView.getRotation(), cardView.getCardInfo().getFirstRotation())
                     .setDuration(durationOfAnimation);
             if (interpolator != null)
                 awesomeAnimation.setInterpolator(interpolator);

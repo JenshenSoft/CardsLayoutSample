@@ -11,6 +11,9 @@ public class CardInfo<Entity> {
     private int lastPositionY;
     private int currentPositionX;
     private int currentPositionY;
+    private int firstRotation;
+    private int lastRotation;
+    private int currentRotation;
     @Nullable
     private Entity entity;
 
@@ -59,6 +62,27 @@ public class CardInfo<Entity> {
 
     public void setCurrentPositionY(int currentPositionY) {
         this.currentPositionY = currentPositionY;
+    }
+
+    public void setFirstRotation(int firstRotation) {
+        this.firstRotation = firstRotation;
+        setCurrentPositionY(firstRotation);
+    }
+
+    public int getFirstRotation() {
+        return firstRotation;
+    }
+
+    public void setCurrentRotation(int currentRotation) {
+        this.currentRotation = currentRotation;
+    }
+
+    public int getCurrentRotation() {
+        return currentRotation;
+    }
+
+    public void setLastRotation(int lastRotation) {
+        this.lastRotation = lastRotation;
     }
 
     public int getLastPositionX() {
