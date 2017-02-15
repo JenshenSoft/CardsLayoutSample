@@ -42,7 +42,7 @@ public class CardInfo<Entity> {
 
     public void setFirstPositionY(int firstPositionY) {
         this.firstPositionY = firstPositionY;
-        setCurrentRotation(firstPositionY);
+        setCurrentPositionY(firstPositionY);
     }
 
     public int getCurrentPositionX() {
@@ -63,7 +63,7 @@ public class CardInfo<Entity> {
 
     public void setFirstRotation(int firstRotation) {
         this.firstRotation = firstRotation;
-        setCurrentPositionY(firstRotation);
+        setCurrentRotation(firstRotation);
     }
 
     public int getFirstRotation() {
