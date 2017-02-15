@@ -360,6 +360,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
         if (childList_distributeCardsBy == LINE) {
             setXForViews(xConfig.getStartCoordinates(), xConfig.getDistanceBetweenViews());
             setYForViews(yConfig.getStartCoordinates(), yConfig.getDistanceBetweenViews());
+            setRotationForViews();
         } else {
             if (childList_circleRadius == EMPTY) {
                 throw new RuntimeException("You need to set radius");
@@ -589,6 +590,15 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
             setYForView(view, y);
             if (childListOrientation == LinearLayout.VERTICAL)
                 y += view.getMeasuredHeight() - distanceBetweenViews;
+        }
+    }
+
+    private void setRotationForViews() {
+        for (CardView<Entity> view : cardViewList) {
+            if (view.getVisibility() != VISIBLE) {
+                continue;
+            }
+            setRotation(view, 0);
         }
     }
 
