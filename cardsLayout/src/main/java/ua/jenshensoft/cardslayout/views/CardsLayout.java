@@ -91,6 +91,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
     private OnCardTranslationListener<Entity> onCardTranslationListener;
 
     private boolean animateOnMeasure;
+    private boolean enableValidatePositions = true;
 
     public CardsLayout(Context context) {
         super(context);
@@ -131,8 +132,10 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        invalidateCardsPosition(animateOnMeasure);
-        animateOnMeasure = false;
+        if (enableValidatePositions) {
+            invalidateCardsPosition(animateOnMeasure);
+            animateOnMeasure = false;
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -197,6 +200,14 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
         if (childList_width != EMPTY) {
             childList_width += getContext().getResources().getDimensionPixelOffset(R.dimen.cardsLayout_test_card_offset);
         }
+    }
+
+    public boolean isEnableValidatePositions() {
+        return enableValidatePositions;
+    }
+
+    public void setEnableValidatePositions(boolean enableValidatePositions) {
+        this.enableValidatePositions = enableValidatePositions;
     }
 
 
@@ -414,11 +425,18 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
             }
         }
         if (!animators.isEmpty()) {
+            enableValidatePositions = false;
             AnimatorSet animatorSet = new AnimatorSet();
             animatorSet.playTogether(animators);
             if (animatorListenerAdapter != null) {
                 animatorSet.addListener(animatorListenerAdapter);
             }
+            animatorSet.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    enableValidatePositions = true;
+                }
+            });
             animatorSet.start();
         }
     }
