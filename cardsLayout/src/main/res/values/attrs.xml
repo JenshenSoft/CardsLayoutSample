@@ -86,6 +86,9 @@
     </declare-styleable>
 
     <declare-styleable name="GameTableLayout_Params" tools:ignore="ResourceName">
+        <attr name="gameTableLayout_canAutoDistribute" format="boolean" />
+        <attr name="gameTableLayout_deskOfCardsEnable" format="boolean" />
+        <attr name="gameTableLayout_deskOfCardsIcon" format="reference" />
         <attr name="gameTableLayout_currentPlayerLayoutId" format="integer" />
         <attr name="gameTableLayout_cardValidatorSwipe" format="boolean" />
         <attr name="gameTableLayout_cardValidatorTransition" format="color" />

@@ -35,6 +35,8 @@ public abstract class GameTableLayout<
     private boolean isEnableSwipe;
     private boolean isEnableTransition;
     private int currentPlayerLayoutId = -1;
+    private boolean canAutoDistribute = true;
+    private boolean deskOfCardsEnable = true;
 
     @Nullable
     private DistributionState<Entity> distributionState;
@@ -93,8 +95,8 @@ public abstract class GameTableLayout<
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        if (distributionState != null && distributionState.canAutoDistribute() && !distributionState.isCardsAlreadyDistributed()) {
-            startDistributeCards(distributionState.getPredicateForCardsForDistribution(), distributionState.provideCoordinateForDistribution());
+        if (distributionState != null && canAutoDistribute && !distributionState.isCardsAlreadyDistributed()) {
+            startDistributeCards();
             distributionState.setCardsAlreadyDistributed(true);
         }
     }
@@ -119,8 +121,7 @@ public abstract class GameTableLayout<
     public void setDistributionState(@Nullable DistributionState<Entity> distributionState) {
         this.distributionState = distributionState;
         if (distributionState != null) {
-            Predicate<CardView<Entity>> beforeDistributionPredicate = distributionState.getPredicateForCardsBeforeDistribution();
-            setCardsBeforeDistribution(beforeDistributionPredicate);
+            setCardsBeforeDistribution();
         }
     }
 
@@ -165,22 +166,20 @@ public abstract class GameTableLayout<
         this.durationOfDistributeAnimation = durationOfDistributeAnimation;
     }
 
-
-    /* protected methods */
-
-    protected abstract int getLayoutId();
-
-    protected void setCardsBeforeDistribution(Predicate<CardView<Entity>> beforeDistributionPredicate) {
+    public void setCardsBeforeDistribution() {
+        if (distributionState == null) {
+            throw new RuntimeException("You need to set distribution state before");
+        }
         for (Layout cardsLayout : cardsLayouts) {
             for (CardView<Entity> cardView : cardsLayout.getCardViews()) {
-                if (beforeDistributionPredicate.apply(cardView)) {
-                    if (distributionState != null && distributionState.isDeskOfCardsEnable()) {
+                if (distributionState.getPredicateForCardsBeforeDistribution().apply(cardView)) {
+                    if (distributionState != null && deskOfCardsEnable) {
                         cardView.getCardInfo().setCardDistributed(true);
                     } else {
                         cardView.setVisibility(VISIBLE);
                     }
                 } else {
-                    if (distributionState != null && distributionState.isDeskOfCardsEnable()) {
+                    if (distributionState != null && deskOfCardsEnable) {
                         CardInfo<Entity> cardInfo = cardView.getCardInfo();
                         cardInfo.setCardDistributed(false);
                         float[] coordinates = distributionState.provideCoordinateForDistribution();
@@ -194,7 +193,10 @@ public abstract class GameTableLayout<
         }
     }
 
-    protected void startDistributeCards(Predicate<CardView<Entity>> predicate, float[] distributeFromCoordinates) {
+    public void startDistributeCards() {
+        if (distributionState == null) {
+            throw new RuntimeException("You need to set distribution state before");
+        }
         OnDistributedCardsListener<Entity> onDistributedCardsListener = new OnDistributedCardsListener<Entity>() {
 
             private int count;
@@ -240,9 +242,18 @@ public abstract class GameTableLayout<
         };
 
         for (Layout cardsLayout : cardsLayouts) {
-            distributeCardForPlayer(cardsLayout, predicate, distributeFromCoordinates, onDistributedCardsListener);
+            distributeCardForPlayer(
+                    cardsLayout,
+                    distributionState.getPredicateForCardsForDistribution(),
+                    distributionState.provideCoordinateForDistribution(),
+                    onDistributedCardsListener);
         }
     }
+
+
+    /* protected methods */
+
+    protected abstract int getLayoutId();
 
 
     /* private methods */
@@ -255,7 +266,9 @@ public abstract class GameTableLayout<
                 durationOfDistributeAnimation = attributes.getInteger(ua.jenshensoft.cardslayout.R.styleable.GameTableLayout_Params_gameTableLayout_duration_distributeAnimation, 3000);
                 isEnableSwipe = attributes.getBoolean(R.styleable.GameTableLayout_Params_gameTableLayout_cardValidatorSwipe, false);
                 isEnableTransition = attributes.getBoolean(R.styleable.GameTableLayout_Params_gameTableLayout_cardValidatorTransition, false);
-                currentPlayerLayoutId = attributes.getInt(R.styleable.GameTableLayout_Params_gameTableLayout_currentPlayerLayoutId, -1);
+                currentPlayerLayoutId = attributes.getResourceId(R.styleable.GameTableLayout_Params_gameTableLayout_currentPlayerLayoutId, -1);
+                canAutoDistribute = attributes.getBoolean(R.styleable.GameTableLayout_Params_gameTableLayout_canAutoDistribute, true);
+                deskOfCardsEnable = attributes.getBoolean(R.styleable.GameTableLayout_Params_gameTableLayout_deskOfCardsEnable, true);
             } finally {
                 attributes.recycle();
             }
@@ -280,7 +293,7 @@ public abstract class GameTableLayout<
         List<CardView<Entity>> filteredCardsViews = new ArrayList<>();
         for (CardView<Entity> cardsView : cardsLayout.getCardViews()) {
             if (predicate.apply(cardsView) &&
-                    (distributionState != null && distributionState.isDeskOfCardsEnable() || cardsView.getVisibility() != VISIBLE)) {
+                    (distributionState != null && deskOfCardsEnable || cardsView.getVisibility() != VISIBLE)) {
                 filteredCardsViews.add(cardsView);
             }
         }
@@ -317,7 +330,7 @@ public abstract class GameTableLayout<
                                  CardView<Entity> cardView,
                                  float[] distributeFromCoordinates,
                                  AnimatorListenerAdapter adapter) {
-        if (distributionState != null && distributionState.isDeskOfCardsEnable()) {
+        if (distributionState != null && deskOfCardsEnable) {
             cardView.getCardInfo().setCardDistributed(true);
         } else {
             cardView.setVisibility(VISIBLE);
@@ -369,14 +382,6 @@ public abstract class GameTableLayout<
 
         public void setCardsAlreadyDistributed(boolean cardsAlreadyDistributed) {
             isCardsAlreadyDistributed = cardsAlreadyDistributed;
-        }
-
-        public boolean canAutoDistribute() {
-            return true;
-        }
-
-        public boolean isDeskOfCardsEnable() {
-            return false;
         }
 
         public abstract Predicate<CardView<Entity>> getPredicateForCardsForDistribution();

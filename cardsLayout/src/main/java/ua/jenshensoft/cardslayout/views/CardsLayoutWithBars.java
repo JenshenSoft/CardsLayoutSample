@@ -183,7 +183,7 @@ public abstract class CardsLayoutWithBars<
 
         List<CardView<Entity>> visibleCardViews = new ArrayList<>();
         for (CardView<Entity> cardView : cardViews) {
-            if (cardView.getVisibility() == VISIBLE) {
+            if (cardView.getCardInfo().isCardDistributed() && cardView.getVisibility() == VISIBLE) {
                 visibleCardViews.add(cardView);
             }
         }
@@ -220,7 +220,7 @@ public abstract class CardsLayoutWithBars<
         List<CardView<Entity>> cardViews = getCardViews();
         List<CardView<Entity>> visibleCardViews = new ArrayList<>();
         for (CardView<Entity> cardView : cardViews) {
-            if (cardView.getVisibility() == VISIBLE) {
+            if (cardView.getCardInfo().isCardDistributed() && cardView.getVisibility() == VISIBLE) {
                 visibleCardViews.add(cardView);
             }
         }
