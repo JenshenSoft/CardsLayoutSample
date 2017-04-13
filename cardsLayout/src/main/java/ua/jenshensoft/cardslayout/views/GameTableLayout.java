@@ -4,23 +4,22 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.ColorFilter;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
 import android.os.Build;
-import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.FrameLayout;
 
 import com.android.internal.util.Predicate;
 import com.jenshen.awesomeanimation.AwesomeAnimation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import ua.jenshensoft.cardslayout.CardInfo;
 import ua.jenshensoft.cardslayout.R;
 
 public abstract class GameTableLayout<
@@ -35,14 +34,15 @@ public abstract class GameTableLayout<
     private int durationOfDistributeAnimation;
     private boolean isEnableSwipe;
     private boolean isEnableTransition;
+    private int currentPlayerLayoutId = -1;
+
+    @Nullable
+    private DistributionState<Entity> distributionState;
 
     @Nullable
     private OnCardClickListener<Entity> onCardClickListener;
     @Nullable
-    private OnDistributedCardsListener onDistributedCardsListener;
-    private boolean isCardDistributed;
-
-    private int countOfDistributedLayouts;
+    private OnDistributedCardsListener<Entity> onDistributedCardsListener;
 
     public GameTableLayout(Context context) {
         super(context);
@@ -78,26 +78,31 @@ public abstract class GameTableLayout<
     }
 
     @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        if (isCardDistributed) {
-            return;
-        }
-        DistributionState<Entity> distributionState = provideDistributionState();
-        if (distributionState != null) {
-            if (!distributionState.isCardsAlreadyDistributed()) {
-                startDistributeCards(
-                        distributionState.getPredicateForCardsForDistribution(),
-                        distributionState.provideCoordinateForDistribution());
+    public void onViewAdded(View child) {
+        super.onViewAdded(child);
+        if (child instanceof CardsLayout) {
+            Layout layout = (Layout) child;
+            cardsLayouts.add(layout);
+            if (currentPlayerLayoutId != -1 && currentPlayerLayoutId == child.getId()) {
+                setSwipeValidatorEnabled(layout, isEnableSwipe);
+                setTransitionValidatorEnabled(layout, isEnableTransition);
             }
         }
-        isCardDistributed = true;
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        if (distributionState != null && distributionState.canAutoDistribute() && !distributionState.isCardsAlreadyDistributed()) {
+            startDistributeCards(distributionState.getPredicateForCardsForDistribution(), distributionState.provideCoordinateForDistribution());
+            distributionState.setCardsAlreadyDistributed(true);
+        }
     }
 
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
-        getCardsLayoutCurrentPlayer().setEnabled(enabled);
+        getCurrentPlayerCardsLayout().setEnabled(enabled);
     }
 
 
@@ -107,16 +112,30 @@ public abstract class GameTableLayout<
         this.onCardClickListener = onCardClickListener;
     }
 
-    public void setOnDistributedCardsListener(@Nullable OnDistributedCardsListener onDistributedCardsListener) {
+    public void setOnDistributedCardsListener(@Nullable OnDistributedCardsListener<Entity> onDistributedCardsListener) {
         this.onDistributedCardsListener = onDistributedCardsListener;
     }
 
-    public Layout getCardsLayoutCurrentPlayer() {
-        return cardsLayouts.get(0);
+    public void setDistributionState(@Nullable DistributionState<Entity> distributionState) {
+        this.distributionState = distributionState;
+        if (distributionState != null) {
+            Predicate<CardView<Entity>> beforeDistributionPredicate = distributionState.getPredicateForCardsBeforeDistribution();
+            setCardsBeforeDistribution(beforeDistributionPredicate);
+        }
     }
 
-    public void setSwipeValidatorEnabled(boolean enabled) {
-        final Layout cardsLayout = getCardsLayoutCurrentPlayer();
+    public Layout getCurrentPlayerCardsLayout() {
+        if (currentPlayerLayoutId != -1) {
+            for (Layout layout : cardsLayouts) {
+                if (layout.getId() == currentPlayerLayoutId) {
+                    return layout;
+                }
+            }
+        }
+        throw new RuntimeException("Can't find the current player layout");
+    }
+
+    public void setSwipeValidatorEnabled(final Layout cardsLayout, boolean enabled) {
         if (enabled) {
             cardsLayout.setOnCardSwipedListener(cardInfo -> onActionWithCard(cardInfo.getEntity()));
         } else {
@@ -124,8 +143,7 @@ public abstract class GameTableLayout<
         }
     }
 
-    public void setTransitionValidatorEnabled(boolean enabled) {
-        final Layout cardsLayout = getCardsLayoutCurrentPlayer();
+    public void setTransitionValidatorEnabled(final Layout cardsLayout, boolean enabled) {
         if (enabled) {
             cardsLayout.setCardPercentageChangeListener((percentageX, percentageY, cardInfo, isTouched) -> {
                 if (!isTouched) {
@@ -150,36 +168,79 @@ public abstract class GameTableLayout<
 
     /* protected methods */
 
-    protected abstract int[] provideCardsLayoutsIds();
-
     protected abstract int getLayoutId();
-
-    @Nullable
-    protected abstract DistributionState<Entity> provideDistributionState();
 
     protected void setCardsBeforeDistribution(Predicate<CardView<Entity>> beforeDistributionPredicate) {
         for (Layout cardsLayout : cardsLayouts) {
             for (CardView<Entity> cardView : cardsLayout.getCardViews()) {
                 if (beforeDistributionPredicate.apply(cardView)) {
-                    cardView.setVisibility(VISIBLE);
+                    if (distributionState != null && distributionState.isDeskOfCardsEnable()) {
+                        cardView.getCardInfo().setCardDistributed(true);
+                    } else {
+                        cardView.setVisibility(VISIBLE);
+                    }
                 } else {
-                    cardView.setVisibility(INVISIBLE);
+                    if (distributionState != null && distributionState.isDeskOfCardsEnable()) {
+                        CardInfo<Entity> cardInfo = cardView.getCardInfo();
+                        cardInfo.setCardDistributed(false);
+                        float[] coordinates = distributionState.provideCoordinateForDistribution();
+                        cardInfo.setFirstPositionX((int) coordinates[0]);
+                        cardInfo.setFirstPositionY((int) coordinates[1]);
+                    } else {
+                        cardView.setVisibility(INVISIBLE);
+                    }
                 }
             }
         }
     }
 
     protected void startDistributeCards(Predicate<CardView<Entity>> predicate, float[] distributeFromCoordinates) {
-        countOfDistributedLayouts = 0;
-        for (Layout cardsLayout : cardsLayouts) {
-            distributeCardForPlayer(cardsLayout, predicate, distributeFromCoordinates, () -> {
-                countOfDistributedLayouts++;
-                if (countOfDistributedLayouts == cardsLayouts.size()) {
-                    if (this.onDistributedCardsListener != null) {
-                        this.onDistributedCardsListener.onDistributedCards();
+        OnDistributedCardsListener<Entity> onDistributedCardsListener = new OnDistributedCardsListener<Entity>() {
+
+            private int count;
+            private List<CardView<Entity>> startDistributedCardViews = new ArrayList<>();
+            private List<CardView<Entity>> endDistributedCardViews = new ArrayList<>();
+
+            @Override
+            public void onDistributedCards() {
+                count++;
+                if (count == cardsLayouts.size()) {
+                    count = 0;
+                    if (GameTableLayout.this.onDistributedCardsListener != null) {
+                        GameTableLayout.this.onDistributedCardsListener.onDistributedCards();
                     }
                 }
-            });
+            }
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public void onStartDistributedCardWave(CardView<Entity>[] cardViews) {
+                startDistributedCardViews.addAll(Arrays.asList(cardViews));
+                if (startDistributedCardViews.size() == cardsLayouts.size()) {
+                    if (GameTableLayout.this.onDistributedCardsListener != null) {
+                        GameTableLayout.this.onDistributedCardsListener.onStartDistributedCardWave(startDistributedCardViews
+                                .toArray(new CardView[startDistributedCardViews.size()]));
+                    }
+                    startDistributedCardViews.clear();
+                }
+            }
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public void onEndDistributeCardWave(CardView<Entity>[] cardViews) {
+                endDistributedCardViews.addAll(Arrays.asList(cardViews));
+                if (endDistributedCardViews.size() == cardsLayouts.size()) {
+                    if (GameTableLayout.this.onDistributedCardsListener != null) {
+                        GameTableLayout.this.onDistributedCardsListener.onEndDistributeCardWave(endDistributedCardViews
+                                .toArray(new CardView[endDistributedCardViews.size()]));
+                    }
+                    endDistributedCardViews.clear();
+                }
+            }
+        };
+
+        for (Layout cardsLayout : cardsLayouts) {
+            distributeCardForPlayer(cardsLayout, predicate, distributeFromCoordinates, onDistributedCardsListener);
         }
     }
 
@@ -194,29 +255,16 @@ public abstract class GameTableLayout<
                 durationOfDistributeAnimation = attributes.getInteger(ua.jenshensoft.cardslayout.R.styleable.GameTableLayout_Params_gameTableLayout_duration_distributeAnimation, 3000);
                 isEnableSwipe = attributes.getBoolean(R.styleable.GameTableLayout_Params_gameTableLayout_cardValidatorSwipe, false);
                 isEnableTransition = attributes.getBoolean(R.styleable.GameTableLayout_Params_gameTableLayout_cardValidatorTransition, false);
+                currentPlayerLayoutId = attributes.getInt(R.styleable.GameTableLayout_Params_gameTableLayout_currentPlayerLayoutId, -1);
             } finally {
                 attributes.recycle();
             }
         }
     }
 
-    @SuppressWarnings({"unchecked", "ForLoopReplaceableByForEach"})
     private void inflateLayout() {
-        inflate(getContext(), getLayoutId(), this);
         cardsLayouts = new ArrayList<>();
-        int[] layoutsIds = provideCardsLayoutsIds();
-        for (int i = 0; i < layoutsIds.length; i++) {
-            Layout layout = (Layout) findViewById(layoutsIds[i]);
-            cardsLayouts.add(layout);
-        }
-        DistributionState<Entity> distributionState = provideDistributionState();
-        if (distributionState != null) {
-            Predicate<CardView<Entity>> beforeDistributionPredicate = distributionState.getPredicateForCardsBeforeDistribution();
-            setCardsBeforeDistribution(beforeDistributionPredicate);
-        }
-
-        setSwipeValidatorEnabled(isEnableSwipe);
-        setTransitionValidatorEnabled(isEnableTransition);
+        inflate(getContext(), getLayoutId(), this);
     }
 
     private void onActionWithCard(Entity entity) {
@@ -225,13 +273,14 @@ public abstract class GameTableLayout<
         }
     }
 
-    private void distributeCardForPlayer(Layout cardsLayout,
-                                         Predicate<CardView<Entity>> predicate,
-                                         float[] distributeFromCoordinates,
-                                         OnDistributedCardsListener onDistributedCardsListener) {
+    private void distributeCardForPlayer(final Layout cardsLayout,
+                                         final Predicate<CardView<Entity>> predicate,
+                                         final float[] distributeFromCoordinates,
+                                         final OnDistributedCardsListener<Entity> onDistributedCardsListener) {
         List<CardView<Entity>> filteredCardsViews = new ArrayList<>();
         for (CardView<Entity> cardsView : cardsLayout.getCardViews()) {
-            if (predicate.apply(cardsView) && cardsView.getVisibility() != VISIBLE) {
+            if (predicate.apply(cardsView) &&
+                    (distributionState != null && distributionState.isDeskOfCardsEnable() || cardsView.getVisibility() != VISIBLE)) {
                 filteredCardsViews.add(cardsView);
             }
         }
@@ -239,14 +288,21 @@ public abstract class GameTableLayout<
         animateCardViews(cardsLayout, filteredCardsViews.iterator(), distributeFromCoordinates, onDistributedCardsListener);
     }
 
-    private void animateCardViews(Layout cardsLayout,
-                                  Iterator<CardView<Entity>> cardViewsIterator,
-                                  float[] distributeFromCoordinates,
-                                  OnDistributedCardsListener onDistributedCardsListener) {
+    private void animateCardViews(final Layout cardsLayout,
+                                  final Iterator<CardView<Entity>> cardViewsIterator,
+                                  final float[] distributeFromCoordinates,
+                                  final OnDistributedCardsListener<Entity> onDistributedCardsListener) {
         if (cardViewsIterator.hasNext()) {
-            animateCardView(cardsLayout, cardViewsIterator.next(), distributeFromCoordinates, new AnimatorListenerAdapter() {
+            final CardView<Entity> cardView = cardViewsIterator.next();
+            if (onDistributedCardsListener != null) {
+                onDistributedCardsListener.onStartDistributedCardWave(cardView);
+            }
+            animateCardView(cardsLayout, cardView, distributeFromCoordinates, new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
+                    if (onDistributedCardsListener != null) {
+                        onDistributedCardsListener.onEndDistributeCardWave(cardView);
+                    }
                     animateCardViews(cardsLayout, cardViewsIterator, distributeFromCoordinates, onDistributedCardsListener);
                 }
             });
@@ -261,13 +317,17 @@ public abstract class GameTableLayout<
                                  CardView<Entity> cardView,
                                  float[] distributeFromCoordinates,
                                  AnimatorListenerAdapter adapter) {
-        cardView.setVisibility(VISIBLE);
+        if (distributionState != null && distributionState.isDeskOfCardsEnable()) {
+            cardView.getCardInfo().setCardDistributed(true);
+        } else {
+            cardView.setVisibility(VISIBLE);
+        }
         cardsLayout.invalidateCardsPosition(true, view -> {
             if (view.equals(cardView)) {
                 AwesomeAnimation.Builder awesomeAnimation = new AwesomeAnimation.Builder(view)
                         .setX(AwesomeAnimation.CoordinationMode.COORDINATES, distributeFromCoordinates[0], view.getCardInfo().getFirstPositionX())
                         .setY(AwesomeAnimation.CoordinationMode.COORDINATES, distributeFromCoordinates[1], view.getCardInfo().getFirstPositionY())
-                        .setRotation(180, view.getRotation())
+                        .setRotation(180, cardView.getCardInfo().getFirstRotation())
                         .setDuration(durationOfDistributeAnimation);
                 if (cardsLayout.interpolator != null) {
                     awesomeAnimation.setInterpolator(cardsLayout.interpolator);
@@ -287,21 +347,36 @@ public abstract class GameTableLayout<
         void onCardAction(@Nullable Entity entity);
     }
 
-    @FunctionalInterface
-    public interface OnDistributedCardsListener {
+    public interface OnDistributedCardsListener<Entity> {
         void onDistributedCards();
+
+        void onStartDistributedCardWave(CardView<Entity>... cardViews);
+
+        void onEndDistributeCardWave(CardView<Entity>... cardViews);
     }
 
     public abstract static class DistributionState<Entity> {
 
-        private final boolean isCardsAlreadyDistribution;
+        private boolean isCardsAlreadyDistributed;
 
-        public DistributionState(boolean isCardsAlreadyDistribution) {
-            this.isCardsAlreadyDistribution = isCardsAlreadyDistribution;
+        public DistributionState(boolean isCardsAlreadyDistributed) {
+            this.isCardsAlreadyDistributed = isCardsAlreadyDistributed;
         }
 
         public boolean isCardsAlreadyDistributed() {
-            return isCardsAlreadyDistribution;
+            return isCardsAlreadyDistributed;
+        }
+
+        public void setCardsAlreadyDistributed(boolean cardsAlreadyDistributed) {
+            isCardsAlreadyDistributed = cardsAlreadyDistributed;
+        }
+
+        public boolean canAutoDistribute() {
+            return true;
+        }
+
+        public boolean isDeskOfCardsEnable() {
+            return false;
         }
 
         public abstract Predicate<CardView<Entity>> getPredicateForCardsForDistribution();

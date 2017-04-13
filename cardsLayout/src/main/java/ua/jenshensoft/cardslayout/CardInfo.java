@@ -11,6 +11,7 @@ public class CardInfo<Entity> {
     private int currentPositionY;
     private int firstRotation;
     private int currentRotation;
+    private boolean cardDistributed = true;
     @Nullable
     private Entity entity;
 
@@ -21,6 +22,14 @@ public class CardInfo<Entity> {
     @Nullable
     public Entity getEntity() {
         return entity;
+    }
+
+    public boolean isCardDistributed() {
+        return cardDistributed;
+    }
+
+    public void setCardDistributed(boolean cardDistributed) {
+        this.cardDistributed = cardDistributed;
     }
 
     public void setEntity(@NonNull Entity entity) {
@@ -86,4 +95,16 @@ public class CardInfo<Entity> {
         this.cardPositionInLayout = cardPositionInLayout;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CardInfo<?> cardInfo = (CardInfo<?>) o;
+        return cardPositionInLayout == cardInfo.cardPositionInLayout;
+    }
+
+    @Override
+    public int hashCode() {
+        return cardPositionInLayout;
+    }
 }

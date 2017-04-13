@@ -86,25 +86,9 @@
     </declare-styleable>
 
     <declare-styleable name="GameTableLayout_Params" tools:ignore="ResourceName">
+        <attr name="gameTableLayout_currentPlayerLayoutId" format="integer" />
         <attr name="gameTableLayout_cardValidatorSwipe" format="boolean" />
         <attr name="gameTableLayout_cardValidatorTransition" format="color" />
         <attr name="gameTableLayout_duration_distributeAnimation" format="integer" />
-    </declare-styleable>
-
-    <declare-styleable name="DebertzGameTableLayout">
-        <attr name="deckOfCards_offsetFromBorder" format="dimension" />
-        <attr name="deckOfCards_location">
-            <flag name="right" value="1" />
-            <flag name="left" value="2" />
-            <flag name="top" value="4" />
-            <flag name="bottom" value="8" />
-            <flag name="center" value="16" />
-            <flag name="center_horizontal" value="32" />
-            <flag name="center_vertical" value="64" />
-        </attr>
-    </declare-styleable>
-
-    <declare-styleable name="DebertzCardsLayout_Params">
-        <attr name="debertzCardsLayout_childRotation" format="integer" />
     </declare-styleable>
 </resources>

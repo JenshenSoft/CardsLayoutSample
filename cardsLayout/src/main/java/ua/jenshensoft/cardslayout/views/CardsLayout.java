@@ -93,6 +93,9 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
     private boolean animateOnMeasure;
     private boolean enableValidatePositions = true;
 
+    @Nullable
+    private Animator animator;
+
     public CardsLayout(Context context) {
         super(context);
         init();
@@ -162,6 +165,15 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
         }
     }
 
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        if (animator != null) {
+            animator.removeAllListeners();
+            animator.cancel();
+            clearAnimation();
+        }
+    }
 
     /* public methods */
 
@@ -238,7 +250,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
     }
 
     @CallSuper
-    public void invalidateCardsPosition(boolean withAnimation, @NonNull OnCreateAnimatorAction onCreateAnimatorAction, @NonNull AnimatorListenerAdapter animatorListenerAdapter) {
+    public void invalidateCardsPosition(boolean withAnimation, @Nullable OnCreateAnimatorAction onCreateAnimatorAction, @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
         setViewsCoordinatesToStartPosition();
         moveViewsToStartPosition(withAnimation, onCreateAnimatorAction, animatorListenerAdapter);
     }
@@ -365,8 +377,14 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
     /* protected methods */
 
     protected void setViewsCoordinatesToStartPosition() {
-        final Config xConfig = getXConfiguration(cardViewList);
-        final Config yConfig = getYConfiguration(cardViewList);
+        List<CardView<Entity>> views = new ArrayList<>();
+        for (CardView<Entity> cardView : cardViewList) {
+            if (cardView.getCardInfo().isCardDistributed() && cardView.getVisibility() == VISIBLE) {
+                views.add(cardView);
+            }
+        }
+        final Config xConfig = getXConfiguration(views);
+        final Config yConfig = getYConfiguration(views);
 
         if (childList_distributeCardsBy == LINE) {
             setXForViews(xConfig.getStartCoordinates(), xConfig.getDistanceBetweenViews());
@@ -385,17 +403,17 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
             final CardsCoordinatesProvider cardsCoordinatesProvider = new CardsCoordinatesProvider(
                     childListOrientation,
                     childList_circleCenterLocation,
-                    cardViewList.size(),
+                    views.size(),
                     childList_circleRadius,
-                    getChildWidth(cardViewList),
-                    getChildHeight(cardViewList),
+                    getChildWidth(views),
+                    getChildHeight(views),
                     cardsLayoutLength,
                     gravityFlag,
                     xConfig,
                     yConfig);
             final List<CardCoordinates> cardsCoordinates = cardsCoordinatesProvider.getCardsCoordinates();
             for (int i = 0; i < cardsCoordinates.size(); i++) {
-                final CardView<Entity> cardView = cardViewList.get(i);
+                final CardView<Entity> cardView = views.get(i);
                 final CardCoordinates cardCoordinates = cardsCoordinates.get(i);
                 setXForView(cardView, cardCoordinates.getX());
                 setYForView(cardView, cardCoordinates.getY());
@@ -413,7 +431,6 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
                 final Animator animator;
                 if (animationCreateAction != null) {
                     animator = animationCreateAction.createAnimation(cardView);
-                    animator.start();
                 } else {
                     animator = this.defaultAnimatorAction.createAnimation(cardView);
                 }
@@ -428,15 +445,17 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
             enableValidatePositions = false;
             AnimatorSet animatorSet = new AnimatorSet();
             animatorSet.playTogether(animators);
-            if (animatorListenerAdapter != null) {
-                animatorSet.addListener(animatorListenerAdapter);
-            }
             animatorSet.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     enableValidatePositions = true;
+                    CardsLayout.this.animator = null;
                 }
             });
+            if (animatorListenerAdapter != null) {
+                animatorSet.addListener(animatorListenerAdapter);
+            }
+            CardsLayout.this.animator = animatorSet;
             animatorSet.start();
         }
     }
