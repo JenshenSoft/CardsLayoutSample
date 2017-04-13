@@ -192,7 +192,7 @@
         app:cardsLayout_cardsGravity="bottom|center_horizontal"
         app:cardsLayout_childList_circleCenterLocation="bottom"
         app:cardsLayout_childList_circleRadius="300dp"
-        app:cardsLayout_childList_distributeCardsBy="circle">
+        app:cardsLayout_childList_distributeCardsBy="line">
 
         <ImageView
             android:layout_width="@dimen/card_width"

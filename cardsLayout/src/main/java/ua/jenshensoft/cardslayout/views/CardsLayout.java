@@ -387,8 +387,8 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
         final Config yConfig = getYConfiguration(views);
 
         if (childList_distributeCardsBy == LINE) {
-            setXForViews(xConfig.getStartCoordinates(), xConfig.getDistanceBetweenViews());
-            setYForViews(yConfig.getStartCoordinates(), yConfig.getDistanceBetweenViews());
+            setXForViews(views, xConfig.getStartCoordinates(), xConfig.getDistanceBetweenViews());
+            setYForViews(views, yConfig.getStartCoordinates(), yConfig.getDistanceBetweenViews());
             setRotationForViews();
         } else {
             if (childList_circleRadius == EMPTY) {
@@ -403,7 +403,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
             final CardsCoordinatesProvider cardsCoordinatesProvider = new CardsCoordinatesProvider(
                     childListOrientation,
                     childList_circleCenterLocation,
-                    views.size(),
+                    getCardViewsCount(views),
                     childList_circleRadius,
                     getChildWidth(views),
                     getChildHeight(views),
@@ -585,7 +585,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
     protected <T extends View> float getWidthOfViews(@NonNull List<T> views, float offset) {
         float widthOfViews = 0;
         for (T view : views) {
-            if (view.getVisibility() != VISIBLE) {
+            if (shouldPassView(view)) {
                 continue;
             }
             widthOfViews += view.getMeasuredWidth() - offset;
@@ -597,7 +597,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
     protected <T extends View> float getHeightOfViews(@NonNull List<T> views, float offset) {
         float heightViews = 0;
         for (T view : views) {
-            if (view.getVisibility() != VISIBLE) {
+            if (shouldPassView(view)) {
                 continue;
             }
             heightViews += view.getMeasuredHeight() - offset;
@@ -606,10 +606,10 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
         return heightViews;
     }
 
-    protected void setXForViews(float cardPositionX, float distanceBetweenViews) {
+    protected void setXForViews(@NonNull List<CardView<Entity>> views, float cardPositionX, float distanceBetweenViews) {
         float x = cardPositionX;
-        for (CardView<Entity> view : cardViewList) {
-            if (view.getVisibility() != VISIBLE) {
+        for (CardView<Entity> view : views) {
+            if (shouldPassView(view)) {
                 continue;
             }
             setXForView(view, x);
@@ -618,10 +618,10 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
         }
     }
 
-    protected void setYForViews(float cardPositionY, float distanceBetweenViews) {
+    protected void setYForViews(@NonNull List<CardView<Entity>> views, float cardPositionY, float distanceBetweenViews) {
         float y = cardPositionY;
-        for (CardView<Entity> view : cardViewList) {
-            if (view.getVisibility() != VISIBLE) {
+        for (CardView<Entity> view : views) {
+            if (shouldPassView(view)) {
                 continue;
             }
             setYForView(view, y);
@@ -632,7 +632,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
 
     private void setRotationForViews() {
         for (CardView<Entity> view : cardViewList) {
-            if (view.getVisibility() != VISIBLE) {
+            if (shouldPassView(view)) {
                 continue;
             }
             setRotation(view, 0);
@@ -767,7 +767,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
     private <T extends View> int getCardViewsCount(@NonNull List<T> views) {
         int count = 0;
         for (T view : views) {
-            if (view.getVisibility() != VISIBLE) {
+            if (shouldPassView(view)) {
                 continue;
             }
             count++;
@@ -800,6 +800,10 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
                 }
             }
         }
+    }
+
+    private boolean shouldPassView(View view) {
+        return view.getVisibility() != VISIBLE;
     }
 
 
