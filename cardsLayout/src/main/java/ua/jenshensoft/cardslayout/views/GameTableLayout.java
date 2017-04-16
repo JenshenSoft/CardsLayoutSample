@@ -21,6 +21,8 @@ import java.util.List;
 
 import ua.jenshensoft.cardslayout.CardInfo;
 import ua.jenshensoft.cardslayout.R;
+import ua.jenshensoft.cardslayout.listeners.OnCardClickListener;
+import ua.jenshensoft.cardslayout.listeners.OnDistributedCardsListener;
 
 public abstract class GameTableLayout<
         Entity,
@@ -208,9 +210,7 @@ public abstract class GameTableLayout<
                 count++;
                 if (count == cardsLayouts.size()) {
                     count = 0;
-                    if (GameTableLayout.this.onDistributedCardsListener != null) {
-                        GameTableLayout.this.onDistributedCardsListener.onDistributedCards();
-                    }
+                    GameTableLayout.this.onDistributedCards();
                 }
             }
 
@@ -219,10 +219,7 @@ public abstract class GameTableLayout<
             public void onStartDistributedCardWave(CardView<Entity>[] cardViews) {
                 startDistributedCardViews.addAll(Arrays.asList(cardViews));
                 if (startDistributedCardViews.size() == cardsLayouts.size()) {
-                    if (GameTableLayout.this.onDistributedCardsListener != null) {
-                        GameTableLayout.this.onDistributedCardsListener.onStartDistributedCardWave(startDistributedCardViews
-                                .toArray(new CardView[startDistributedCardViews.size()]));
-                    }
+                    GameTableLayout.this.onStartDistributedCardWave(new CardView[startDistributedCardViews.size()]);
                     startDistributedCardViews.clear();
                 }
             }
@@ -232,10 +229,7 @@ public abstract class GameTableLayout<
             public void onEndDistributeCardWave(CardView<Entity>[] cardViews) {
                 endDistributedCardViews.addAll(Arrays.asList(cardViews));
                 if (endDistributedCardViews.size() == cardsLayouts.size()) {
-                    if (GameTableLayout.this.onDistributedCardsListener != null) {
-                        GameTableLayout.this.onDistributedCardsListener.onEndDistributeCardWave(endDistributedCardViews
-                                .toArray(new CardView[endDistributedCardViews.size()]));
-                    }
+                    GameTableLayout.this.onEndDistributeCardWave(new CardView[startDistributedCardViews.size()]);
                     endDistributedCardViews.clear();
                 }
             }
@@ -255,6 +249,23 @@ public abstract class GameTableLayout<
 
     protected abstract int getLayoutId();
 
+    protected void onDistributedCards() {
+        if (GameTableLayout.this.onDistributedCardsListener != null) {
+            GameTableLayout.this.onDistributedCardsListener.onDistributedCards();
+        }
+    }
+
+    protected void onStartDistributedCardWave(CardView<Entity>[] cardViews) {
+        if (GameTableLayout.this.onDistributedCardsListener != null) {
+            GameTableLayout.this.onDistributedCardsListener.onStartDistributedCardWave(cardViews);
+        }
+    }
+
+    protected void onEndDistributeCardWave(CardView<Entity>[] cardViews) {
+        if (GameTableLayout.this.onDistributedCardsListener != null) {
+            GameTableLayout.this.onDistributedCardsListener.onEndDistributeCardWave(cardViews);
+        }
+    }
 
     /* private methods */
 
@@ -354,19 +365,6 @@ public abstract class GameTableLayout<
 
 
     /* inner types */
-
-    @FunctionalInterface
-    public interface OnCardClickListener<Entity> {
-        void onCardAction(@Nullable Entity entity);
-    }
-
-    public interface OnDistributedCardsListener<Entity> {
-        void onDistributedCards();
-
-        void onStartDistributedCardWave(CardView<Entity>... cardViews);
-
-        void onEndDistributeCardWave(CardView<Entity>... cardViews);
-    }
 
     public abstract static class DistributionState<Entity> {
 
