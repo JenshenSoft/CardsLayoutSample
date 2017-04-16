@@ -219,7 +219,8 @@ public abstract class GameTableLayout<
             public void onStartDistributedCardWave(CardView<Entity>[] cardViews) {
                 startDistributedCardViews.addAll(Arrays.asList(cardViews));
                 if (startDistributedCardViews.size() == cardsLayouts.size()) {
-                    GameTableLayout.this.onStartDistributedCardWave(new CardView[startDistributedCardViews.size()]);
+                    CardView[] array = startDistributedCardViews.toArray(new CardView[startDistributedCardViews.size()]);
+                    GameTableLayout.this.onStartDistributedCardWave(array);
                     startDistributedCardViews.clear();
                 }
             }
@@ -229,7 +230,8 @@ public abstract class GameTableLayout<
             public void onEndDistributeCardWave(CardView<Entity>[] cardViews) {
                 endDistributedCardViews.addAll(Arrays.asList(cardViews));
                 if (endDistributedCardViews.size() == cardsLayouts.size()) {
-                    GameTableLayout.this.onEndDistributeCardWave(new CardView[startDistributedCardViews.size()]);
+                    CardView[] array = startDistributedCardViews.toArray(new CardView[startDistributedCardViews.size()]);
+                    GameTableLayout.this.onEndDistributeCardWave(array);
                     endDistributedCardViews.clear();
                 }
             }
