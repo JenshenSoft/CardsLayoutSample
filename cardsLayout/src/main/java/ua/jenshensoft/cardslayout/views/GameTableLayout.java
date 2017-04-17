@@ -23,6 +23,7 @@ import ua.jenshensoft.cardslayout.CardInfo;
 import ua.jenshensoft.cardslayout.R;
 import ua.jenshensoft.cardslayout.listeners.OnCardClickListener;
 import ua.jenshensoft.cardslayout.listeners.OnDistributedCardsListener;
+import ua.jenshensoft.cardslayout.listeners.OnUpdateDeskOfCardsUpdater;
 
 public abstract class GameTableLayout<
         Entity,
@@ -98,7 +99,7 @@ public abstract class GameTableLayout<
         if (enableValidatePositions &&
                 this.distributionState != null &&
                 !this.distributionState.isCardsAlreadyDistributed()) {
-            setCardsBeforeDistribution();
+            distributionState.getDeskOfCardsUpdater().updatePosition();
         }
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         if (enableValidatePositions &&
@@ -131,7 +132,7 @@ public abstract class GameTableLayout<
         if (distributionState == null) {
             return;
         }
-        setCardsBeforeDistribution(distributionState.getPredicateForCardsBeforeDistribution(), distributionState.provideCoordinateForDistribution(), false);
+        setCardsBeforeDistribution(distributionState.getPredicateForCardsBeforeDistribution(), distributionState.getDeskOfCardsUpdater());
     }
 
     public Layout getCurrentPlayerCardsLayout() {
@@ -179,10 +180,11 @@ public abstract class GameTableLayout<
         if (distributionState == null) {
             throw new RuntimeException("You need to set distribution state before");
         }
-        setCardsBeforeDistribution(distributionState.getPredicateForCardsBeforeDistribution(), distributionState.provideCoordinateForDistribution(), true);
+        setCardsBeforeDistribution(distributionState.getPredicateForCardsBeforeDistribution(), distributionState.getDeskOfCardsUpdater());
     }
 
-    public void setCardsBeforeDistribution(Predicate<CardView<Entity>> predicate, float[] coordinateForDistribution, boolean isMeasured) {
+    public void setCardsBeforeDistribution(Predicate<CardView<Entity>> predicate, OnUpdateDeskOfCardsUpdater<Entity> onUpdateDeskOfCardsUpdater) {
+        List<CardInfo<Entity>> cardInDesk = new ArrayList<>();
         for (Layout cardsLayout : cardsLayouts) {
             for (CardView<Entity> cardView : cardsLayout.getCardViews()) {
                 if (predicate.apply(cardView)) {
@@ -195,15 +197,15 @@ public abstract class GameTableLayout<
                     if (deskOfCardsEnable) {
                         CardInfo<Entity> cardInfo = cardView.getCardInfo();
                         cardInfo.setCardDistributed(false);
-                        if (isMeasured) {
-                            cardInfo.setFirstPositionX((int) coordinateForDistribution[0]);
-                            cardInfo.setFirstPositionY((int) coordinateForDistribution[1]);
-                        }
+                        cardInDesk.add(cardInfo);
                     } else {
                         cardView.setVisibility(INVISIBLE);
                     }
                 }
             }
+        }
+        if (!cardInDesk.isEmpty()) {
+            onUpdateDeskOfCardsUpdater.addCards(cardInDesk);
         }
     }
 
@@ -272,6 +274,7 @@ public abstract class GameTableLayout<
         enableValidatePositions = true;
         if (distributionState != null) {
             distributionState.setCardsAlreadyDistributed(true);
+            distributionState.getDeskOfCardsUpdater().clear();
         }
         if (GameTableLayout.this.onDistributedCardsListener != null) {
             GameTableLayout.this.onDistributedCardsListener.onDistributedCards();
@@ -410,5 +413,7 @@ public abstract class GameTableLayout<
         public abstract Predicate<CardView<Entity>> getPredicateForCardsBeforeDistribution();
 
         public abstract float[] provideCoordinateForDistribution();
+
+        public abstract OnUpdateDeskOfCardsUpdater<Entity> getDeskOfCardsUpdater();
     }
 }

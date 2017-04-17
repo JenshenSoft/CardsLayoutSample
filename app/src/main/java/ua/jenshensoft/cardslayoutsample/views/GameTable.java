@@ -9,6 +9,7 @@ import com.android.internal.util.Predicate;
 
 import ua.jenshensoft.cardslayout.CardInfo;
 import ua.jenshensoft.cardslayout.listeners.OnCardSwipedListener;
+import ua.jenshensoft.cardslayout.listeners.OnUpdateDeskOfCardsUpdater;
 import ua.jenshensoft.cardslayout.views.CardView;
 import ua.jenshensoft.cardslayout.views.CardsLayout;
 import ua.jenshensoft.cardslayout.views.GameTableLayout;
@@ -74,6 +75,16 @@ public class GameTable extends GameTableLayout<CardsLayoutDefault.CardInfo, Card
             @Override
             public float[] provideCoordinateForDistribution() {
                 return new float[] {0, 0};
+            }
+
+            @Override
+            public OnUpdateDeskOfCardsUpdater<CardsLayoutDefault.CardInfo> getDeskOfCardsUpdater() {
+                return new OnUpdateDeskOfCardsUpdater<CardsLayoutDefault.CardInfo>() {
+                    @Override
+                    protected float[] getPosition() {
+                        return new float[]{0, 0};
+                    }
+                };
             }
         });
     }
