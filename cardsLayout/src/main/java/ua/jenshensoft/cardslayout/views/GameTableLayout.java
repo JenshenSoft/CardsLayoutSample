@@ -99,7 +99,6 @@ public abstract class GameTableLayout<
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         if (canAutoDistribute && this.distributionState != null && !this.distributionState.isCardsAlreadyDistributed()) {
             startDistributeCards();
-            distributionState.setCardsAlreadyDistributed(true);
         }
     }
 
@@ -199,6 +198,7 @@ public abstract class GameTableLayout<
         if (distributionState == null) {
             throw new RuntimeException("You need to set distribution state before");
         }
+        distributionState.setCardsAlreadyDistributed(true);
         startDistributeCards(distributionState.getPredicateForCardsForDistribution(), distributionState.provideCoordinateForDistribution());
     }
 
