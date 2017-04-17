@@ -6,6 +6,14 @@
     android:layout_height="match_parent"
     tools:parentTag="FrameLayout">
 
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/cat" />
+
     <ua.jenshensoft.cardslayoutsample.CardsLayoutDefault
         android:id="@+id/cardsLayout3"
         android:layout_width="match_parent"
@@ -242,5 +250,6 @@
             android:contentDescription="@null"
             android:src="@drawable/ic_card7" />
     </ua.jenshensoft.cardslayoutsample.CardsLayoutDefault>
+
 
 </merge>

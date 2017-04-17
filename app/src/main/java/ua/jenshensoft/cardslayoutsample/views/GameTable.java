@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
+import android.widget.ImageView;
 
 import com.android.internal.util.Predicate;
 
@@ -18,6 +19,8 @@ import ua.jenshensoft.cardslayoutsample.CardsLayoutDefault;
 import ua.jenshensoft.cardslayoutsample.R;
 
 public class GameTable extends GameTableLayout<CardsLayoutDefault.CardInfo, CardsLayout<CardsLayoutDefault.CardInfo>> {
+
+    private ImageView imageView;
 
     public GameTable(Context context) {
         super(context);
@@ -41,6 +44,7 @@ public class GameTable extends GameTableLayout<CardsLayoutDefault.CardInfo, Card
     }
 
     private void init() {
+        imageView = (ImageView) findViewById(R.id.imageView);
         for (final CardsLayout<CardsLayoutDefault.CardInfo> cardsLayout : cardsLayouts) {
             cardsLayout.setOnCardSwipedListener(new OnCardSwipedListener<CardsLayoutDefault.CardInfo>() {
 
@@ -74,11 +78,13 @@ public class GameTable extends GameTableLayout<CardsLayoutDefault.CardInfo, Card
             }
 
             @Override
-            public OnUpdateDeskOfCardsUpdater<CardsLayoutDefault.CardInfo> getDeskOfCardsUpdater() {
+            protected OnUpdateDeskOfCardsUpdater<CardsLayoutDefault.CardInfo> provideDeskOfCardsUpdater() {
                 return new OnUpdateDeskOfCardsUpdater<CardsLayoutDefault.CardInfo>() {
                     @Override
                     public float[] getPosition() {
-                        return new float[]{0, 0};
+                        int x = getMeasuredWidth() / 2 - imageView.getMeasuredWidth() / 2;
+                        int y = getMeasuredHeight() / 2 - imageView.getMeasuredHeight() / 2;
+                        return new float[]{x, y};
                     }
                 };
             }
