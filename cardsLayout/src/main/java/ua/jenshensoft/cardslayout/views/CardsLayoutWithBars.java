@@ -259,8 +259,8 @@ public abstract class CardsLayoutWithBars<
                     firstPositionX = cardView.getCardInfo().getFirstPositionX();
                     firstPositionY = cardView.getCardInfo().getFirstPositionY();
                 }
-                cardsLayoutWidth = (int) getChildWidth(visibleCardViews);
-                cardsLayoutHeight = (int) getChildHeight(visibleCardViews);
+                cardsLayoutWidth = (int) getChildrenWidth(visibleCardViews);
+                cardsLayoutHeight = (int) getChildrenHeight(visibleCardViews);
                 break;
             default:
                 throw new RuntimeException("Unsupported position");

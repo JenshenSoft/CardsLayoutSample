@@ -41,12 +41,12 @@ public abstract class GameTableLayout<
     private boolean deskOfCardsEnable = true;
 
     @Nullable
-    private DistributionState<Entity> distributionState;
-
-    @Nullable
     private OnCardClickListener<Entity> onCardClickListener;
     @Nullable
     private OnDistributedCardsListener<Entity> onDistributedCardsListener;
+
+    @Nullable
+    protected DistributionState<Entity> distributionState;
 
     public GameTableLayout(Context context) {
         super(context);
@@ -172,21 +172,24 @@ public abstract class GameTableLayout<
         if (distributionState == null) {
             throw new RuntimeException("You need to set distribution state before");
         }
+        setCardsBeforeDistribution(distributionState.getPredicateForCardsBeforeDistribution(), distributionState.provideCoordinateForDistribution());
+    }
+
+    public void setCardsBeforeDistribution(Predicate<CardView<Entity>> predicate, float[] coordinateForDistribution) {
         for (Layout cardsLayout : cardsLayouts) {
             for (CardView<Entity> cardView : cardsLayout.getCardViews()) {
-                if (distributionState.getPredicateForCardsBeforeDistribution().apply(cardView)) {
-                    if (distributionState != null && deskOfCardsEnable) {
+                if (predicate.apply(cardView)) {
+                    if (deskOfCardsEnable) {
                         cardView.getCardInfo().setCardDistributed(true);
                     } else {
                         cardView.setVisibility(VISIBLE);
                     }
                 } else {
-                    if (distributionState != null && deskOfCardsEnable) {
+                    if (deskOfCardsEnable) {
                         CardInfo<Entity> cardInfo = cardView.getCardInfo();
                         cardInfo.setCardDistributed(false);
-                        float[] coordinates = distributionState.provideCoordinateForDistribution();
-                        cardInfo.setFirstPositionX((int) coordinates[0]);
-                        cardInfo.setFirstPositionY((int) coordinates[1]);
+                        cardInfo.setFirstPositionX((int) coordinateForDistribution[0]);
+                        cardInfo.setFirstPositionY((int) coordinateForDistribution[1]);
                     } else {
                         cardView.setVisibility(INVISIBLE);
                     }
@@ -199,6 +202,10 @@ public abstract class GameTableLayout<
         if (distributionState == null) {
             throw new RuntimeException("You need to set distribution state before");
         }
+        startDistributeCards(distributionState.getPredicateForCardsForDistribution(), distributionState.provideCoordinateForDistribution());
+    }
+
+    public void startDistributeCards(Predicate<CardView<Entity>> predicate, float[] coordinateForDistribution) {
         OnDistributedCardsListener<Entity> onDistributedCardsListener = new OnDistributedCardsListener<Entity>() {
 
             private int count;
@@ -240,8 +247,8 @@ public abstract class GameTableLayout<
         for (Layout cardsLayout : cardsLayouts) {
             distributeCardForPlayer(
                     cardsLayout,
-                    distributionState.getPredicateForCardsForDistribution(),
-                    distributionState.provideCoordinateForDistribution(),
+                    predicate,
+                    coordinateForDistribution,
                     onDistributedCardsListener);
         }
     }

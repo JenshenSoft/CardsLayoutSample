@@ -47,7 +47,9 @@
             <enum name="top" value="0" />
             <enum name="bottom" value="1" />
         </attr>
-
+        <attr name="cardsLayout_fixedCardMeasure" format="boolean" />
+        <attr name="cardsLayout_cardWidth" format="dimension" />
+        <attr name="cardsLayout_cardHeight" format="dimension" />
     </declare-styleable>
 
     <declare-styleable name="CardsLayoutAV_Params" tools:ignore="ResourceName">

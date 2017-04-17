@@ -80,6 +80,10 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
     private int childList_distributeCardsBy;
     @CircleCenterLocation
     private int childList_circleCenterLocation;
+    //card size
+    private boolean fixedCardMeasure;
+    private int cardWidth;
+    private int cardHeight;
     private List<CardView<Entity>> cardViewList;
     private FlagManager gravityFlag;
     @Nullable
@@ -351,6 +355,31 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
         return defaultAnimatorAction;
     }
 
+    /* children size property */
+
+    public void setFixedCardMeasure(boolean fixedCardMeasure) {
+        this.fixedCardMeasure = fixedCardMeasure;
+    }
+
+    public boolean isFixedCardMeasure() {
+        return fixedCardMeasure;
+    }
+
+    public int getCardWidth() {
+        return cardWidth;
+    }
+
+    public void setCardWidth(int cardWidth) {
+        this.cardWidth = cardWidth;
+    }
+
+    public void setCardHeight(int cardHeight) {
+        this.cardHeight = cardHeight;
+    }
+
+    public int getCardHeight() {
+        return cardHeight;
+    }
 
     /* callbacks */
 
@@ -405,8 +434,8 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
                     childList_circleCenterLocation,
                     getCardViewsCount(views),
                     childList_circleRadius,
-                    getChildWidth(views),
-                    getChildHeight(views),
+                    getChildrenWidth(views),
+                    getChildrenHeight(views),
                     cardsLayoutLength,
                     gravityFlag,
                     xConfig,
@@ -469,7 +498,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
         if (difference > 0) {
             widthOfViews = getWidthOfViews(views, distanceBetweenViews);
         }
-        float startXPositionFromList = getStartXPositionForList(getChildWidth(views), widthOfViews, rootWidth);
+        float startXPositionFromList = getStartXPositionForList(getChildrenWidth(views), widthOfViews, rootWidth);
         return new Config(startXPositionFromList, distanceBetweenViews, widthOfViews);
     }
 
@@ -482,7 +511,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
         if (difference > 0) {
             heightOfViews = getHeightOfViews(views, distanceBetweenViews);
         }
-        float startYPositionFromList = getStartYPositionForList(getChildHeight(views), heightOfViews, rootHeight);
+        float startYPositionFromList = getStartYPositionForList(getChildrenHeight(views), heightOfViews, rootHeight);
         return new Config(startYPositionFromList, distanceBetweenViews, heightOfViews);
     }
 
@@ -556,12 +585,25 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
         return cardPositionY;
     }
 
-    protected <T extends View> float getChildHeight(@NonNull List<T> views) {
+    protected <T extends View> float getChildrenWidth(@NonNull List<T> views) {
+        float width = 0;
+        if (views.isEmpty())
+            return width;
+        for (T view : views) {
+            float currentWidth = getChildWidth(view);
+            if (currentWidth > width) {
+                width = currentWidth;
+            }
+        }
+        return width;
+    }
+
+    protected <T extends View> float getChildrenHeight(@NonNull List<T> views) {
         float height = 0;
         if (views.isEmpty())
             return height;
         for (T view : views) {
-            float currentHeight = view.getMeasuredHeight();
+            float currentHeight = getChildHeight(view);
             if (currentHeight > height) {
                 height = currentHeight;
             }
@@ -569,17 +611,26 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
         return height;
     }
 
-    protected <T extends View> float getChildWidth(@NonNull List<T> views) {
-        float width = 0;
-        if (views.isEmpty())
-            return width;
-        for (T view : views) {
-            float currentWidth = view.getMeasuredWidth();
-            if (currentWidth > width) {
-                width = currentWidth;
+    protected int getChildWidth(View view) {
+        if (fixedCardMeasure) {
+            if (cardWidth == -1) {
+                throw new RuntimeException("You should set the \"child width\" attr");
             }
+            return cardWidth;
+        } else {
+            return view.getMeasuredWidth();
         }
-        return width;
+    }
+
+    protected int getChildHeight(View view) {
+        if (fixedCardMeasure) {
+            if (cardHeight == -1) {
+                throw new RuntimeException("You should set the \"child height\" attr");
+            }
+            return cardHeight;
+        } else {
+            return view.getMeasuredHeight();
+        }
     }
 
     protected <T extends View> float getWidthOfViews(@NonNull List<T> views, float offset) {
@@ -588,7 +639,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
             if (shouldPassView(view)) {
                 continue;
             }
-            widthOfViews += view.getMeasuredWidth() - offset;
+            widthOfViews += getChildWidth(view) - offset;
         }
         widthOfViews += offset;
         return widthOfViews;
@@ -600,7 +651,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
             if (shouldPassView(view)) {
                 continue;
             }
-            heightViews += view.getMeasuredHeight() - offset;
+            heightViews += getChildHeight(view) - offset;
         }
         heightViews += offset;
         return heightViews;
@@ -614,7 +665,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
             }
             setXForView(view, x);
             if (childListOrientation == LinearLayout.HORIZONTAL)
-                x += view.getMeasuredWidth() - distanceBetweenViews;
+                x += getChildWidth(view) - distanceBetweenViews;
         }
     }
 
@@ -626,11 +677,11 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
             }
             setYForView(view, y);
             if (childListOrientation == LinearLayout.VERTICAL)
-                y += view.getMeasuredHeight() - distanceBetweenViews;
+                y += getChildHeight(view) - distanceBetweenViews;
         }
     }
 
-    private void setRotationForViews() {
+    protected void setRotationForViews() {
         for (CardView<Entity> view : cardViewList) {
             if (shouldPassView(view)) {
                 continue;
@@ -710,6 +761,11 @@ public abstract class CardsLayout<Entity> extends FrameLayout implements
                 childList_distributeCardsBy = attributes.getInt(R.styleable.CardsLayout_Params_cardsLayout_childList_distributeCardsBy, childList_distributeCardsBy);
                 childList_circleRadius = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_Params_cardsLayout_childList_circleRadius, childList_circleRadius);
                 childList_circleCenterLocation = attributes.getInt(R.styleable.CardsLayout_Params_cardsLayout_childList_circleCenterLocation, childList_circleCenterLocation);
+
+                //card measure
+                fixedCardMeasure = attributes.getBoolean(R.styleable.CardsLayout_Params_cardsLayout_fixedCardMeasure, false);
+                cardWidth = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_Params_cardsLayout_cardWidth, -1);
+                cardHeight = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_Params_cardsLayout_cardHeight, -1);
             } finally {
                 attributes.recycle();
             }
