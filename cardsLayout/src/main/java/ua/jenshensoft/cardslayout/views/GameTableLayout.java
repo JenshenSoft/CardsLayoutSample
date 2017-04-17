@@ -97,7 +97,7 @@ public abstract class GameTableLayout<
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        if (distributionState != null && canAutoDistribute && !distributionState.isCardsAlreadyDistributed()) {
+        if (this.distributionState != null && canAutoDistribute && !this.distributionState.isCardsAlreadyDistributed()) {
             startDistributeCards();
             distributionState.setCardsAlreadyDistributed(true);
         }
@@ -122,7 +122,7 @@ public abstract class GameTableLayout<
 
     public void setDistributionState(@Nullable DistributionState<Entity> distributionState) {
         this.distributionState = distributionState;
-        if (distributionState != null) {
+        if (this.distributionState != null && !this.distributionState.isCardsAlreadyDistributed()) {
             setCardsBeforeDistribution();
         }
     }
