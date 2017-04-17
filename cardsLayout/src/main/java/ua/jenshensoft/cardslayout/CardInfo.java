@@ -93,18 +93,26 @@ public class CardInfo<Entity> {
 
     public void setCardPositionInLayout(int cardPositionInLayout) {
         this.cardPositionInLayout = cardPositionInLayout;
+
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         CardInfo<?> cardInfo = (CardInfo<?>) o;
-        return cardPositionInLayout == cardInfo.cardPositionInLayout;
+
+        if (cardPositionInLayout != cardInfo.cardPositionInLayout) return false;
+        return entity != null ? entity.equals(cardInfo.entity) : cardInfo.entity == null;
     }
 
     @Override
     public int hashCode() {
-        return cardPositionInLayout;
+        int result = cardPositionInLayout;
+        result = 31 * result + (entity != null ? entity.hashCode() : 0);
+        return result;
     }
 }
+
+
