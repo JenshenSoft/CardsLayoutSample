@@ -31,7 +31,8 @@ public abstract class GameTableLayout<
 
     //Views
     protected List<Layout> cardsLayouts;
-
+    @Nullable
+    protected DistributionState<Entity> distributionState;
     //attr
     private int durationOfDistributeAnimation;
     private boolean isEnableSwipe;
@@ -39,14 +40,10 @@ public abstract class GameTableLayout<
     private int currentPlayerLayoutId = -1;
     private boolean canAutoDistribute = true;
     private boolean deskOfCardsEnable = true;
-
     @Nullable
     private OnCardClickListener<Entity> onCardClickListener;
     @Nullable
     private OnDistributedCardsListener<Entity> onDistributedCardsListener;
-
-    @Nullable
-    protected DistributionState<Entity> distributionState;
 
     public GameTableLayout(Context context) {
         super(context);
@@ -96,8 +93,11 @@ public abstract class GameTableLayout<
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        if (this.distributionState != null && !this.distributionState.isCardsAlreadyDistributed()) {
+            setCardsBeforeDistribution();
+        }
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        if (this.distributionState != null && canAutoDistribute && !this.distributionState.isCardsAlreadyDistributed()) {
+        if (canAutoDistribute && this.distributionState != null && !this.distributionState.isCardsAlreadyDistributed()) {
             startDistributeCards();
             distributionState.setCardsAlreadyDistributed(true);
         }
@@ -122,9 +122,6 @@ public abstract class GameTableLayout<
 
     public void setDistributionState(@Nullable DistributionState<Entity> distributionState) {
         this.distributionState = distributionState;
-        if (this.distributionState != null && !this.distributionState.isCardsAlreadyDistributed()) {
-            setCardsBeforeDistribution();
-        }
     }
 
     public Layout getCurrentPlayerCardsLayout() {
