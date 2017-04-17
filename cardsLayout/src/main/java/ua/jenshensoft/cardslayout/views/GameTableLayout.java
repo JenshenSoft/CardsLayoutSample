@@ -128,6 +128,10 @@ public abstract class GameTableLayout<
 
     public void setDistributionState(@Nullable DistributionState<Entity> distributionState) {
         this.distributionState = distributionState;
+        if (distributionState == null) {
+            return;
+        }
+        setCardsBeforeDistribution(distributionState.getPredicateForCardsBeforeDistribution(), distributionState.provideCoordinateForDistribution(), false);
     }
 
     public Layout getCurrentPlayerCardsLayout() {
@@ -175,10 +179,10 @@ public abstract class GameTableLayout<
         if (distributionState == null) {
             throw new RuntimeException("You need to set distribution state before");
         }
-        setCardsBeforeDistribution(distributionState.getPredicateForCardsBeforeDistribution(), distributionState.provideCoordinateForDistribution());
+        setCardsBeforeDistribution(distributionState.getPredicateForCardsBeforeDistribution(), distributionState.provideCoordinateForDistribution(), true);
     }
 
-    public void setCardsBeforeDistribution(Predicate<CardView<Entity>> predicate, float[] coordinateForDistribution) {
+    public void setCardsBeforeDistribution(Predicate<CardView<Entity>> predicate, float[] coordinateForDistribution, boolean isMeasured) {
         for (Layout cardsLayout : cardsLayouts) {
             for (CardView<Entity> cardView : cardsLayout.getCardViews()) {
                 if (predicate.apply(cardView)) {
@@ -191,8 +195,10 @@ public abstract class GameTableLayout<
                     if (deskOfCardsEnable) {
                         CardInfo<Entity> cardInfo = cardView.getCardInfo();
                         cardInfo.setCardDistributed(false);
-                        cardInfo.setFirstPositionX((int) coordinateForDistribution[0]);
-                        cardInfo.setFirstPositionY((int) coordinateForDistribution[1]);
+                        if (isMeasured) {
+                            cardInfo.setFirstPositionX((int) coordinateForDistribution[0]);
+                            cardInfo.setFirstPositionY((int) coordinateForDistribution[1]);
+                        }
                     } else {
                         cardView.setVisibility(INVISIBLE);
                     }
@@ -221,7 +227,6 @@ public abstract class GameTableLayout<
                 count++;
                 if (count == cardsLayouts.size()) {
                     count = 0;
-                    enableValidatePositions = true;
                     GameTableLayout.this.onDistributedCards();
                 }
             }
@@ -264,6 +269,7 @@ public abstract class GameTableLayout<
     protected abstract int getLayoutId();
 
     protected void onDistributedCards() {
+        enableValidatePositions = true;
         if (distributionState != null) {
             distributionState.setCardsAlreadyDistributed(true);
         }
