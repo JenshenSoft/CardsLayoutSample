@@ -15,7 +15,11 @@ public abstract class OnUpdateDeskOfCardsUpdater<Entity> {
         cards = new ArrayList<>();
     }
 
-    protected abstract float[] getPosition();
+    /**
+     called in on the onMeasure method
+     * @return
+     */
+    public abstract float[] getPosition();
 
     public void addCards(@NonNull List<CardInfo<Entity>> cards) {
         this.cards.addAll(cards);

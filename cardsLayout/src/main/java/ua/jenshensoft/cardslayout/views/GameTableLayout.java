@@ -24,6 +24,7 @@ import ua.jenshensoft.cardslayout.R;
 import ua.jenshensoft.cardslayout.listeners.OnCardClickListener;
 import ua.jenshensoft.cardslayout.listeners.OnDistributedCardsListener;
 import ua.jenshensoft.cardslayout.listeners.OnUpdateDeskOfCardsUpdater;
+import ua.jenshensoft.cardslayout.util.DistributionState;
 
 public abstract class GameTableLayout<
         Entity,
@@ -213,7 +214,7 @@ public abstract class GameTableLayout<
         if (distributionState == null) {
             throw new RuntimeException("You need to set distribution state before");
         }
-        startDistributeCards(distributionState.getPredicateForCardsForDistribution(), distributionState.provideCoordinateForDistribution());
+        startDistributeCards(distributionState.getPredicateForCardsForDistribution(), distributionState.getDeskOfCardsUpdater().getPosition());
     }
 
     public void startDistributeCards(Predicate<CardView<Entity>> predicate, float[] coordinateForDistribution) {
@@ -387,33 +388,5 @@ public abstract class GameTableLayout<
                 return cardsLayout.getDefaultCreateAnimatorAction().createAnimation(view);
             }
         }, adapter);
-    }
-
-
-    /* inner types */
-
-    public abstract static class DistributionState<Entity> {
-
-        private boolean isCardsAlreadyDistributed;
-
-        public DistributionState(boolean isCardsAlreadyDistributed) {
-            this.isCardsAlreadyDistributed = isCardsAlreadyDistributed;
-        }
-
-        public boolean isCardsAlreadyDistributed() {
-            return isCardsAlreadyDistributed;
-        }
-
-        public void setCardsAlreadyDistributed(boolean cardsAlreadyDistributed) {
-            isCardsAlreadyDistributed = cardsAlreadyDistributed;
-        }
-
-        public abstract Predicate<CardView<Entity>> getPredicateForCardsForDistribution();
-
-        public abstract Predicate<CardView<Entity>> getPredicateForCardsBeforeDistribution();
-
-        public abstract float[] provideCoordinateForDistribution();
-
-        public abstract OnUpdateDeskOfCardsUpdater<Entity> getDeskOfCardsUpdater();
     }
 }
