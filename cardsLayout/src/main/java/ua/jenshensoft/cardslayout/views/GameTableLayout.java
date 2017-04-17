@@ -45,6 +45,8 @@ public abstract class GameTableLayout<
     @Nullable
     private OnDistributedCardsListener<Entity> onDistributedCardsListener;
 
+    private boolean enableValidatePositions = true;
+
     public GameTableLayout(Context context) {
         super(context);
         if (!isInEditMode()) {
@@ -93,11 +95,16 @@ public abstract class GameTableLayout<
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        if (this.distributionState != null && !this.distributionState.isCardsAlreadyDistributed()) {
+        if (enableValidatePositions &&
+                this.distributionState != null &&
+                !this.distributionState.isCardsAlreadyDistributed()) {
             setCardsBeforeDistribution();
         }
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        if (canAutoDistribute && this.distributionState != null && !this.distributionState.isCardsAlreadyDistributed()) {
+        if (enableValidatePositions &&
+                canAutoDistribute &&
+                this.distributionState != null &&
+                !this.distributionState.isCardsAlreadyDistributed()) {
             startDistributeCards();
         }
     }
@@ -198,11 +205,11 @@ public abstract class GameTableLayout<
         if (distributionState == null) {
             throw new RuntimeException("You need to set distribution state before");
         }
-        distributionState.setCardsAlreadyDistributed(true);
         startDistributeCards(distributionState.getPredicateForCardsForDistribution(), distributionState.provideCoordinateForDistribution());
     }
 
     public void startDistributeCards(Predicate<CardView<Entity>> predicate, float[] coordinateForDistribution) {
+        enableValidatePositions = false;
         OnDistributedCardsListener<Entity> onDistributedCardsListener = new OnDistributedCardsListener<Entity>() {
 
             private int count;
@@ -214,6 +221,7 @@ public abstract class GameTableLayout<
                 count++;
                 if (count == cardsLayouts.size()) {
                     count = 0;
+                    enableValidatePositions = true;
                     GameTableLayout.this.onDistributedCards();
                 }
             }
@@ -256,6 +264,9 @@ public abstract class GameTableLayout<
     protected abstract int getLayoutId();
 
     protected void onDistributedCards() {
+        if (distributionState != null) {
+            distributionState.setCardsAlreadyDistributed(true);
+        }
         if (GameTableLayout.this.onDistributedCardsListener != null) {
             GameTableLayout.this.onDistributedCardsListener.onDistributedCards();
         }

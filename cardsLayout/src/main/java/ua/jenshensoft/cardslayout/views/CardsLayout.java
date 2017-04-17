@@ -49,7 +49,8 @@ import static ua.jenshensoft.cardslayout.views.CardsLayout.DistributeCardsBy.CIR
 import static ua.jenshensoft.cardslayout.views.CardsLayout.DistributeCardsBy.LINE;
 
 
-public abstract class CardsLayout<Entity> extends FrameLayout implements
+public abstract class CardsLayout<Entity> extends FrameLayout
+        implements
         OnCardTranslationListener<Entity>,
         OnCardSwipedListener<Entity>,
         OnCardPercentageChangeListener<Entity> {
