@@ -6,10 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ua.jenshensoft.cardslayout.CardInfo;
+import ua.jenshensoft.cardslayout.views.CardView;
 
 public abstract class OnUpdateDeskOfCardsUpdater<Entity> {
 
-    private List<CardInfo<Entity>> cards;
+    private List<CardView<Entity>> cards;
 
     protected OnUpdateDeskOfCardsUpdater() {
         cards = new ArrayList<>();
@@ -21,17 +22,18 @@ public abstract class OnUpdateDeskOfCardsUpdater<Entity> {
      */
     public abstract float[] getPosition();
 
-    public void addCards(@NonNull List<CardInfo<Entity>> cards) {
+    public void addCards(@NonNull List<CardView<Entity>> cards) {
         this.cards.addAll(cards);
     }
 
     public void updatePosition() {
         float[] position = getPosition();
-        for (CardInfo<Entity> cardInfo : cards) {
+        for (CardView<Entity> cardView : cards) {
+            CardInfo<Entity> cardInfo = cardView.getCardInfo();
             cardInfo.setFirstPositionX((int) position[0]);
             cardInfo.setFirstPositionY((int) position[1]);
-            cardInfo.setCurrentPositionX((int) position[0]);
-            cardInfo.setCurrentPositionY((int) position[1]);
+            cardView.setX((int) position[0]);
+            cardView.setY((int) position[1]);
         }
     }
 

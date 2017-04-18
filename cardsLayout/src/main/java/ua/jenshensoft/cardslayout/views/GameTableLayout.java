@@ -178,7 +178,7 @@ public abstract class GameTableLayout<
     }
 
     public void setCardsBeforeDistribution(Predicate<CardView<Entity>> predicate, OnUpdateDeskOfCardsUpdater<Entity> onUpdateDeskOfCardsUpdater) {
-        List<CardInfo<Entity>> cardInDesk = new ArrayList<>();
+        List<CardView<Entity>> cardInDesk = new ArrayList<>();
         for (Layout cardsLayout : cardsLayouts) {
             for (CardView<Entity> cardView : cardsLayout.getCardViews()) {
                 if (predicate.apply(cardView)) {
@@ -191,7 +191,7 @@ public abstract class GameTableLayout<
                     if (deskOfCardsEnable) {
                         CardInfo<Entity> cardInfo = cardView.getCardInfo();
                         cardInfo.setCardDistributed(false);
-                        cardInDesk.add(cardInfo);
+                        cardInDesk.add(cardView);
                     } else {
                         cardView.setVisibility(INVISIBLE);
                     }

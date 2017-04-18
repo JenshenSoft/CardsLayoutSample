@@ -358,12 +358,12 @@ public abstract class CardsLayout<Entity> extends FrameLayout
 
     /* children size property */
 
-    public void setFixedCardMeasure(boolean fixedCardMeasure) {
-        this.fixedCardMeasure = fixedCardMeasure;
-    }
-
     public boolean isFixedCardMeasure() {
         return fixedCardMeasure;
+    }
+
+    public void setFixedCardMeasure(boolean fixedCardMeasure) {
+        this.fixedCardMeasure = fixedCardMeasure;
     }
 
     public int getCardWidth() {
@@ -374,12 +374,12 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         this.cardWidth = cardWidth;
     }
 
-    public void setCardHeight(int cardHeight) {
-        this.cardHeight = cardHeight;
-    }
-
     public int getCardHeight() {
         return cardHeight;
+    }
+
+    public void setCardHeight(int cardHeight) {
+        this.cardHeight = cardHeight;
     }
 
     /* callbacks */
@@ -407,9 +407,9 @@ public abstract class CardsLayout<Entity> extends FrameLayout
     /* protected methods */
 
     protected void setViewsCoordinatesToStartPosition() {
-        List<CardView<Entity>> views = new ArrayList<>();
+        final List<CardView<Entity>> views = new ArrayList<>();
         for (CardView<Entity> cardView : cardViewList) {
-            if (cardView.getCardInfo().isCardDistributed() && cardView.getVisibility() == VISIBLE) {
+            if (!shouldPassView(cardView)) {
                 views.add(cardView);
             }
         }
@@ -419,7 +419,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         if (childList_distributeCardsBy == LINE) {
             setXForViews(views, xConfig.getStartCoordinates(), xConfig.getDistanceBetweenViews());
             setYForViews(views, yConfig.getStartCoordinates(), yConfig.getDistanceBetweenViews());
-            setRotationForViews();
+            setRotationForViews(views);
         } else {
             if (childList_circleRadius == EMPTY) {
                 throw new RuntimeException("You need to set radius");
@@ -453,9 +453,15 @@ public abstract class CardsLayout<Entity> extends FrameLayout
     }
 
     protected void moveViewsToStartPosition(boolean withAnimation, @Nullable OnCreateAnimatorAction animationCreateAction, @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
+        final List<CardView<Entity>> views = new ArrayList<>();
+        for (CardView<Entity> cardView : cardViewList) {
+            if (!shouldPassView(cardView)) {
+                views.add(cardView);
+            }
+        }
         final List<Animator> animators = new ArrayList<>();
-        for (int i = 0; i < cardViewList.size(); i++) {
-            CardView<Entity> cardView = cardViewList.get(i);
+        for (int i = 0; i < views.size(); i++) {
+            CardView<Entity> cardView = views.get(i);
             CardInfo<Entity> cardInfo = cardView.getCardInfo();
             if (withAnimation) {
                 final Animator animator;
@@ -682,8 +688,8 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         }
     }
 
-    protected void setRotationForViews() {
-        for (CardView<Entity> view : cardViewList) {
+    protected void setRotationForViews(@NonNull List<CardView<Entity>> views) {
+        for (CardView<Entity> view : views) {
             if (shouldPassView(view)) {
                 continue;
             }
@@ -860,7 +866,12 @@ public abstract class CardsLayout<Entity> extends FrameLayout
     }
 
     private boolean shouldPassView(View view) {
-        return view.getVisibility() != VISIBLE;
+        return view.getVisibility() != VISIBLE ||
+                CardView.class.isInstance(view) && !((CardView) view).getCardInfo().isCardDistributed();
+    }
+
+    private boolean shouldPassView(CardView view) {
+        return view.getVisibility() != VISIBLE || !view.getCardInfo().isCardDistributed();
     }
 
 
