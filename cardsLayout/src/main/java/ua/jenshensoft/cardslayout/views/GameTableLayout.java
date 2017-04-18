@@ -274,6 +274,9 @@ public abstract class GameTableLayout<
     }
 
     protected void onStartDistributedCardWave(CardView<Entity>[] cardViews) {
+        if (distributionState != null) {
+            distributionState.getDeskOfCardsUpdater().removeCardsFromDesk(Arrays.asList(cardViews));
+        }
         if (GameTableLayout.this.onDistributedCardsListener != null) {
             GameTableLayout.this.onDistributedCardsListener.onStartDistributedCardWave(cardViews);
         }

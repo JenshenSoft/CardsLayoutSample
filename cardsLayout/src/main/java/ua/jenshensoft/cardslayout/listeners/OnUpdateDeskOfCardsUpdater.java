@@ -40,4 +40,8 @@ public abstract class OnUpdateDeskOfCardsUpdater<Entity> {
     public void clear() {
         cards.clear();
     }
+
+    public void removeCardsFromDesk(List<CardView<Entity>> cardViews) {
+        cards.removeAll(cardViews);
+    }
 }
