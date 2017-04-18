@@ -132,8 +132,8 @@ public abstract class GameTableLayout<
         this.onDistributedCardsListener = onDistributedCardsListener;
     }
 
-    public void setDistributionState(@Nullable DistributionState<Entity> distributionState) {
-        viewUpdater.setParams(new GameTableParams<>(distributionState), false);
+    public void updateDistributionState(@Nullable DistributionState<Entity> distributionState) {
+        viewUpdater.setParams(new GameTableParams<>(distributionState));
         if (distributionState != null && !distributionState.isCardsAlreadyDistributed()) {
             setCardsBeforeDistribution(distributionState.getPredicateForCardsBeforeDistribution(), distributionState.getDeskOfCardsUpdater());
         }
