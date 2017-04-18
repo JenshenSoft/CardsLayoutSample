@@ -728,8 +728,8 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         cardViewList = new ArrayList<>();
         defaultAnimatorAction = cardView -> {
             AwesomeAnimation.Builder awesomeAnimation = new AwesomeAnimation.Builder(cardView)
-                    .setX(AwesomeAnimation.CoordinationMode.COORDINATES, cardView.getX(), cardView.getCardInfo().getFirstPositionX())
-                    .setY(AwesomeAnimation.CoordinationMode.COORDINATES, cardView.getY(), cardView.getCardInfo().getFirstPositionY())
+                    .setX(AwesomeAnimation.CoordinationMode.COORDINATES, cardView.getCardInfo().getCurrentPositionX(), cardView.getCardInfo().getFirstPositionX())
+                    .setY(AwesomeAnimation.CoordinationMode.COORDINATES, cardView.getCardInfo().getCurrentPositionY(), cardView.getCardInfo().getFirstPositionY())
                     .setRotation(cardView.getRotation(), cardView.getCardInfo().getFirstRotation())
                     .setDuration(durationOfAnimation);
             if (interpolator != null)

@@ -42,7 +42,6 @@ public class CardInfo<Entity> {
 
     public void setFirstPositionX(int firstPositionX) {
         this.firstPositionX = firstPositionX;
-        setCurrentPositionX(firstPositionX);
     }
 
     public int getFirstPositionY() {
@@ -51,7 +50,6 @@ public class CardInfo<Entity> {
 
     public void setFirstPositionY(int firstPositionY) {
         this.firstPositionY = firstPositionY;
-        setCurrentPositionY(firstPositionY);
     }
 
     public int getCurrentPositionX() {

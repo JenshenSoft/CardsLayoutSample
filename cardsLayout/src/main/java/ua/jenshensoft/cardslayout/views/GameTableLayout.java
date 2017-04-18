@@ -36,7 +36,7 @@ public abstract class GameTableLayout<
     @Nullable
     protected DistributionState<Entity> distributionState;
     //attr
-    private int durationOfDistributeAnimation = 12000;
+    private int durationOfDistributeAnimation = 1000;
     private boolean isEnableSwipe;
     private boolean isEnableTransition;
     private int currentPlayerLayoutId = -1;
@@ -46,8 +46,6 @@ public abstract class GameTableLayout<
     private OnCardClickListener<Entity> onCardClickListener;
     @Nullable
     private OnDistributedCardsListener<Entity> onDistributedCardsListener;
-
-    private boolean enableValidatePositions = true;
 
     public GameTableLayout(Context context) {
         super(context);
@@ -97,16 +95,11 @@ public abstract class GameTableLayout<
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        if (enableValidatePositions &&
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        if (canAutoDistribute &&
                 this.distributionState != null &&
                 !this.distributionState.isCardsAlreadyDistributed()) {
             distributionState.getDeskOfCardsUpdater().updatePosition();
-        }
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        if (enableValidatePositions &&
-                canAutoDistribute &&
-                this.distributionState != null &&
-                !this.distributionState.isCardsAlreadyDistributed()) {
             startDistributeCards();
         }
     }
@@ -159,7 +152,7 @@ public abstract class GameTableLayout<
         if (enabled) {
             cardsLayout.setCardPercentageChangeListener((percentageX, percentageY, cardInfo, isTouched) -> {
                 if (!isTouched) {
-                    if ((percentageX >= 100 || percentageY >= 100)) {
+                    if (percentageX >= 100 || percentageY >= 100) {
                         onActionWithCard(cardInfo.getEntity());
                         return;
                     }
@@ -218,7 +211,6 @@ public abstract class GameTableLayout<
     }
 
     public void startDistributeCards(Predicate<CardView<Entity>> predicate, float[] coordinateForDistribution) {
-        enableValidatePositions = false;
         OnDistributedCardsListener<Entity> onDistributedCardsListener = new OnDistributedCardsListener<Entity>() {
 
             private int count;
@@ -272,7 +264,6 @@ public abstract class GameTableLayout<
     protected abstract int getLayoutId();
 
     protected void onDistributedCards() {
-        enableValidatePositions = true;
         if (distributionState != null) {
             distributionState.setCardsAlreadyDistributed(true);
             distributionState.getDeskOfCardsUpdater().clear();

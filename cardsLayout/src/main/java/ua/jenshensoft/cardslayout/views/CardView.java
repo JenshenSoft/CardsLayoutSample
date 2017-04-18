@@ -3,6 +3,7 @@ package ua.jenshensoft.cardslayout.views;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.annotation.Nullable;
+import android.support.annotation.Px;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.FrameLayout;
@@ -12,6 +13,8 @@ import ua.jenshensoft.cardslayout.listeners.OnCardPercentageChangeListener;
 import ua.jenshensoft.cardslayout.listeners.OnCardSwipedListener;
 import ua.jenshensoft.cardslayout.listeners.OnCardTranslationListener;
 import ua.jenshensoft.cardslayout.util.SwipeGestureManager;
+
+import static android.R.attr.x;
 
 public class CardView<Entity> extends FrameLayout {
 
@@ -75,6 +78,18 @@ public class CardView<Entity> extends FrameLayout {
             return swipeManager.onTouch(this, ev);
         }
         return false;
+    }
+
+    @Override
+    public void setX(@Px float x) {
+        super.setX(x);
+        getCardInfo().setCurrentPositionX((int) x);
+    }
+
+    @Override
+    public void setY(@Px float y) {
+        super.setY(y);
+        getCardInfo().setCurrentPositionY((int) y);
     }
 
     public CardInfo<Entity> getCardInfo() {

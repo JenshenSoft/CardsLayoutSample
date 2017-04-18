@@ -29,7 +29,9 @@ public abstract class OnUpdateDeskOfCardsUpdater<Entity> {
         float[] position = getPosition();
         for (CardInfo<Entity> cardInfo : cards) {
             cardInfo.setFirstPositionX((int) position[0]);
-            cardInfo.setFirstPositionX((int) position[1]);
+            cardInfo.setFirstPositionY((int) position[1]);
+            cardInfo.setCurrentPositionX((int) position[0]);
+            cardInfo.setCurrentPositionY((int) position[1]);
         }
     }
 
