@@ -25,9 +25,9 @@ import ua.jenshensoft.cardslayout.listeners.OnCardClickListener;
 import ua.jenshensoft.cardslayout.listeners.OnDistributedCardsListener;
 import ua.jenshensoft.cardslayout.listeners.OnUpdateDeskOfCardsUpdater;
 import ua.jenshensoft.cardslayout.util.DistributionState;
-import ua.jenshensoft.cardslayout.views.updater.model.GameTableParams;
 import ua.jenshensoft.cardslayout.views.updater.ViewUpdater;
 import ua.jenshensoft.cardslayout.views.updater.callback.OnViewParamsUpdate;
+import ua.jenshensoft.cardslayout.views.updater.model.GameTableParams;
 
 public abstract class GameTableLayout<
         Entity,
@@ -37,18 +37,18 @@ public abstract class GameTableLayout<
 
     //Views
     protected List<Layout> cardsLayouts;
+    protected ViewUpdater<GameTableParams<Entity>> viewUpdater;
     //attr
     private int durationOfDistributeAnimation = 1000;
+    private int currentPlayerLayoutId = -1;
     private boolean isEnableSwipe;
     private boolean isEnableTransition;
-    private int currentPlayerLayoutId = -1;
     private boolean canAutoDistribute = true;
     private boolean deskOfCardsEnable = true;
     @Nullable
     private OnCardClickListener<Entity> onCardClickListener;
     @Nullable
     private OnDistributedCardsListener<Entity> onDistributedCardsListener;
-    private ViewUpdater<GameTableParams<Entity>> viewUpdater;
 
     public GameTableLayout(Context context) {
         super(context);
