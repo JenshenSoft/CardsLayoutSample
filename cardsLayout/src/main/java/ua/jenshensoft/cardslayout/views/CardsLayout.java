@@ -173,11 +173,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        if (animator != null) {
-            animator.removeAllListeners();
-            animator.cancel();
-            clearAnimation();
-        }
+        clearAnimator();
     }
 
     /* public methods */
@@ -491,6 +487,8 @@ public abstract class CardsLayout<Entity> extends FrameLayout
             if (animatorListenerAdapter != null) {
                 animatorSet.addListener(animatorListenerAdapter);
             }
+
+            clearAnimator();
             CardsLayout.this.animator = animatorSet;
             animatorSet.start();
         }
@@ -872,6 +870,14 @@ public abstract class CardsLayout<Entity> extends FrameLayout
 
     private boolean shouldPassView(CardView view) {
         return view.getVisibility() != VISIBLE || !view.getCardInfo().isCardDistributed();
+    }
+
+    private void clearAnimator() {
+        if (animator != null) {
+            animator.removeAllListeners();
+            animator.cancel();
+            clearAnimation();
+        }
     }
 
 
