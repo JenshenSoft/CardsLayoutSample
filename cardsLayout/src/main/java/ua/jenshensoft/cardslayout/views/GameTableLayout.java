@@ -96,11 +96,11 @@ public abstract class GameTableLayout<
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        if (canAutoDistribute &&
-                this.distributionState != null &&
-                !this.distributionState.isCardsAlreadyDistributed()) {
+        if (this.distributionState != null && !this.distributionState.isCardsAlreadyDistributed()) {
             distributionState.getDeskOfCardsUpdater().updatePosition();
-            startDistributeCards();
+            if (canAutoDistribute) {
+                startDistributeCards();
+            }
         }
     }
 
