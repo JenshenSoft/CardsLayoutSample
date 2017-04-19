@@ -164,8 +164,8 @@ public abstract class CardsLayout<Entity> extends FrameLayout
     @Override
     public void onViewRemoved(View child) {
         super.onViewRemoved(child);
-        if (child instanceof CardBoxView) {
-            CardBoxView<Entity> cardView = (CardBoxView<Entity>) child;
+        if (child instanceof Card) {
+            Card<Entity> cardView = (Card<Entity>) child;
             cardView.setCardTranslationListener(null);
             cardView.setCardSwipedListener(null);
             cardView.setCardPercentageChangeListener(null, CardBoxView.START_TO_CURRENT);
