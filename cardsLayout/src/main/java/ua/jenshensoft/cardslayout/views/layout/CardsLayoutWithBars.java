@@ -1,4 +1,4 @@
-package ua.jenshensoft.cardslayout.views;
+package ua.jenshensoft.cardslayout.views.layout;
 
 
 import android.animation.AnimatorListenerAdapter;
@@ -22,12 +22,10 @@ import java.util.List;
 
 import ua.jenshensoft.cardslayout.util.FlagManager;
 import ua.jenshensoft.cardslayout.views.card.CardBoxView;
-import ua.jenshensoft.cardslayout.views.updater.layout.CardsLayout;
-import ua.jenshensoft.cardslayout.views.updater.layout.Config;
 
-import static ua.jenshensoft.cardslayout.views.CardsLayoutWithBars.AnchorPosition.VIEW_POSITION_CENTER;
-import static ua.jenshensoft.cardslayout.views.CardsLayoutWithBars.AnchorPosition.VIEW_POSITION_END;
-import static ua.jenshensoft.cardslayout.views.CardsLayoutWithBars.AnchorPosition.VIEW_POSITION_START;
+import static ua.jenshensoft.cardslayout.views.layout.CardsLayoutWithBars.AnchorPosition.VIEW_POSITION_CENTER;
+import static ua.jenshensoft.cardslayout.views.layout.CardsLayoutWithBars.AnchorPosition.VIEW_POSITION_END;
+import static ua.jenshensoft.cardslayout.views.layout.CardsLayoutWithBars.AnchorPosition.VIEW_POSITION_START;
 
 public abstract class CardsLayoutWithBars<
         Entity,
@@ -342,7 +340,7 @@ public abstract class CardsLayoutWithBars<
     @CheckResult
     private boolean canDistributeByWidth() {
         float rootWidth = getRootWidth();
-        float widthOfViews = getWidthOfViews(getCards(), 0);
+        float widthOfViews = getWidthOfViews(getCardViews(), 0);
         float difference = rootWidth - widthOfViews;
 
         int additionalViewsWidth = 0;
@@ -358,7 +356,7 @@ public abstract class CardsLayoutWithBars<
     @CheckResult
     private boolean canDistributeByHeight() {
         float rootHeight = getRootHeight();
-        float heightOfViews = getHeightOfViews(getCards(), 0);
+        float heightOfViews = getHeightOfViews(getCardViews(), 0);
         float difference = rootHeight - heightOfViews;
 
         int additionalViewsHeight = 0;

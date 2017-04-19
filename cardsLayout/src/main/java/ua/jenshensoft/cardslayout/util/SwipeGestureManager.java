@@ -16,9 +16,9 @@ import java.util.Set;
 
 import ua.jenshensoft.cardslayout.CardInfo;
 import ua.jenshensoft.cardslayout.R;
-import ua.jenshensoft.cardslayout.listeners.OnCardPercentageChangeListener;
-import ua.jenshensoft.cardslayout.listeners.OnCardSwipedListener;
-import ua.jenshensoft.cardslayout.listeners.OnCardTranslationListener;
+import ua.jenshensoft.cardslayout.listeners.card.OnCardPercentageChangeListener;
+import ua.jenshensoft.cardslayout.listeners.card.OnCardSwipedListener;
+import ua.jenshensoft.cardslayout.listeners.card.OnCardTranslationListener;
 import ua.jenshensoft.cardslayout.views.card.Card;
 
 public class SwipeGestureManager<Entity> implements View.OnTouchListener {

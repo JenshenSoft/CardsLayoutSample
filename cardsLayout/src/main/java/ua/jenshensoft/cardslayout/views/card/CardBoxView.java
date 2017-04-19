@@ -9,9 +9,9 @@ import android.view.MotionEvent;
 import android.widget.FrameLayout;
 
 import ua.jenshensoft.cardslayout.CardInfo;
-import ua.jenshensoft.cardslayout.listeners.OnCardPercentageChangeListener;
-import ua.jenshensoft.cardslayout.listeners.OnCardSwipedListener;
-import ua.jenshensoft.cardslayout.listeners.OnCardTranslationListener;
+import ua.jenshensoft.cardslayout.listeners.card.OnCardPercentageChangeListener;
+import ua.jenshensoft.cardslayout.listeners.card.OnCardSwipedListener;
+import ua.jenshensoft.cardslayout.listeners.card.OnCardTranslationListener;
 import ua.jenshensoft.cardslayout.util.SwipeGestureManager;
 
 public class CardBoxView<Entity> extends FrameLayout implements Card<Entity> {
@@ -85,6 +85,11 @@ public class CardBoxView<Entity> extends FrameLayout implements Card<Entity> {
     public void setY(@Px float y) {
         super.setY(y);
         getCardInfo().setCurrentPositionY((int) y);
+    }
+
+    @Override
+    public void setRotation(float rotation) {
+        super.setRotation(rotation);
     }
 
     public CardInfo<Entity> getCardInfo() {

@@ -1,4 +1,4 @@
-package ua.jenshensoft.cardslayout.listeners;
+package ua.jenshensoft.cardslayout.listeners.table;
 
 import android.support.annotation.Nullable;
 

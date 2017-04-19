@@ -15,22 +15,20 @@ import com.android.internal.util.Predicate;
 import com.jenshen.awesomeanimation.AwesomeAnimation;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import ua.jenshensoft.cardslayout.CardInfo;
 import ua.jenshensoft.cardslayout.R;
-import ua.jenshensoft.cardslayout.listeners.OnCardClickListener;
-import ua.jenshensoft.cardslayout.listeners.OnDistributedCardsListener;
-import ua.jenshensoft.cardslayout.listeners.OnUpdateDeskOfCardsUpdater;
+import ua.jenshensoft.cardslayout.listeners.table.OnCardClickListener;
+import ua.jenshensoft.cardslayout.listeners.table.OnDistributedCardsListener;
+import ua.jenshensoft.cardslayout.listeners.table.OnUpdateDeskOfCardsUpdater;
 import ua.jenshensoft.cardslayout.util.DistributionState;
 import ua.jenshensoft.cardslayout.views.card.Card;
-import ua.jenshensoft.cardslayout.views.card.CardBoxView;
+import ua.jenshensoft.cardslayout.views.layout.CardsLayout;
 import ua.jenshensoft.cardslayout.views.updater.ViewUpdater;
 import ua.jenshensoft.cardslayout.views.updater.callback.OnViewParamsUpdate;
-import ua.jenshensoft.cardslayout.views.updater.layout.CardsLayout;
 import ua.jenshensoft.cardslayout.views.updater.model.GameTableParams;
 
 public abstract class GameTableLayout<
@@ -230,12 +228,12 @@ public abstract class GameTableLayout<
         });
     }
 
-    public <CV extends View & Card<Entity>> void startDistributeCards(Predicate<CV> predicate, float[] coordinateForDistribution) {
+    public void startDistributeCards(Predicate<Card<Entity>> predicate, float[] coordinateForDistribution) {
         OnDistributedCardsListener<Entity> onDistributedCardsListener = new OnDistributedCardsListener<Entity>() {
 
             private int count;
-            private List<CV> startDistributedCardViews = new ArrayList<>();
-            private List<CV> endDistributedCardViews = new ArrayList<>();
+            private List<Card<Entity>> startDistributedCardViews = new ArrayList<>();
+            private List<Card<Entity>> endDistributedCardViews = new ArrayList<>();
 
             @Override
             public void onDistributedCards() {
@@ -246,20 +244,18 @@ public abstract class GameTableLayout<
                 }
             }
 
-            @SuppressWarnings("unchecked")
             @Override
-            public <C extends View & Card<Entity>> void onStartDistributedCardWave(List<C> cards) {
-                startDistributedCardViews.addAll((Collection<? extends CV>) cards);
+            public void onStartDistributedCardWave(List<Card<Entity>> cards) {
+                startDistributedCardViews.addAll(cards);
                 if (startDistributedCardViews.size() == cardsLayouts.size()) {
                     GameTableLayout.this.onStartDistributedCardWave(startDistributedCardViews);
                     startDistributedCardViews.clear();
                 }
             }
 
-            @SuppressWarnings("unchecked")
             @Override
-            public <C extends View & Card<Entity>> void onEndDistributeCardWave(List<C> cards) {
-                endDistributedCardViews.addAll((Collection<? extends CV>) cards);
+            public void onEndDistributeCardWave(List<Card<Entity>> cards) {
+                endDistributedCardViews.addAll(cards);
                 if (endDistributedCardViews.size() == cardsLayouts.size()) {
                     GameTableLayout.this.onEndDistributeCardWave(endDistributedCardViews);
                     endDistributedCardViews.clear();
@@ -294,7 +290,7 @@ public abstract class GameTableLayout<
     }
 
     @SuppressWarnings("ConstantConditions")
-    protected <C extends View & Card<Entity>> void onStartDistributedCardWave(List<C> cards) {
+    protected void onStartDistributedCardWave(List<Card<Entity>> cards) {
         if (hasDistributionState()) {
             DistributionState<Entity> distributionState = viewUpdater.getParams().getDistributionState();
             distributionState.getDeskOfCardsUpdater().removeCardsFromDesk(cards);
@@ -304,7 +300,7 @@ public abstract class GameTableLayout<
         }
     }
 
-    protected <C extends View & Card<Entity>> void onEndDistributeCardWave(List<C> cards) {
+    protected void onEndDistributeCardWave(List<Card<Entity>> cards) {
         if (GameTableLayout.this.onDistributedCardsListener != null) {
             GameTableLayout.this.onDistributedCardsListener.onEndDistributeCardWave(cards);
         }
@@ -341,13 +337,13 @@ public abstract class GameTableLayout<
         }
     }
 
-    private <CV extends View & Card<Entity>> void distributeCardForPlayer(final Layout cardsLayout,
-                                                                          final Predicate<CV> predicate,
-                                                                          final float[] distributeFromCoordinates,
-                                                                          final OnDistributedCardsListener<Entity> onDistributedCardsListener) {
-        List<CV> filteredCardsViews = new ArrayList<>();
-        List<CV> cards = cardsLayout.getCards();
-        for (CV card : cards) {
+    private void distributeCardForPlayer(final Layout cardsLayout,
+                                         final Predicate<Card<Entity>> predicate,
+                                         final float[] distributeFromCoordinates,
+                                         final OnDistributedCardsListener<Entity> onDistributedCardsListener) {
+        List<Card<Entity>> filteredCardsViews = new ArrayList<>();
+        List<Card<Entity>> cards = cardsLayout.getCards();
+        for (Card<Entity> card : cards) {
             if (predicate.apply(card) && (isDeskOfCardsEnable() || card.getVisibility() != VISIBLE)) {
                 filteredCardsViews.add(card);
             }
@@ -355,12 +351,12 @@ public abstract class GameTableLayout<
         animateCardViews(cardsLayout, filteredCardsViews.iterator(), distributeFromCoordinates, onDistributedCardsListener);
     }
 
-    private <CV extends View & Card<Entity>> void animateCardViews(final Layout cardsLayout,
-                                                                   final Iterator<CV> cardViewsIterator,
-                                                                   final float[] distributeFromCoordinates,
-                                                                   final OnDistributedCardsListener<Entity> onDistributedCardsListener) {
+    private void animateCardViews(final Layout cardsLayout,
+                                  final Iterator<Card<Entity>> cardViewsIterator,
+                                  final float[] distributeFromCoordinates,
+                                  final OnDistributedCardsListener<Entity> onDistributedCardsListener) {
         if (cardViewsIterator.hasNext()) {
-            final CV card = cardViewsIterator.next();
+            final Card<Entity> card = cardViewsIterator.next();
             if (onDistributedCardsListener != null) {
                 onDistributedCardsListener.onStartDistributedCardWave(Collections.singletonList(card));
             }
@@ -380,10 +376,10 @@ public abstract class GameTableLayout<
         }
     }
 
-    private <C extends View & Card<Entity>> void animateCardView(Layout cardsLayout,
-                                                                 C card,
-                                                                 float[] distributeFromCoordinates,
-                                                                 AnimatorListenerAdapter adapter) {
+    private void animateCardView(Layout cardsLayout,
+                                 Card<Entity> card,
+                                 float[] distributeFromCoordinates,
+                                 AnimatorListenerAdapter adapter) {
         if (hasDistributionState() && deskOfCardsEnable) {
             card.getCardInfo().setCardDistributed(true);
         } else {

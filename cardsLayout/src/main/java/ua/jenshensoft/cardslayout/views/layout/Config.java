@@ -1,4 +1,4 @@
-package ua.jenshensoft.cardslayout.views.updater.layout;
+package ua.jenshensoft.cardslayout.views.layout;
 
 public class Config {
     private final float distanceBetweenViews;

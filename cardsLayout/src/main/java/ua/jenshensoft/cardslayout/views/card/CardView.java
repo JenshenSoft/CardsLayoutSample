@@ -7,12 +7,11 @@ import android.support.annotation.Px;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.widget.FrameLayout;
 
 import ua.jenshensoft.cardslayout.CardInfo;
-import ua.jenshensoft.cardslayout.listeners.OnCardPercentageChangeListener;
-import ua.jenshensoft.cardslayout.listeners.OnCardSwipedListener;
-import ua.jenshensoft.cardslayout.listeners.OnCardTranslationListener;
+import ua.jenshensoft.cardslayout.listeners.card.OnCardPercentageChangeListener;
+import ua.jenshensoft.cardslayout.listeners.card.OnCardSwipedListener;
+import ua.jenshensoft.cardslayout.listeners.card.OnCardTranslationListener;
 import ua.jenshensoft.cardslayout.util.SwipeGestureManager;
 
 public class CardView<Entity> extends AppCompatImageView implements Card<Entity> {
@@ -88,6 +87,12 @@ public class CardView<Entity> extends AppCompatImageView implements Card<Entity>
         getCardInfo().setCurrentPositionY((int) y);
     }
 
+    @Override
+    public void setRotation(float rotation) {
+        super.setRotation(rotation);
+        getCardInfo().setCurrentRotation((int) rotation);
+    }
+
     public CardInfo<Entity> getCardInfo() {
         return cardInfo;
     }
@@ -118,24 +123,22 @@ public class CardView<Entity> extends AppCompatImageView implements Card<Entity>
         this.scrollAndClickable = scrollAndClickable;
     }
 
-    /**
-     * @param orientationMode 0 - LEFT_RIGHT , 1 - UP_BOTTOM, 2 - BOTH, 3 - NONE
-     */
+    @Override
     public void setSwipeOrientationMode(int orientationMode) {
         swipeManager.setOrientationMode(orientationMode);
     }
 
+    @Override
     public void setCardTranslationListener(final OnCardTranslationListener<Entity> cardTranslationListener) {
         swipeManager.setCardTranslationListener(cardTranslationListener);
     }
 
+    @Override
     public void setCardSwipedListener(final OnCardSwipedListener<Entity> cardSwipedListener) {
         swipeManager.setCardSwipedListener(cardSwipedListener);
     }
 
-    /**
-     * @param mode 0 - START_TO_CURRENT , 1 - LAST_TO_CURRENT
-     */
+    @Override
     public void setCardPercentageChangeListener(final OnCardPercentageChangeListener<Entity> cardPercentageChangeListener, int mode) {
         swipeManager.setCardPercentageChangeListener(cardPercentageChangeListener, mode);
     }
@@ -163,6 +166,6 @@ public class CardView<Entity> extends AppCompatImageView implements Card<Entity>
         builder.setSwipeOffset(swipeOffset);
         builder.setOrientationMode(swipeOrientationMode);
         swipeManager = builder.create();
-        this.setOnTouchListener(swipeManager);
+        setOnTouchListener(swipeManager);
     }
 }

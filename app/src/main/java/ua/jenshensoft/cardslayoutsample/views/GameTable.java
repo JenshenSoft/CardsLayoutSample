@@ -9,12 +9,12 @@ import android.widget.ImageView;
 import com.android.internal.util.Predicate;
 
 import ua.jenshensoft.cardslayout.CardInfo;
-import ua.jenshensoft.cardslayout.listeners.OnCardSwipedListener;
-import ua.jenshensoft.cardslayout.listeners.OnUpdateDeskOfCardsUpdater;
+import ua.jenshensoft.cardslayout.listeners.card.OnCardSwipedListener;
+import ua.jenshensoft.cardslayout.listeners.table.OnUpdateDeskOfCardsUpdater;
 import ua.jenshensoft.cardslayout.util.DistributionState;
-import ua.jenshensoft.cardslayout.views.card.CardBoxView;
-import ua.jenshensoft.cardslayout.views.updater.layout.CardsLayout;
 import ua.jenshensoft.cardslayout.views.GameTableLayout;
+import ua.jenshensoft.cardslayout.views.card.Card;
+import ua.jenshensoft.cardslayout.views.layout.CardsLayout;
 import ua.jenshensoft.cardslayoutsample.CardsLayoutDefault;
 import ua.jenshensoft.cardslayoutsample.R;
 
@@ -57,37 +57,37 @@ public class GameTable extends GameTableLayout<CardsLayoutDefault.CardInfo, Card
         }
 
        updateDistributionState(new DistributionState<CardsLayoutDefault.CardInfo>(false) {
-            @Override
-            public Predicate<CardBoxView<CardsLayoutDefault.CardInfo>> getPredicateForCardsForDistribution() {
-                return new Predicate<CardBoxView<CardsLayoutDefault.CardInfo>>() {
-                    @Override
-                    public boolean apply(CardBoxView<CardsLayoutDefault.CardInfo> cardInfoCardView) {
-                        return true;
-                    }
-                };
-            }
+           @Override
+           protected OnUpdateDeskOfCardsUpdater<CardsLayoutDefault.CardInfo> provideDeskOfCardsUpdater() {
+               return new OnUpdateDeskOfCardsUpdater<CardsLayoutDefault.CardInfo>() {
+                   @Override
+                   public float[] getPosition() {
+                       int x = getMeasuredWidth() / 2 - imageView.getMeasuredWidth() / 2;
+                       int y = getMeasuredHeight() / 2 - imageView.getMeasuredHeight() / 2;
+                       return new float[]{x, y};
+                   }
+               };
+           }
 
-            @Override
-            public Predicate<CardBoxView<CardsLayoutDefault.CardInfo>> getPredicateForCardsBeforeDistribution() {
-                return new Predicate<CardBoxView<CardsLayoutDefault.CardInfo>>() {
-                    @Override
-                    public boolean apply(CardBoxView<CardsLayoutDefault.CardInfo> cardInfoCardView) {
-                        return false;
-                    }
-                };
-            }
+           @Override
+           public Predicate<Card<CardsLayoutDefault.CardInfo>> getPredicateForCardsForDistribution() {
+               return new Predicate<Card<CardsLayoutDefault.CardInfo>>() {
+                   @Override
+                   public boolean apply(Card<CardsLayoutDefault.CardInfo> cardInfoCard) {
+                       return true;
+                   }
+               };
+           }
 
-            @Override
-            protected OnUpdateDeskOfCardsUpdater<CardsLayoutDefault.CardInfo> provideDeskOfCardsUpdater() {
-                return new OnUpdateDeskOfCardsUpdater<CardsLayoutDefault.CardInfo>() {
-                    @Override
-                    public float[] getPosition() {
-                        int x = getMeasuredWidth() / 2 - imageView.getMeasuredWidth() / 2;
-                        int y = getMeasuredHeight() / 2 - imageView.getMeasuredHeight() / 2;
-                        return new float[]{x, y};
-                    }
-                };
-            }
+           @Override
+           public Predicate<Card<CardsLayoutDefault.CardInfo>> getPredicateForCardsBeforeDistribution() {
+               return new Predicate<Card<CardsLayoutDefault.CardInfo>>() {
+                   @Override
+                   public boolean apply(Card<CardsLayoutDefault.CardInfo> cardInfoCard) {
+                       return false;
+                   }
+               };
+           }
         });
     }
 

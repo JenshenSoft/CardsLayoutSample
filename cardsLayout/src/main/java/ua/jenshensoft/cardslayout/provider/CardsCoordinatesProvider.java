@@ -7,11 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ua.jenshensoft.cardslayout.util.FlagManager;
-import ua.jenshensoft.cardslayout.views.updater.layout.CardsLayout;
-import ua.jenshensoft.cardslayout.views.updater.layout.Config;
+import ua.jenshensoft.cardslayout.views.layout.CardsLayout;
+import ua.jenshensoft.cardslayout.views.layout.Config;
 
-import static ua.jenshensoft.cardslayout.views.updater.layout.CardsLayout.CircleCenterLocation.BOTTOM;
-import static ua.jenshensoft.cardslayout.views.updater.layout.CardsLayout.CircleCenterLocation.TOP;
+import static ua.jenshensoft.cardslayout.views.layout.CardsLayout.CircleCenterLocation.BOTTOM;
+import static ua.jenshensoft.cardslayout.views.layout.CardsLayout.CircleCenterLocation.TOP;
 
 public class CardsCoordinatesProvider {
 

@@ -1,4 +1,4 @@
-package ua.jenshensoft.cardslayout.listeners;
+package ua.jenshensoft.cardslayout.listeners.card;
 
 import ua.jenshensoft.cardslayout.CardInfo;
 

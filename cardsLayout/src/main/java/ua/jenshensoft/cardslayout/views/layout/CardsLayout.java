@@ -1,4 +1,4 @@
-package ua.jenshensoft.cardslayout.views.updater.layout;
+package ua.jenshensoft.cardslayout.views.layout;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -32,23 +32,24 @@ import java.util.List;
 
 import ua.jenshensoft.cardslayout.CardInfo;
 import ua.jenshensoft.cardslayout.R;
-import ua.jenshensoft.cardslayout.listeners.OnCardPercentageChangeListener;
-import ua.jenshensoft.cardslayout.listeners.OnCardSwipedListener;
-import ua.jenshensoft.cardslayout.listeners.OnCardTranslationListener;
+import ua.jenshensoft.cardslayout.listeners.card.OnCardPercentageChangeListener;
+import ua.jenshensoft.cardslayout.listeners.card.OnCardSwipedListener;
+import ua.jenshensoft.cardslayout.listeners.card.OnCardTranslationListener;
 import ua.jenshensoft.cardslayout.provider.CardCoordinates;
 import ua.jenshensoft.cardslayout.provider.CardsCoordinatesProvider;
 import ua.jenshensoft.cardslayout.util.DrawableUtils;
 import ua.jenshensoft.cardslayout.util.FlagManager;
 import ua.jenshensoft.cardslayout.util.SwipeGestureManager;
-import ua.jenshensoft.cardslayout.views.card.CardBoxView;
 import ua.jenshensoft.cardslayout.views.card.Card;
+import ua.jenshensoft.cardslayout.views.card.CardBoxView;
+import ua.jenshensoft.cardslayout.views.card.CardView;
 
-import static ua.jenshensoft.cardslayout.views.updater.layout.CardsLayout.CardsDirection.LEFT_TO_RIGHT;
-import static ua.jenshensoft.cardslayout.views.updater.layout.CardsLayout.CardsDirection.RIGHT_TO_LEFT;
-import static ua.jenshensoft.cardslayout.views.updater.layout.CardsLayout.CircleCenterLocation.BOTTOM;
-import static ua.jenshensoft.cardslayout.views.updater.layout.CardsLayout.CircleCenterLocation.TOP;
-import static ua.jenshensoft.cardslayout.views.updater.layout.CardsLayout.DistributeCardsBy.CIRCLE;
-import static ua.jenshensoft.cardslayout.views.updater.layout.CardsLayout.DistributeCardsBy.LINE;
+import static ua.jenshensoft.cardslayout.views.layout.CardsLayout.CardsDirection.LEFT_TO_RIGHT;
+import static ua.jenshensoft.cardslayout.views.layout.CardsLayout.CardsDirection.RIGHT_TO_LEFT;
+import static ua.jenshensoft.cardslayout.views.layout.CardsLayout.CircleCenterLocation.BOTTOM;
+import static ua.jenshensoft.cardslayout.views.layout.CardsLayout.CircleCenterLocation.TOP;
+import static ua.jenshensoft.cardslayout.views.layout.CardsLayout.DistributeCardsBy.CIRCLE;
+import static ua.jenshensoft.cardslayout.views.layout.CardsLayout.DistributeCardsBy.LINE;
 
 
 public abstract class CardsLayout<Entity> extends FrameLayout
@@ -148,15 +149,14 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void onViewAdded(View child) {
         super.onViewAdded(child);
-        if (child instanceof CardBoxView) {
-            setUpCardBoxView((CardBoxView<Entity>) child);
+        if (child instanceof Card) {
+            setUpCard((View & Card<Entity>) child);
         } else {
             ((ViewGroup) child.getParent()).removeView(child);
-            addCardView(child);
+            addCardBoxView(child);
         }
     }
 
@@ -180,16 +180,33 @@ public abstract class CardsLayout<Entity> extends FrameLayout
 
     /* public methods */
 
-    public <CV extends View & Card<Entity>> List<CV> getCards() {
-        return (List<CV>) cards;
+    @SuppressWarnings("unchecked")
+    public <CV extends View & Card<Entity>> List<CV> getCardViews() {
+        List<CV> cardViews = new ArrayList<>();
+        for (Card<Entity> card : cards) {
+            cardViews.add((CV) card);
+        }
+        return cardViews;
     }
 
-    public void addCardView(View view, int position) {
-        addCardBoxViewToRootView(view, position);
+    public List<Card<Entity>> getCards() {
+        return cards;
     }
 
-    public void addCardView(View view) {
-        addCardBoxViewToRootView(view);
+    public void addCardView(CardView view, int position) {
+        addCardToRootView(view, position);
+    }
+
+    public void addCardView(CardView view) {
+        addCardToRootView(view);
+    }
+
+    public void addCardBoxView(View view, int position) {
+        addCardToRootView(view, position);
+    }
+
+    public void addCardBoxView(View view) {
+        addCardToRootView(view);
     }
 
     public void removeCardView(int position) {
@@ -197,8 +214,8 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         ViewParent parent = cardView.getParent();
         ((ViewGroup) parent).removeView(cardView);
         cards.remove(cardView);
-        for (CardBoxView<Entity> view : cards) {
-            CardInfo<Entity> cardInfo = view.getCardInfo();
+        for (Card<Entity> card : cards) {
+            CardInfo<Entity> cardInfo = card.getCardInfo();
             int cardPosition = cardInfo.getCardPositionInLayout();
             if (cardPosition > position) {
                 cardInfo.setCardPositionInLayout(cardPosition - 1);
@@ -350,13 +367,13 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         this.durationOfAnimation = durationOfAnimation;
     }
 
-    public void setInterpolator(@NonNull Interpolator interpolator) {
-        this.interpolator = interpolator;
-    }
-
     @Nullable
     public Interpolator getInterpolator() {
         return interpolator;
+    }
+
+    public void setInterpolator(@NonNull Interpolator interpolator) {
+        this.interpolator = interpolator;
     }
 
     public OnCreateAnimatorAction<Entity> getDefaultCreateAnimatorAction() {
@@ -413,7 +430,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout
     /* protected methods */
 
     protected <CV extends View & Card<Entity>> void setViewsCoordinatesToStartPosition() {
-        List<CV> cards = getValidatedCards();
+        List<CV> cards = getValidatedCardViews();
         final Config xConfig = getXConfiguration(cards);
         final Config yConfig = getYConfiguration(cards);
 
@@ -454,12 +471,11 @@ public abstract class CardsLayout<Entity> extends FrameLayout
     }
 
     protected <CV extends View & Card<Entity>> void moveViewsToStartPosition(boolean withAnimation,
-                                            @Nullable OnCreateAnimatorAction<Entity> animationCreateAction,
-                                            @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
-        List<CV> cards = getValidatedCards();
+                                                                             @Nullable OnCreateAnimatorAction<Entity> animationCreateAction,
+                                                                             @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
+        List<CV> cards = getValidatedCardViews();
         final List<Animator> animators = new ArrayList<>();
-        for (int i = 0; i < cards.size(); i++) {
-            CV card = cards.get(i);
+        for (CV card : cards) {
             CardInfo<Entity> cardInfo = card.getCardInfo();
             if (withAnimation) {
                 final Animator animator;
@@ -475,6 +491,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout
                 card.setRotation(cardInfo.getFirstRotation());
             }
         }
+
         if (!animators.isEmpty()) {
             enableValidatePositions = false;
             AnimatorSet animatorSet = new AnimatorSet();
@@ -676,7 +693,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         }
     }
 
-    protected <CV extends View & Card<Entity>>void setYForViews(@NonNull List<CV> views, float cardPositionY, float distanceBetweenViews) {
+    protected <CV extends View & Card<Entity>> void setYForViews(@NonNull List<CV> views, float cardPositionY, float distanceBetweenViews) {
         float y = cardPositionY;
         for (CV view : views) {
             if (shouldPassCard(view)) {
@@ -793,38 +810,39 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         return cardView;
     }
 
-    private void setUpCardBoxView(CardBoxView<Entity> cardView) {
-        cardView.setSwipeOrientationMode(SwipeGestureManager.OrientationMode.BOTH);
-        cardView.setCardTranslationListener(this);
-        cardView.setCardSwipedListener(this);
-        cardView.setCardPercentageChangeListener(this, CardBoxView.START_TO_CURRENT);
+    private <CV extends View & Card<Entity>> void setUpCard(CV card) {
+        card.setSwipeOrientationMode(SwipeGestureManager.OrientationMode.BOTH);
+        card.setCardTranslationListener(this);
+        card.setCardSwipedListener(this);
+        card.setCardPercentageChangeListener(this, CardBoxView.START_TO_CURRENT);
         if (cardsLayout_cardsDirection == LEFT_TO_RIGHT) {
-            cards.add(cardView);
+            cards.add(card);
         } else {
-            cards.add(0, cardView);
+            cards.add(0, card);
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            cardView.setElevation(getResources().getDimensionPixelOffset(R.dimen.cardsLayout_card_elevation_normal));
+            card.setElevation(getResources().getDimensionPixelOffset(R.dimen.cardsLayout_card_elevation_normal));
         }
     }
 
-    private void addCardBoxViewToRootView(View view) {
+    private void addCardToRootView(View view) {
         CardBoxView<Entity> cardView = createCardBoxView(view);
         cardView.setCardInfo(new CardInfo<>(cards.size()));
         this.addView(cardView);
     }
 
-    private void addCardBoxViewToRootView(View view, int position) {
+    private void addCardToRootView(View view, int position) {
         CardBoxView<Entity> cardView = createCardBoxView(view);
         cardView.setCardInfo(new CardInfo<>(cards.size()));
         this.addView(cardView);
         cards.add(position, cardView);
     }
 
-    private CardBoxView<Entity> findCardView(int position) {
-        for (CardBoxView<Entity> cardView : cards) {
-            if (cardView.getCardInfo().getCardPositionInLayout() == position) {
-                return cardView;
+    private <CV extends View & Card<Entity>> CV findCardView(int position) {
+        List<CV> cards = getCardViews();
+        for (CV card : cards) {
+            if (card.getCardInfo().getCardPositionInLayout() == position) {
+                return card;
             }
         }
         throw new RuntimeException("Can't find view");
@@ -850,7 +868,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout
                 positionsList.add(positions[i]);
             }
         }
-        List<CV> cards = getCards();
+        List<CV> cards = getCardViews();
         for (CV card : cards) {
             if (state) {
                 if (!card.isEnabled()) {
@@ -858,8 +876,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout
                 }
                 card.setEnabled(true);
             } else {
-                if (card.getCardInfo() == null ||
-                        (positionsList != null && !positionsList.contains(card.getCardInfo().getCardPositionInLayout()))) {
+                if (card.getCardInfo() == null || (positionsList != null && !positionsList.contains(card.getCardInfo().getCardPositionInLayout()))) {
                     if (card.isEnabled() && colorFilter != null) {
                         DrawableUtils.setColorFilter(card, colorFilter);
                     }
@@ -870,17 +887,16 @@ public abstract class CardsLayout<Entity> extends FrameLayout
     }
 
     private boolean shouldPassView(View view) {
-        return view.getVisibility() != VISIBLE ||
-                Card.class.isInstance(view) && !((Card) view).getCardInfo().isCardDistributed();
+        return view.getVisibility() != VISIBLE || Card.class.isInstance(view) && !((Card) view).getCardInfo().isCardDistributed();
     }
 
-    private <C extends View & Card<Entity>> boolean shouldPassCard(C card) {
+    private boolean shouldPassCard(Card<Entity> card) {
         return card.getVisibility() != VISIBLE || !card.getCardInfo().isCardDistributed();
     }
 
-    private <CV extends View & Card<Entity>> List<CV> getValidatedCards() {
+    private <CV extends View & Card<Entity>> List<CV> getValidatedCardViews() {
         final List<CV> validatedCards = new ArrayList<>();
-        List<CV> cards = getCards();
+        List<CV> cards = getCardViews();
         for (CV card : cards) {
             if (!shouldPassCard(card)) {
                 validatedCards.add(card);
@@ -901,7 +917,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout
 
     @FunctionalInterface
     public interface OnCreateAnimatorAction<Entity> {
-        <C extends View & Card<Entity>> Animator createAnimation(C cardView);
+        <CV extends View & Card<Entity>> Animator createAnimation(CV cardView);
     }
 
     @IntDef({TOP, BOTTOM})

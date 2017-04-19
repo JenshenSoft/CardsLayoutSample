@@ -4,7 +4,7 @@ import android.support.annotation.Nullable;
 
 import com.android.internal.util.Predicate;
 
-import ua.jenshensoft.cardslayout.listeners.OnUpdateDeskOfCardsUpdater;
+import ua.jenshensoft.cardslayout.listeners.table.OnUpdateDeskOfCardsUpdater;
 import ua.jenshensoft.cardslayout.views.card.Card;
 
 public abstract class DistributionState<Entity> {

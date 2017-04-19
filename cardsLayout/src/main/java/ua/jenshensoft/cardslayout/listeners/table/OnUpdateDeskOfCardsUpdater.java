@@ -1,14 +1,11 @@
-package ua.jenshensoft.cardslayout.listeners;
+package ua.jenshensoft.cardslayout.listeners.table;
 
 import android.support.annotation.NonNull;
-import android.view.View;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import ua.jenshensoft.cardslayout.CardInfo;
-import ua.jenshensoft.cardslayout.views.card.CardBoxView;
 import ua.jenshensoft.cardslayout.views.card.Card;
 
 public abstract class OnUpdateDeskOfCardsUpdater<Entity> {
@@ -25,7 +22,7 @@ public abstract class OnUpdateDeskOfCardsUpdater<Entity> {
      */
     public abstract float[] getPosition();
 
-    public <C extends View & Card<Entity>> void addCards(@NonNull List<Card<Entity>> cards) {
+    public void addCards(@NonNull List<Card<Entity>> cards) {
         this.cards.addAll(cards);
     }
 
@@ -44,7 +41,7 @@ public abstract class OnUpdateDeskOfCardsUpdater<Entity> {
         cards.clear();
     }
 
-    public <C extends View & Card<Entity>> void removeCardsFromDesk(List<C> cards) {
+    public void removeCardsFromDesk(List<Card<Entity>> cards) {
         this.cards.removeAll(cards);
     }
 }
