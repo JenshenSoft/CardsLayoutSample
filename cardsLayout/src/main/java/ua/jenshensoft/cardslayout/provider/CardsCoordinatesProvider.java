@@ -7,10 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ua.jenshensoft.cardslayout.util.FlagManager;
-import ua.jenshensoft.cardslayout.views.CardsLayout;
+import ua.jenshensoft.cardslayout.views.updater.layout.CardsLayout;
+import ua.jenshensoft.cardslayout.views.updater.layout.Config;
 
-import static ua.jenshensoft.cardslayout.views.CardsLayout.CircleCenterLocation.BOTTOM;
-import static ua.jenshensoft.cardslayout.views.CardsLayout.CircleCenterLocation.TOP;
+import static ua.jenshensoft.cardslayout.views.updater.layout.CardsLayout.CircleCenterLocation.BOTTOM;
+import static ua.jenshensoft.cardslayout.views.updater.layout.CardsLayout.CircleCenterLocation.TOP;
 
 public class CardsCoordinatesProvider {
 
@@ -34,8 +35,8 @@ public class CardsCoordinatesProvider {
                                     float cardHeight,
                                     float cardsLayoutLength,
                                     FlagManager flagManager,
-                                    CardsLayout.Config xConfig,
-                                    CardsLayout.Config yConfig) {
+                                    Config xConfig,
+                                    Config yConfig) {
         this.orientation = orientation;
         if (orientation == LinearLayoutCompat.HORIZONTAL) {
             if (cardsLayoutLength - cardWidth >= 0) {
@@ -166,7 +167,7 @@ public class CardsCoordinatesProvider {
                                             float cardWidth,
                                             float cardHeight,
                                             float radius,
-                                            CardsLayout.Config xConfig, CardsLayout.Config yConfig) {
+                                            Config xConfig, Config yConfig) {
         float x;
         float y;
         if (orientation == LinearLayoutCompat.HORIZONTAL) {

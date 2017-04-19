@@ -3,7 +3,7 @@ package ua.jenshensoft.cardslayoutsample;
 import android.content.Context;
 import android.util.AttributeSet;
 
-import ua.jenshensoft.cardslayout.views.CardsLayout;
+import ua.jenshensoft.cardslayout.views.updater.layout.CardsLayout;
 
 public class CardsLayoutDefault extends CardsLayout<CardsLayoutDefault.CardInfo> {
 

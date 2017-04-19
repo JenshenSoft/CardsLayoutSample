@@ -25,6 +25,8 @@ import ua.jenshensoft.cardslayout.listeners.OnCardClickListener;
 import ua.jenshensoft.cardslayout.listeners.OnDistributedCardsListener;
 import ua.jenshensoft.cardslayout.listeners.OnUpdateDeskOfCardsUpdater;
 import ua.jenshensoft.cardslayout.util.DistributionState;
+import ua.jenshensoft.cardslayout.views.card.Card;
+import ua.jenshensoft.cardslayout.views.updater.layout.CardsLayout;
 import ua.jenshensoft.cardslayout.views.updater.model.GameTableParams;
 import ua.jenshensoft.cardslayout.views.updater.ViewUpdater;
 import ua.jenshensoft.cardslayout.views.updater.callback.OnViewParamsUpdate;
@@ -388,21 +390,26 @@ public abstract class GameTableLayout<
         } else {
             cardView.setVisibility(VISIBLE);
         }
-        cardsLayout.invalidateCardsPosition(true, view -> {
-            if (view.equals(cardView)) {
-                AwesomeAnimation.Builder awesomeAnimation = new AwesomeAnimation.Builder(view)
-                        .setX(AwesomeAnimation.CoordinationMode.COORDINATES, distributeFromCoordinates[0], view.getCardInfo().getFirstPositionX())
-                        .setY(AwesomeAnimation.CoordinationMode.COORDINATES, distributeFromCoordinates[1], view.getCardInfo().getFirstPositionY())
-                        .setRotation(180, cardView.getCardInfo().getFirstRotation())
-                        .setDuration(durationOfDistributeAnimation);
-                if (cardsLayout.interpolator != null) {
-                    awesomeAnimation.setInterpolator(cardsLayout.interpolator);
+
+        CardsLayout.OnCreateAnimatorAction<Entity> onCreateAnimatorAction = new CardsLayout.OnCreateAnimatorAction<Entity>() {
+            @Override
+            public <C extends View & Card<Entity>> Animator createAnimation(C view) {
+                if (view.equals(cardView)) {
+                    AwesomeAnimation.Builder awesomeAnimation = new AwesomeAnimation.Builder(view)
+                            .setX(AwesomeAnimation.CoordinationMode.COORDINATES, distributeFromCoordinates[0], view.getCardInfo().getFirstPositionX())
+                            .setY(AwesomeAnimation.CoordinationMode.COORDINATES, distributeFromCoordinates[1], view.getCardInfo().getFirstPositionY())
+                            .setRotation(180, cardView.getCardInfo().getFirstRotation())
+                            .setDuration(durationOfDistributeAnimation);
+                    if (cardsLayout.getInterpolator() != null) {
+                        awesomeAnimation.setInterpolator(cardsLayout.getInterpolator());
+                    }
+                    return awesomeAnimation.build().getAnimatorSet();
+                } else {
+                    return cardsLayout.getDefaultCreateAnimatorAction().createAnimation(view);
                 }
-                return awesomeAnimation.build().getAnimatorSet();
-            } else {
-                return cardsLayout.getDefaultCreateAnimatorAction().createAnimation(view);
             }
-        }, adapter);
+        };
+        cardsLayout.invalidateCardsPosition(true, onCreateAnimatorAction, adapter);
     }
 
     private boolean hasDistributionState() {

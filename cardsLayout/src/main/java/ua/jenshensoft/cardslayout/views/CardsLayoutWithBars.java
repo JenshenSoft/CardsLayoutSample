@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ua.jenshensoft.cardslayout.util.FlagManager;
+import ua.jenshensoft.cardslayout.views.updater.layout.CardsLayout;
+import ua.jenshensoft.cardslayout.views.updater.layout.Config;
 
 import static ua.jenshensoft.cardslayout.views.CardsLayoutWithBars.AnchorPosition.VIEW_POSITION_CENTER;
 import static ua.jenshensoft.cardslayout.views.CardsLayoutWithBars.AnchorPosition.VIEW_POSITION_END;

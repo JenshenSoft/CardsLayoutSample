@@ -19,9 +19,11 @@ import ua.jenshensoft.cardslayout.R;
 import ua.jenshensoft.cardslayout.listeners.OnCardPercentageChangeListener;
 import ua.jenshensoft.cardslayout.listeners.OnCardSwipedListener;
 import ua.jenshensoft.cardslayout.listeners.OnCardTranslationListener;
-import ua.jenshensoft.cardslayout.views.CardView;
+import ua.jenshensoft.cardslayout.views.card.Card;
 
 public class SwipeGestureManager<Entity> implements View.OnTouchListener {
+
+    private static final float EPSILON = 0.00000001f;
 
     private final GestureDetector gestureDetector;
     private final Context context;
@@ -55,8 +57,8 @@ public class SwipeGestureManager<Entity> implements View.OnTouchListener {
 
     @Override
     public boolean onTouch(View view, MotionEvent event) {
-        if (!(view instanceof CardView)) {
-            throw new RuntimeException("View doesn't belongs to CardView");
+        if (!(view instanceof Card)) {
+            throw new RuntimeException("View doesn't belongs to Card");
         }
 
         if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
@@ -84,16 +86,15 @@ public class SwipeGestureManager<Entity> implements View.OnTouchListener {
         }
 
         boolean status;
-        CardView cardView = (CardView) view;
         switch (orientationMode) {
             case OrientationMode.LEFT_RIGHT:
-                status = swipeByX(cardView, event);
+                status = swipeByX((View & Card<Entity>) view, event);
                 break;
             case OrientationMode.UP_BOTTOM:
-                status = swipeByY(cardView, event);
+                status = swipeByY((View & Card<Entity>) view, event);
                 break;
             case OrientationMode.BOTH:
-                status = swipeByY(cardView, event) && swipeByX(cardView, event);
+                status = swipeByY((View & Card<Entity>) view, event) && swipeByX((View & Card<Entity>) view, event);
                 break;
             default:
                 status = false;
@@ -145,14 +146,14 @@ public class SwipeGestureManager<Entity> implements View.OnTouchListener {
 
 
     @SuppressWarnings("SuspiciousNameCombination")
-    private boolean swipeByY(CardView view, MotionEvent event) {
+    private <C extends View & Card<Entity>> boolean swipeByY(C view, MotionEvent event) {
         if (!blocks.contains(OrientationMode.UP_BOTTOM)) {
             CardInfo cardInfo = view.getCardInfo();
             if (gestureDetector.onTouchEvent(event)) {
                 return true;
             }
             final int y = (int) event.getRawY();
-            if (swipeOffset == -1) {
+            if (Math.abs(swipeOffset - (-1)) < EPSILON) {
                 swipeOffset = view.getHeight();
             }
             percentageY = getPercent(view.getY(), y);
@@ -186,7 +187,7 @@ public class SwipeGestureManager<Entity> implements View.OnTouchListener {
         return true;
     }
 
-    private boolean swipeByX(CardView view, MotionEvent event) {
+    private <C extends View & Card<Entity>> boolean swipeByX(C view, MotionEvent event) {
         if (!blocks.contains(OrientationMode.LEFT_RIGHT)) {
             CardInfo cardInfo = view.getCardInfo();
             if (gestureDetector.onTouchEvent(event)) {
@@ -194,7 +195,7 @@ public class SwipeGestureManager<Entity> implements View.OnTouchListener {
             }
 
             final int x = (int) event.getRawX();
-            if (swipeOffset == -1) {
+            if (Math.abs(swipeOffset - (-1)) < EPSILON) {
                 swipeOffset = view.getWidth();
             }
             percentageX = getPercent(view.getX(), x);
@@ -247,10 +248,10 @@ public class SwipeGestureManager<Entity> implements View.OnTouchListener {
         if (cardPercentageChangeListener != null && lastMotion != MotionEvent.ACTION_UP) {
             float percentageX, percentageY;
             CardInfo<Entity> cardInfo = getCardInfo();
-            if (mode == CardView.START_TO_CURRENT) {
+            if (mode == Card.START_TO_CURRENT) {
                 percentageX = getPercent(cardInfo.getFirstPositionX(), cardInfo.getCurrentPositionX());
                 percentageY = getPercent(cardInfo.getFirstPositionY(), cardInfo.getCurrentPositionY());
-            } else if (mode == CardView.LAST_TO_CURRENT) {
+            } else if (mode == Card.LAST_TO_CURRENT) {
                 percentageX = this.percentageX;
                 percentageY = this.percentageY;
             } else {
@@ -280,10 +281,10 @@ public class SwipeGestureManager<Entity> implements View.OnTouchListener {
         this.swipeOffset = swipeOffset;
     }
 
+    @FunctionalInterface
     public interface CardInfoProvider<Entity> {
         CardInfo<Entity> getCardInfo();
     }
-
 
     /* inner types */
 
@@ -335,5 +336,7 @@ public class SwipeGestureManager<Entity> implements View.OnTouchListener {
         public static final int UP_BOTTOM = 1;
         public static final int BOTH = 2;
         public static final int NONE = 3;
+
+        private OrientationMode() {}
     }
 }

@@ -13,13 +13,11 @@ import ua.jenshensoft.cardslayout.listeners.OnCardPercentageChangeListener;
 import ua.jenshensoft.cardslayout.listeners.OnCardSwipedListener;
 import ua.jenshensoft.cardslayout.listeners.OnCardTranslationListener;
 import ua.jenshensoft.cardslayout.util.SwipeGestureManager;
+import ua.jenshensoft.cardslayout.views.card.Card;
 
 import static android.R.attr.x;
 
-public class CardView<Entity> extends FrameLayout {
-
-    public static final int START_TO_CURRENT = 1;
-    public static final int LAST_TO_CURRENT = 2;
+public class CardView<Entity> extends FrameLayout implements Card<Entity> {
     //attr
     private float swipeSpeed = 1.0f;
     private float swipeOffset = -1;

@@ -13,7 +13,7 @@ import ua.jenshensoft.cardslayout.listeners.OnCardSwipedListener;
 import ua.jenshensoft.cardslayout.listeners.OnUpdateDeskOfCardsUpdater;
 import ua.jenshensoft.cardslayout.util.DistributionState;
 import ua.jenshensoft.cardslayout.views.CardView;
-import ua.jenshensoft.cardslayout.views.CardsLayout;
+import ua.jenshensoft.cardslayout.views.updater.layout.CardsLayout;
 import ua.jenshensoft.cardslayout.views.GameTableLayout;
 import ua.jenshensoft.cardslayoutsample.CardsLayoutDefault;
 import ua.jenshensoft.cardslayoutsample.R;
@@ -56,7 +56,7 @@ public class GameTable extends GameTableLayout<CardsLayoutDefault.CardInfo, Card
 
         }
 
-        setDistributionState(new DistributionState<CardsLayoutDefault.CardInfo>(false) {
+       updateDistributionState(new DistributionState<CardsLayoutDefault.CardInfo>(false) {
             @Override
             public Predicate<CardView<CardsLayoutDefault.CardInfo>> getPredicateForCardsForDistribution() {
                 return new Predicate<CardView<CardsLayoutDefault.CardInfo>>() {

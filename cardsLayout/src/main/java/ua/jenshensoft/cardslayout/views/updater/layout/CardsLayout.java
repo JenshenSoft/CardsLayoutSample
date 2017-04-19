@@ -1,4 +1,4 @@
-package ua.jenshensoft.cardslayout.views;
+package ua.jenshensoft.cardslayout.views.updater.layout;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -40,13 +40,15 @@ import ua.jenshensoft.cardslayout.provider.CardsCoordinatesProvider;
 import ua.jenshensoft.cardslayout.util.DrawableUtils;
 import ua.jenshensoft.cardslayout.util.FlagManager;
 import ua.jenshensoft.cardslayout.util.SwipeGestureManager;
+import ua.jenshensoft.cardslayout.views.CardView;
+import ua.jenshensoft.cardslayout.views.card.Card;
 
-import static ua.jenshensoft.cardslayout.views.CardsLayout.CardsDirection.LEFT_TO_RIGHT;
-import static ua.jenshensoft.cardslayout.views.CardsLayout.CardsDirection.RIGHT_TO_LEFT;
-import static ua.jenshensoft.cardslayout.views.CardsLayout.CircleCenterLocation.BOTTOM;
-import static ua.jenshensoft.cardslayout.views.CardsLayout.CircleCenterLocation.TOP;
-import static ua.jenshensoft.cardslayout.views.CardsLayout.DistributeCardsBy.CIRCLE;
-import static ua.jenshensoft.cardslayout.views.CardsLayout.DistributeCardsBy.LINE;
+import static ua.jenshensoft.cardslayout.views.updater.layout.CardsLayout.CardsDirection.LEFT_TO_RIGHT;
+import static ua.jenshensoft.cardslayout.views.updater.layout.CardsLayout.CardsDirection.RIGHT_TO_LEFT;
+import static ua.jenshensoft.cardslayout.views.updater.layout.CardsLayout.CircleCenterLocation.BOTTOM;
+import static ua.jenshensoft.cardslayout.views.updater.layout.CardsLayout.CircleCenterLocation.TOP;
+import static ua.jenshensoft.cardslayout.views.updater.layout.CardsLayout.DistributeCardsBy.CIRCLE;
+import static ua.jenshensoft.cardslayout.views.updater.layout.CardsLayout.DistributeCardsBy.LINE;
 
 
 public abstract class CardsLayout<Entity> extends FrameLayout
@@ -60,7 +62,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout
     //animation params
     @Nullable
     protected Interpolator interpolator;
-    protected OnCreateAnimatorAction defaultAnimatorAction;
+    protected OnCreateAnimatorAction<Entity> defaultAnimatorAction;
 
     //property
     @LinearLayoutCompat.OrientationMode
@@ -240,18 +242,22 @@ public abstract class CardsLayout<Entity> extends FrameLayout
 
     @CallSuper
     @SuppressWarnings("ConstantConditions")
-    public void invalidateCardsPosition(boolean withAnimation, @NonNull OnCreateAnimatorAction onCreateAnimatorAction) {
+    public void invalidateCardsPosition(boolean withAnimation,
+                                        @NonNull OnCreateAnimatorAction<Entity> onCreateAnimatorAction) {
         invalidateCardsPosition(withAnimation, onCreateAnimatorAction, null);
     }
 
     @CallSuper
     @SuppressWarnings("ConstantConditions")
-    public void invalidateCardsPosition(boolean withAnimation, @NonNull AnimatorListenerAdapter animatorListenerAdapter) {
+    public void invalidateCardsPosition(boolean withAnimation,
+                                        @NonNull AnimatorListenerAdapter animatorListenerAdapter) {
         invalidateCardsPosition(withAnimation, null, animatorListenerAdapter);
     }
 
     @CallSuper
-    public void invalidateCardsPosition(boolean withAnimation, @Nullable OnCreateAnimatorAction onCreateAnimatorAction, @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
+    public void invalidateCardsPosition(boolean withAnimation,
+                                        @Nullable OnCreateAnimatorAction<Entity> onCreateAnimatorAction,
+                                        @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
         setViewsCoordinatesToStartPosition();
         moveViewsToStartPosition(withAnimation, onCreateAnimatorAction, animatorListenerAdapter);
     }
@@ -348,7 +354,12 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         this.interpolator = interpolator;
     }
 
-    public OnCreateAnimatorAction getDefaultCreateAnimatorAction() {
+    @Nullable
+    public Interpolator getInterpolator() {
+        return interpolator;
+    }
+
+    public OnCreateAnimatorAction<Entity> getDefaultCreateAnimatorAction() {
         return defaultAnimatorAction;
     }
 
@@ -399,13 +410,12 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         }
     }
 
-
     /* protected methods */
 
     protected void setViewsCoordinatesToStartPosition() {
         final List<CardView<Entity>> views = new ArrayList<>();
         for (CardView<Entity> cardView : cardViewList) {
-            if (!shouldPassView(cardView)) {
+            if (!shouldPassCard(cardView)) {
                 views.add(cardView);
             }
         }
@@ -448,10 +458,12 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         }
     }
 
-    protected void moveViewsToStartPosition(boolean withAnimation, @Nullable OnCreateAnimatorAction animationCreateAction, @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
+    protected void moveViewsToStartPosition(boolean withAnimation,
+                                            @Nullable OnCreateAnimatorAction<Entity> animationCreateAction,
+                                            @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
         final List<CardView<Entity>> views = new ArrayList<>();
         for (CardView<Entity> cardView : cardViewList) {
-            if (!shouldPassView(cardView)) {
+            if (!shouldPassCard(cardView)) {
                 views.add(cardView);
             }
         }
@@ -544,9 +556,9 @@ public abstract class CardsLayout<Entity> extends FrameLayout
             cardPositionX = 0;
         } else if (gravityFlag.containsFlag(FlagManager.Gravity.RIGHT)) {
             if (childListOrientation == LinearLayoutCompat.HORIZONTAL) {
-                cardPositionX = (rootWidth - widthOfViews);
+                cardPositionX = rootWidth - widthOfViews;
             } else {
-                cardPositionX = (rootWidth - widthOfItem);
+                cardPositionX = rootWidth - widthOfItem;
             }
         } else if (gravityFlag.containsFlag(FlagManager.Gravity.CENTER_HORIZONTAL)
                 || gravityFlag.containsFlag(FlagManager.Gravity.CENTER)) {
@@ -665,7 +677,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout
     protected void setXForViews(@NonNull List<CardView<Entity>> views, float cardPositionX, float distanceBetweenViews) {
         float x = cardPositionX;
         for (CardView<Entity> view : views) {
-            if (shouldPassView(view)) {
+            if (shouldPassCard(view)) {
                 continue;
             }
             setXForView(view, x);
@@ -677,7 +689,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout
     protected void setYForViews(@NonNull List<CardView<Entity>> views, float cardPositionY, float distanceBetweenViews) {
         float y = cardPositionY;
         for (CardView<Entity> view : views) {
-            if (shouldPassView(view)) {
+            if (shouldPassCard(view)) {
                 continue;
             }
             setYForView(view, y);
@@ -686,26 +698,26 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         }
     }
 
-    protected void setRotationForViews(@NonNull List<CardView<Entity>> views) {
-        for (CardView<Entity> view : views) {
-            if (shouldPassView(view)) {
+    protected <C extends View & Card<Entity>> void setRotationForViews(@NonNull List<C> views) {
+        for (C view : views) {
+            if (shouldPassCard(view)) {
                 continue;
             }
             setRotation(view, 0);
         }
     }
 
-    protected void setXForView(CardView<Entity> cardView, float cardPositionX) {
+    protected void setXForView(Card<Entity> cardView, float cardPositionX) {
         CardInfo<Entity> cardInfo = cardView.getCardInfo();
         cardInfo.setFirstPositionX(Math.round(cardPositionX));
     }
 
-    protected void setYForView(CardView<Entity> cardView, float cardPositionY) {
+    protected void setYForView(Card<Entity> cardView, float cardPositionY) {
         CardInfo<Entity> cardInfo = cardView.getCardInfo();
         cardInfo.setFirstPositionY(Math.round(cardPositionY));
     }
 
-    protected void setRotation(CardView<Entity> cardView, float rotation) {
+    protected void setRotation(Card<Entity> cardView, float rotation) {
         CardInfo<Entity> cardInfo = cardView.getCardInfo();
         cardInfo.setFirstRotation(Math.round(rotation));
     }
@@ -730,15 +742,18 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         childList_circleCenterLocation = BOTTOM;
         gravityFlag = new FlagManager(FlagManager.Gravity.BOTTOM);
         cardViewList = new ArrayList<>();
-        defaultAnimatorAction = cardView -> {
-            AwesomeAnimation.Builder awesomeAnimation = new AwesomeAnimation.Builder(cardView)
-                    .setX(AwesomeAnimation.CoordinationMode.COORDINATES, cardView.getCardInfo().getCurrentPositionX(), cardView.getCardInfo().getFirstPositionX())
-                    .setY(AwesomeAnimation.CoordinationMode.COORDINATES, cardView.getCardInfo().getCurrentPositionY(), cardView.getCardInfo().getFirstPositionY())
-                    .setRotation(cardView.getRotation(), cardView.getCardInfo().getFirstRotation())
-                    .setDuration(durationOfAnimation);
-            if (interpolator != null)
-                awesomeAnimation.setInterpolator(interpolator);
-            return awesomeAnimation.build().getAnimatorSet();
+        defaultAnimatorAction = new OnCreateAnimatorAction<Entity>() {
+            @Override
+            public <C extends View & Card<Entity>> Animator createAnimation(C cardView) {
+                AwesomeAnimation.Builder awesomeAnimation = new AwesomeAnimation.Builder(cardView)
+                        .setX(AwesomeAnimation.CoordinationMode.COORDINATES, cardView.getCardInfo().getCurrentPositionX(), cardView.getCardInfo().getFirstPositionX())
+                        .setY(AwesomeAnimation.CoordinationMode.COORDINATES, cardView.getCardInfo().getCurrentPositionY(), cardView.getCardInfo().getFirstPositionY())
+                        .setRotation(cardView.getRotation(), cardView.getCardInfo().getFirstRotation())
+                        .setDuration(durationOfAnimation);
+                if (interpolator != null)
+                    awesomeAnimation.setInterpolator(interpolator);
+                return awesomeAnimation.build().getAnimatorSet();
+            }
         };
     }
 
@@ -863,13 +878,14 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         }
     }
 
+    //// TODO: 4/19/17
     private boolean shouldPassView(View view) {
         return view.getVisibility() != VISIBLE ||
                 CardView.class.isInstance(view) && !((CardView) view).getCardInfo().isCardDistributed();
     }
 
-    private boolean shouldPassView(CardView view) {
-        return view.getVisibility() != VISIBLE || !view.getCardInfo().isCardDistributed();
+    private <C extends View & Card<Entity>> boolean shouldPassCard(C card) {
+        return card.getVisibility() != VISIBLE || !card.getCardInfo().isCardDistributed();
     }
 
     private void clearAnimator() {
@@ -880,12 +896,11 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         }
     }
 
-
     /* inner types */
 
     @FunctionalInterface
-    public interface OnCreateAnimatorAction {
-        Animator createAnimation(CardView cardView);
+    public interface OnCreateAnimatorAction<Entity> {
+        <C extends View & Card<Entity>> Animator createAnimation(C cardView);
     }
 
     @IntDef({TOP, BOTTOM})
@@ -907,33 +922,5 @@ public abstract class CardsLayout<Entity> extends FrameLayout
     public @interface CardsDirection {
         int LEFT_TO_RIGHT = 0;
         int RIGHT_TO_LEFT = 1;
-    }
-
-    public static class Config {
-        private final float distanceBetweenViews;
-        private final float distanceForCards;
-        private float startCoordinates;
-
-        Config(float startCoordinates, float distanceBetweenViews, float distanceForCards) {
-            this.startCoordinates = startCoordinates;
-            this.distanceBetweenViews = distanceBetweenViews;
-            this.distanceForCards = distanceForCards;
-        }
-
-        public float getDistanceBetweenViews() {
-            return distanceBetweenViews;
-        }
-
-        public float getDistanceForCards() {
-            return distanceForCards;
-        }
-
-        public float getStartCoordinates() {
-            return startCoordinates;
-        }
-
-        public void setStartCoordinates(float startCoordinates) {
-            this.startCoordinates = startCoordinates;
-        }
     }
 }
