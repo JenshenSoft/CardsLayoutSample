@@ -152,7 +152,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout
     @Override
     public void onViewAdded(View child) {
         super.onViewAdded(child);
-        if (child instanceof CardView) {
+        if (child instanceof Card) {
             setUpCard((View & Card<Entity>) child);
         } else {
             ((ViewGroup) child.getParent()).removeView(child);
@@ -193,20 +193,26 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         return cards;
     }
 
-    public void addCardView(CardView<Entity> view, int position) {
-        this.addView(view, position);
+    public void addCardView(CardView<Entity> cardView, int position) {
+        cardView.setCardInfo(new CardInfo<>(position));
+        this.addView(cardView, position);
     }
 
-    public void addCardView(CardView<Entity> view) {
-        this.addView(view);
+    public void addCardView(CardView<Entity> cardView) {
+        cardView.setCardInfo(new CardInfo<>(cards.size()));
+        this.addView(cardView);
     }
 
     public void addCardBoxView(View view, int position) {
-        addViewAsCard(view, position);
+        CardBoxView<Entity> cardView = createCardBoxView(view);
+        cardView.setCardInfo(new CardInfo<>(position));
+        this.addView(cardView, position);
     }
 
     public void addCardBoxView(View view) {
-        addViewAsCard(view);
+        CardBoxView<Entity> cardView = createCardBoxView(view);
+        cardView.setCardInfo(new CardInfo<>(cards.size()));
+        this.addView(cardView);
     }
 
     public void removeCardView(int position) {
@@ -812,42 +818,22 @@ public abstract class CardsLayout<Entity> extends FrameLayout
 
     private <CV extends View & Card<Entity>> void setUpCard(CV card) {
         if (card.getCardInfo() == null) {
-            card.setCardInfo(new CardInfo<>(cards.size()));
+            int index;
+            if (cardsLayout_cardsDirection == LEFT_TO_RIGHT) {
+                index = cards.size();
+            } else {
+                index = 0;
+            }
+            card.setCardInfo(new CardInfo<>(index));
         }
+        this.cards.add(card.getCardInfo().getCardPositionInLayout(), card);
         card.setSwipeOrientationMode(SwipeGestureManager.OrientationMode.BOTH);
         card.setCardTranslationListener(this);
         card.setCardSwipedListener(this);
         card.setCardPercentageChangeListener(this, CardBoxView.START_TO_CURRENT);
-        if (cardsLayout_cardsDirection == LEFT_TO_RIGHT) {
-            cards.add(card);
-        } else {
-            cards.add(0, card);
-        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             card.setElevation(getResources().getDimensionPixelOffset(R.dimen.cardsLayout_card_elevation_normal));
         }
-    }
-
-    private void addViewAsCard(View view) {
-        CardBoxView<Entity> cardView = createCardBoxView(view);
-        this.addView(cardView);
-        addCard(cardView);
-    }
-
-    private void addViewAsCard(View view, int position) {
-        CardBoxView<Entity> cardView = createCardBoxView(view);
-        this.addView(cardView, position);
-        addCard(cardView, position);
-    }
-
-    private void addCard(Card<Entity> card) {
-        card.setCardInfo(new CardInfo<>(cards.size()));
-        cards.add(card);
-    }
-
-    private void addCard(Card<Entity> card, int position) {
-        card.setCardInfo(new CardInfo<>(cards.size()));
-        cards.add(position, card);
     }
 
     private <CV extends View & Card<Entity>> CV findCardView(int position) {
