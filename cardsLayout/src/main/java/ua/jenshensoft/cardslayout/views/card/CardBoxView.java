@@ -56,9 +56,11 @@ public class CardBoxView<Entity> extends FrameLayout implements Card<Entity> {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        CardBoxView cardView = (CardBoxView) o;
-        return cardInfo.equals(cardView.cardInfo);
+        if (Card.class.isInstance(o)) {
+            Card card = (Card<Entity>) o;
+            return cardInfo.equals(card.getCardInfo());
+        }
+        return false;
     }
 
     @Override
@@ -90,6 +92,7 @@ public class CardBoxView<Entity> extends FrameLayout implements Card<Entity> {
     @Override
     public void setRotation(float rotation) {
         super.setRotation(rotation);
+        getCardInfo().setCurrentRotation((int) rotation);
     }
 
     public CardInfo<Entity> getCardInfo() {
@@ -122,24 +125,22 @@ public class CardBoxView<Entity> extends FrameLayout implements Card<Entity> {
         this.scrollAndClickable = scrollAndClickable;
     }
 
-    /**
-     * @param orientationMode 0 - LEFT_RIGHT , 1 - UP_BOTTOM, 2 - BOTH, 3 - NONE
-     */
+    @Override
     public void setSwipeOrientationMode(int orientationMode) {
         swipeManager.setOrientationMode(orientationMode);
     }
 
+    @Override
     public void setCardTranslationListener(final OnCardTranslationListener<Entity> cardTranslationListener) {
         swipeManager.setCardTranslationListener(cardTranslationListener);
     }
 
+    @Override
     public void setCardSwipedListener(final OnCardSwipedListener<Entity> cardSwipedListener) {
         swipeManager.setCardSwipedListener(cardSwipedListener);
     }
 
-    /**
-     * @param mode 0 - START_TO_CURRENT , 1 - LAST_TO_CURRENT
-     */
+    @Override
     public void setCardPercentageChangeListener(final OnCardPercentageChangeListener<Entity> cardPercentageChangeListener, int mode) {
         swipeManager.setCardPercentageChangeListener(cardPercentageChangeListener, mode);
     }
@@ -167,6 +168,6 @@ public class CardBoxView<Entity> extends FrameLayout implements Card<Entity> {
         builder.setSwipeOffset(swipeOffset);
         builder.setOrientationMode(swipeOrientationMode);
         swipeManager = builder.create();
-        this.setOnTouchListener(swipeManager);
+        setOnTouchListener(swipeManager);
     }
 }

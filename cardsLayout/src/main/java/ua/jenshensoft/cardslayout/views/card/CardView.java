@@ -56,9 +56,11 @@ public class CardView<Entity> extends AppCompatImageView implements Card<Entity>
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        CardView cardView = (CardView) o;
-        return cardInfo.equals(cardView.cardInfo);
+        if (Card.class.isInstance(o)) {
+            Card card = (Card<Entity>) o;
+            return cardInfo.equals(card.getCardInfo());
+        }
+        return false;
     }
 
     @Override

@@ -811,6 +811,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout
     }
 
     private <CV extends View & Card<Entity>> void setUpCard(CV card) {
+        card.setCardInfo(new CardInfo<>(cards.size()));
         card.setSwipeOrientationMode(SwipeGestureManager.OrientationMode.BOTH);
         card.setCardTranslationListener(this);
         card.setCardSwipedListener(this);
@@ -827,13 +828,11 @@ public abstract class CardsLayout<Entity> extends FrameLayout
 
     private void addCardToRootView(View view) {
         CardBoxView<Entity> cardView = createCardBoxView(view);
-        cardView.setCardInfo(new CardInfo<>(cards.size()));
         this.addView(cardView);
     }
 
     private void addCardToRootView(View view, int position) {
         CardBoxView<Entity> cardView = createCardBoxView(view);
-        cardView.setCardInfo(new CardInfo<>(cards.size()));
         this.addView(cardView);
         cards.add(position, cardView);
     }

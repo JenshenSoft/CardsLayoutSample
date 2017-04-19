@@ -15,6 +15,8 @@ public interface Card<Entity> {
 
     CardInfo<Entity> getCardInfo();
 
+    void setCardInfo(CardInfo<Entity> objectCardInfo);
+
     /* params */
 
     void setVisibility(int visible);
@@ -40,4 +42,6 @@ public interface Card<Entity> {
      * @param mode 0 - START_TO_CURRENT , 1 - LAST_TO_CURRENT
      */
     void setCardPercentageChangeListener(OnCardPercentageChangeListener<Entity> cardPercentageChangeListener, int mode);
+
+
 }
