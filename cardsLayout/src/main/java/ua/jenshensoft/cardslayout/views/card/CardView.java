@@ -95,34 +95,16 @@ public class CardView<Entity> extends AppCompatImageView implements Card<Entity>
         getCardInfo().setCurrentRotation((int) rotation);
     }
 
+    @Override
     public CardInfo<Entity> getCardInfo() {
         return cardInfo;
     }
 
+    @Override
     public void setCardInfo(CardInfo<Entity> cardInfo) {
         this.cardInfo = cardInfo;
         if (swipeManager != null)
             swipeManager.setCardInfoProvider(() -> cardInfo);
-    }
-
-    public void addBlock(int orientationMode) {
-        swipeManager.addBlock(orientationMode);
-    }
-
-    public void removeBlock(int orientationMode) {
-        swipeManager.removeBlock(orientationMode);
-    }
-
-    public void setSwipeSpeed(int swipeSpeed) {
-        swipeManager.setSwipeSpeed(swipeSpeed);
-    }
-
-    public void setSwipeOffset(float swipeOffset) {
-        swipeManager.setSwipeOffset(swipeOffset);
-    }
-
-    public void setScrollAndClickableState(boolean scrollAndClickable) {
-        this.scrollAndClickable = scrollAndClickable;
     }
 
     @Override
@@ -143,6 +125,26 @@ public class CardView<Entity> extends AppCompatImageView implements Card<Entity>
     @Override
     public void setCardPercentageChangeListener(final OnCardPercentageChangeListener<Entity> cardPercentageChangeListener, int mode) {
         swipeManager.setCardPercentageChangeListener(cardPercentageChangeListener, mode);
+    }
+
+    public void addBlock(int orientationMode) {
+        swipeManager.addBlock(orientationMode);
+    }
+
+    public void removeBlock(int orientationMode) {
+        swipeManager.removeBlock(orientationMode);
+    }
+
+    public void setSwipeSpeed(int swipeSpeed) {
+        swipeManager.setSwipeSpeed(swipeSpeed);
+    }
+
+    public void setSwipeOffset(float swipeOffset) {
+        swipeManager.setSwipeOffset(swipeOffset);
+    }
+
+    public void setScrollAndClickableState(boolean scrollAndClickable) {
+        this.scrollAndClickable = scrollAndClickable;
     }
 
 

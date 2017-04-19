@@ -152,7 +152,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout
     @Override
     public void onViewAdded(View child) {
         super.onViewAdded(child);
-        if (child instanceof Card) {
+        if (child instanceof CardView) {
             setUpCard((View & Card<Entity>) child);
         } else {
             ((ViewGroup) child.getParent()).removeView(child);
@@ -193,20 +193,20 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         return cards;
     }
 
-    public void addCardView(CardView view, int position) {
-        addCardToRootView(view, position);
+    public void addCardView(CardView<Entity> view, int position) {
+        this.addView(view, position);
     }
 
-    public void addCardView(CardView view) {
-        addCardToRootView(view);
+    public void addCardView(CardView<Entity> view) {
+        this.addView(view);
     }
 
     public void addCardBoxView(View view, int position) {
-        addCardToRootView(view, position);
+        addViewAsCard(view, position);
     }
 
     public void addCardBoxView(View view) {
-        addCardToRootView(view);
+        addViewAsCard(view);
     }
 
     public void removeCardView(int position) {
@@ -811,7 +811,9 @@ public abstract class CardsLayout<Entity> extends FrameLayout
     }
 
     private <CV extends View & Card<Entity>> void setUpCard(CV card) {
-        card.setCardInfo(new CardInfo<>(cards.size()));
+        if (card.getCardInfo() == null) {
+            card.setCardInfo(new CardInfo<>(cards.size()));
+        }
         card.setSwipeOrientationMode(SwipeGestureManager.OrientationMode.BOTH);
         card.setCardTranslationListener(this);
         card.setCardSwipedListener(this);
@@ -826,15 +828,26 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         }
     }
 
-    private void addCardToRootView(View view) {
+    private void addViewAsCard(View view) {
         CardBoxView<Entity> cardView = createCardBoxView(view);
         this.addView(cardView);
+        addCard(cardView);
     }
 
-    private void addCardToRootView(View view, int position) {
+    private void addViewAsCard(View view, int position) {
         CardBoxView<Entity> cardView = createCardBoxView(view);
-        this.addView(cardView);
-        cards.add(position, cardView);
+        this.addView(cardView, position);
+        addCard(cardView, position);
+    }
+
+    private void addCard(Card<Entity> card) {
+        card.setCardInfo(new CardInfo<>(cards.size()));
+        cards.add(card);
+    }
+
+    private void addCard(Card<Entity> card, int position) {
+        card.setCardInfo(new CardInfo<>(cards.size()));
+        cards.add(position, card);
     }
 
     private <CV extends View & Card<Entity>> CV findCardView(int position) {
