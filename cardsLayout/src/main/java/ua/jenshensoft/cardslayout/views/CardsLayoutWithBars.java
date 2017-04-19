@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ua.jenshensoft.cardslayout.util.FlagManager;
+import ua.jenshensoft.cardslayout.views.card.CardBoxView;
 import ua.jenshensoft.cardslayout.views.updater.layout.CardsLayout;
 import ua.jenshensoft.cardslayout.views.updater.layout.Config;
 
@@ -181,10 +182,10 @@ public abstract class CardsLayoutWithBars<
     }
 
     private void moveBarsToCurrentPosition(boolean withAnimation) {
-        List<CardView<Entity>> cardViews = getCardViews();
+        List<CardBoxView<Entity>> cardViews = getCardViews();
 
-        List<CardView<Entity>> visibleCardViews = new ArrayList<>();
-        for (CardView<Entity> cardView : cardViews) {
+        List<CardBoxView<Entity>> visibleCardViews = new ArrayList<>();
+        for (CardBoxView<Entity> cardView : cardViews) {
             if (cardView.getCardInfo().isCardDistributed() && cardView.getVisibility() == VISIBLE) {
                 visibleCardViews.add(cardView);
             }
@@ -219,9 +220,9 @@ public abstract class CardsLayoutWithBars<
     }
 
     private AnchorViewInfo getAnchorViewInfo(@AnchorPosition int position) {
-        List<CardView<Entity>> cardViews = getCardViews();
-        List<CardView<Entity>> visibleCardViews = new ArrayList<>();
-        for (CardView<Entity> cardView : cardViews) {
+        List<CardBoxView<Entity>> cardViews = getCardViews();
+        List<CardBoxView<Entity>> visibleCardViews = new ArrayList<>();
+        for (CardBoxView<Entity> cardView : cardViews) {
             if (cardView.getCardInfo().isCardDistributed() && cardView.getVisibility() == VISIBLE) {
                 visibleCardViews.add(cardView);
             }
@@ -230,7 +231,7 @@ public abstract class CardsLayoutWithBars<
         int firstPositionY;
         int cardsLayoutWidth;
         int cardsLayoutHeight;
-        final CardView<Entity> cardView;
+        final CardBoxView<Entity> cardView;
         switch (position) {
             case VIEW_POSITION_START:
                 cardView = visibleCardViews.iterator().next();
@@ -253,7 +254,7 @@ public abstract class CardsLayoutWithBars<
                     firstPositionY = cardView.getCardInfo().getFirstPositionY();
                 } else if (visibleCardViews.size() % 2 == 0) {
                     cardView = visibleCardViews.get(visibleCardViews.size() / 2 - 1);
-                    final CardView<Entity> middleRightCardView = visibleCardViews.get(visibleCardViews.size() / 2);
+                    final CardBoxView<Entity> middleRightCardView = visibleCardViews.get(visibleCardViews.size() / 2);
                     firstPositionX = Math.round((cardView.getCardInfo().getFirstPositionX() + middleRightCardView.getCardInfo().getFirstPositionX()) / 2f);
                     firstPositionY = Math.round((cardView.getCardInfo().getFirstPositionY() + middleRightCardView.getCardInfo().getFirstPositionY()) / 2f);
                 } else {
@@ -341,7 +342,7 @@ public abstract class CardsLayoutWithBars<
     @CheckResult
     private boolean canDistributeByWidth() {
         float rootWidth = getRootWidth();
-        float widthOfViews = getWidthOfViews(getCardViews(), 0);
+        float widthOfViews = getWidthOfViews(getCards(), 0);
         float difference = rootWidth - widthOfViews;
 
         int additionalViewsWidth = 0;
@@ -357,7 +358,7 @@ public abstract class CardsLayoutWithBars<
     @CheckResult
     private boolean canDistributeByHeight() {
         float rootHeight = getRootHeight();
-        float heightOfViews = getHeightOfViews(getCardViews(), 0);
+        float heightOfViews = getHeightOfViews(getCards(), 0);
         float difference = rootHeight - heightOfViews;
 
         int additionalViewsHeight = 0;

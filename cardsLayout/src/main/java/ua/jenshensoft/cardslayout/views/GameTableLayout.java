@@ -15,7 +15,8 @@ import com.android.internal.util.Predicate;
 import com.jenshen.awesomeanimation.AwesomeAnimation;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -26,10 +27,11 @@ import ua.jenshensoft.cardslayout.listeners.OnDistributedCardsListener;
 import ua.jenshensoft.cardslayout.listeners.OnUpdateDeskOfCardsUpdater;
 import ua.jenshensoft.cardslayout.util.DistributionState;
 import ua.jenshensoft.cardslayout.views.card.Card;
-import ua.jenshensoft.cardslayout.views.updater.layout.CardsLayout;
-import ua.jenshensoft.cardslayout.views.updater.model.GameTableParams;
+import ua.jenshensoft.cardslayout.views.card.CardBoxView;
 import ua.jenshensoft.cardslayout.views.updater.ViewUpdater;
 import ua.jenshensoft.cardslayout.views.updater.callback.OnViewParamsUpdate;
+import ua.jenshensoft.cardslayout.views.updater.layout.CardsLayout;
+import ua.jenshensoft.cardslayout.views.updater.model.GameTableParams;
 
 public abstract class GameTableLayout<
         Entity,
@@ -191,23 +193,23 @@ public abstract class GameTableLayout<
         setCardsBeforeDistribution(distributionState.getPredicateForCardsBeforeDistribution(), distributionState.getDeskOfCardsUpdater());
     }
 
-    public void setCardsBeforeDistribution(Predicate<CardView<Entity>> predicate, OnUpdateDeskOfCardsUpdater<Entity> onUpdateDeskOfCardsUpdater) {
-        List<CardView<Entity>> cardInDesk = new ArrayList<>();
+    public void setCardsBeforeDistribution(Predicate<Card<Entity>> predicate, OnUpdateDeskOfCardsUpdater<Entity> onUpdateDeskOfCardsUpdater) {
+        List<Card<Entity>> cardInDesk = new ArrayList<>();
         for (Layout cardsLayout : cardsLayouts) {
-            for (CardView<Entity> cardView : cardsLayout.getCardViews()) {
-                if (predicate.apply(cardView)) {
+            for (Card<Entity> card : cardsLayout.getCards()) {
+                if (predicate.apply(card)) {
                     if (deskOfCardsEnable) {
-                        cardView.getCardInfo().setCardDistributed(true);
+                        card.getCardInfo().setCardDistributed(true);
                     } else {
-                        cardView.setVisibility(VISIBLE);
+                        card.setVisibility(VISIBLE);
                     }
                 } else {
                     if (deskOfCardsEnable) {
-                        CardInfo<Entity> cardInfo = cardView.getCardInfo();
+                        CardInfo<Entity> cardInfo = card.getCardInfo();
                         cardInfo.setCardDistributed(false);
-                        cardInDesk.add(cardView);
+                        cardInDesk.add(card);
                     } else {
-                        cardView.setVisibility(INVISIBLE);
+                        card.setVisibility(INVISIBLE);
                     }
                 }
             }
@@ -228,12 +230,12 @@ public abstract class GameTableLayout<
         });
     }
 
-    public void startDistributeCards(Predicate<CardView<Entity>> predicate, float[] coordinateForDistribution) {
+    public <CV extends View & Card<Entity>> void startDistributeCards(Predicate<CV> predicate, float[] coordinateForDistribution) {
         OnDistributedCardsListener<Entity> onDistributedCardsListener = new OnDistributedCardsListener<Entity>() {
 
             private int count;
-            private List<CardView<Entity>> startDistributedCardViews = new ArrayList<>();
-            private List<CardView<Entity>> endDistributedCardViews = new ArrayList<>();
+            private List<CV> startDistributedCardViews = new ArrayList<>();
+            private List<CV> endDistributedCardViews = new ArrayList<>();
 
             @Override
             public void onDistributedCards() {
@@ -246,22 +248,20 @@ public abstract class GameTableLayout<
 
             @SuppressWarnings("unchecked")
             @Override
-            public void onStartDistributedCardWave(CardView<Entity>[] cardViews) {
-                startDistributedCardViews.addAll(Arrays.asList(cardViews));
+            public <C extends View & Card<Entity>> void onStartDistributedCardWave(List<C> cards) {
+                startDistributedCardViews.addAll((Collection<? extends CV>) cards);
                 if (startDistributedCardViews.size() == cardsLayouts.size()) {
-                    CardView[] array = startDistributedCardViews.toArray(new CardView[startDistributedCardViews.size()]);
-                    GameTableLayout.this.onStartDistributedCardWave(array);
+                    GameTableLayout.this.onStartDistributedCardWave(startDistributedCardViews);
                     startDistributedCardViews.clear();
                 }
             }
 
             @SuppressWarnings("unchecked")
             @Override
-            public void onEndDistributeCardWave(CardView<Entity>[] cardViews) {
-                endDistributedCardViews.addAll(Arrays.asList(cardViews));
+            public <C extends View & Card<Entity>> void onEndDistributeCardWave(List<C> cards) {
+                endDistributedCardViews.addAll((Collection<? extends CV>) cards);
                 if (endDistributedCardViews.size() == cardsLayouts.size()) {
-                    CardView[] array = startDistributedCardViews.toArray(new CardView[startDistributedCardViews.size()]);
-                    GameTableLayout.this.onEndDistributeCardWave(array);
+                    GameTableLayout.this.onEndDistributeCardWave(endDistributedCardViews);
                     endDistributedCardViews.clear();
                 }
             }
@@ -294,19 +294,19 @@ public abstract class GameTableLayout<
     }
 
     @SuppressWarnings("ConstantConditions")
-    protected void onStartDistributedCardWave(CardView<Entity>[] cardViews) {
+    protected <C extends View & Card<Entity>> void onStartDistributedCardWave(List<C> cards) {
         if (hasDistributionState()) {
             DistributionState<Entity> distributionState = viewUpdater.getParams().getDistributionState();
-            distributionState.getDeskOfCardsUpdater().removeCardsFromDesk(Arrays.asList(cardViews));
+            distributionState.getDeskOfCardsUpdater().removeCardsFromDesk(cards);
         }
         if (GameTableLayout.this.onDistributedCardsListener != null) {
-            GameTableLayout.this.onDistributedCardsListener.onStartDistributedCardWave(cardViews);
+            GameTableLayout.this.onDistributedCardsListener.onStartDistributedCardWave(cards);
         }
     }
 
-    protected void onEndDistributeCardWave(CardView<Entity>[] cardViews) {
+    protected <C extends View & Card<Entity>> void onEndDistributeCardWave(List<C> cards) {
         if (GameTableLayout.this.onDistributedCardsListener != null) {
-            GameTableLayout.this.onDistributedCardsListener.onEndDistributeCardWave(cardViews);
+            GameTableLayout.this.onDistributedCardsListener.onEndDistributeCardWave(cards);
         }
     }
 
@@ -341,35 +341,34 @@ public abstract class GameTableLayout<
         }
     }
 
-    private void distributeCardForPlayer(final Layout cardsLayout,
-                                         final Predicate<CardView<Entity>> predicate,
-                                         final float[] distributeFromCoordinates,
-                                         final OnDistributedCardsListener<Entity> onDistributedCardsListener) {
-        List<CardView<Entity>> filteredCardsViews = new ArrayList<>();
-        for (CardView<Entity> cardsView : cardsLayout.getCardViews()) {
-            if (predicate.apply(cardsView) &&
-                    (isDeskOfCardsEnable() || cardsView.getVisibility() != VISIBLE)) {
-                filteredCardsViews.add(cardsView);
+    private <CV extends View & Card<Entity>> void distributeCardForPlayer(final Layout cardsLayout,
+                                                                          final Predicate<CV> predicate,
+                                                                          final float[] distributeFromCoordinates,
+                                                                          final OnDistributedCardsListener<Entity> onDistributedCardsListener) {
+        List<CV> filteredCardsViews = new ArrayList<>();
+        List<CV> cards = cardsLayout.getCards();
+        for (CV card : cards) {
+            if (predicate.apply(card) && (isDeskOfCardsEnable() || card.getVisibility() != VISIBLE)) {
+                filteredCardsViews.add(card);
             }
         }
-
         animateCardViews(cardsLayout, filteredCardsViews.iterator(), distributeFromCoordinates, onDistributedCardsListener);
     }
 
-    private void animateCardViews(final Layout cardsLayout,
-                                  final Iterator<CardView<Entity>> cardViewsIterator,
-                                  final float[] distributeFromCoordinates,
-                                  final OnDistributedCardsListener<Entity> onDistributedCardsListener) {
+    private <CV extends View & Card<Entity>> void animateCardViews(final Layout cardsLayout,
+                                                                   final Iterator<CV> cardViewsIterator,
+                                                                   final float[] distributeFromCoordinates,
+                                                                   final OnDistributedCardsListener<Entity> onDistributedCardsListener) {
         if (cardViewsIterator.hasNext()) {
-            final CardView<Entity> cardView = cardViewsIterator.next();
+            final CV card = cardViewsIterator.next();
             if (onDistributedCardsListener != null) {
-                onDistributedCardsListener.onStartDistributedCardWave(cardView);
+                onDistributedCardsListener.onStartDistributedCardWave(Collections.singletonList(card));
             }
-            animateCardView(cardsLayout, cardView, distributeFromCoordinates, new AnimatorListenerAdapter() {
+            animateCardView(cardsLayout, card, distributeFromCoordinates, new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     if (onDistributedCardsListener != null) {
-                        onDistributedCardsListener.onEndDistributeCardWave(cardView);
+                        onDistributedCardsListener.onEndDistributeCardWave(Collections.singletonList(card));
                     }
                     animateCardViews(cardsLayout, cardViewsIterator, distributeFromCoordinates, onDistributedCardsListener);
                 }
@@ -381,24 +380,24 @@ public abstract class GameTableLayout<
         }
     }
 
-    private void animateCardView(Layout cardsLayout,
-                                 CardView<Entity> cardView,
-                                 float[] distributeFromCoordinates,
-                                 AnimatorListenerAdapter adapter) {
+    private <C extends View & Card<Entity>> void animateCardView(Layout cardsLayout,
+                                                                 C card,
+                                                                 float[] distributeFromCoordinates,
+                                                                 AnimatorListenerAdapter adapter) {
         if (hasDistributionState() && deskOfCardsEnable) {
-            cardView.getCardInfo().setCardDistributed(true);
+            card.getCardInfo().setCardDistributed(true);
         } else {
-            cardView.setVisibility(VISIBLE);
+            card.setVisibility(VISIBLE);
         }
 
         CardsLayout.OnCreateAnimatorAction<Entity> onCreateAnimatorAction = new CardsLayout.OnCreateAnimatorAction<Entity>() {
             @Override
             public <C extends View & Card<Entity>> Animator createAnimation(C view) {
-                if (view.equals(cardView)) {
+                if (view.equals(card)) {
                     AwesomeAnimation.Builder awesomeAnimation = new AwesomeAnimation.Builder(view)
                             .setX(AwesomeAnimation.CoordinationMode.COORDINATES, distributeFromCoordinates[0], view.getCardInfo().getFirstPositionX())
                             .setY(AwesomeAnimation.CoordinationMode.COORDINATES, distributeFromCoordinates[1], view.getCardInfo().getFirstPositionY())
-                            .setRotation(180, cardView.getCardInfo().getFirstRotation())
+                            .setRotation(180, card.getCardInfo().getFirstRotation())
                             .setDuration(durationOfDistributeAnimation);
                     if (cardsLayout.getInterpolator() != null) {
                         awesomeAnimation.setInterpolator(cardsLayout.getInterpolator());

@@ -12,7 +12,7 @@ import ua.jenshensoft.cardslayout.CardInfo;
 import ua.jenshensoft.cardslayout.listeners.OnCardSwipedListener;
 import ua.jenshensoft.cardslayout.listeners.OnUpdateDeskOfCardsUpdater;
 import ua.jenshensoft.cardslayout.util.DistributionState;
-import ua.jenshensoft.cardslayout.views.CardView;
+import ua.jenshensoft.cardslayout.views.card.CardBoxView;
 import ua.jenshensoft.cardslayout.views.updater.layout.CardsLayout;
 import ua.jenshensoft.cardslayout.views.GameTableLayout;
 import ua.jenshensoft.cardslayoutsample.CardsLayoutDefault;
@@ -58,20 +58,20 @@ public class GameTable extends GameTableLayout<CardsLayoutDefault.CardInfo, Card
 
        updateDistributionState(new DistributionState<CardsLayoutDefault.CardInfo>(false) {
             @Override
-            public Predicate<CardView<CardsLayoutDefault.CardInfo>> getPredicateForCardsForDistribution() {
-                return new Predicate<CardView<CardsLayoutDefault.CardInfo>>() {
+            public Predicate<CardBoxView<CardsLayoutDefault.CardInfo>> getPredicateForCardsForDistribution() {
+                return new Predicate<CardBoxView<CardsLayoutDefault.CardInfo>>() {
                     @Override
-                    public boolean apply(CardView<CardsLayoutDefault.CardInfo> cardInfoCardView) {
+                    public boolean apply(CardBoxView<CardsLayoutDefault.CardInfo> cardInfoCardView) {
                         return true;
                     }
                 };
             }
 
             @Override
-            public Predicate<CardView<CardsLayoutDefault.CardInfo>> getPredicateForCardsBeforeDistribution() {
-                return new Predicate<CardView<CardsLayoutDefault.CardInfo>>() {
+            public Predicate<CardBoxView<CardsLayoutDefault.CardInfo>> getPredicateForCardsBeforeDistribution() {
+                return new Predicate<CardBoxView<CardsLayoutDefault.CardInfo>>() {
                     @Override
-                    public boolean apply(CardView<CardsLayoutDefault.CardInfo> cardInfoCardView) {
+                    public boolean apply(CardBoxView<CardsLayoutDefault.CardInfo> cardInfoCardView) {
                         return false;
                     }
                 };

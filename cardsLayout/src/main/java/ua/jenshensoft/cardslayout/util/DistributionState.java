@@ -5,7 +5,7 @@ import android.support.annotation.Nullable;
 import com.android.internal.util.Predicate;
 
 import ua.jenshensoft.cardslayout.listeners.OnUpdateDeskOfCardsUpdater;
-import ua.jenshensoft.cardslayout.views.CardView;
+import ua.jenshensoft.cardslayout.views.card.Card;
 
 public abstract class DistributionState<Entity> {
 
@@ -34,8 +34,8 @@ public abstract class DistributionState<Entity> {
         isCardsAlreadyDistributed = cardsAlreadyDistributed;
     }
 
-    public abstract Predicate<CardView<Entity>> getPredicateForCardsForDistribution();
+    public abstract Predicate<Card<Entity>> getPredicateForCardsForDistribution();
 
-    public abstract Predicate<CardView<Entity>> getPredicateForCardsBeforeDistribution();
+    public abstract Predicate<Card<Entity>> getPredicateForCardsBeforeDistribution();
 
 }
