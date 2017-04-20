@@ -215,8 +215,8 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         this.addView(cardView);
     }
 
-    public void removeCardView(int position) {
-        CardBoxView<Entity> cardView = findCardView(position);
+    public  <CV extends View & Card<Entity>> void removeCardView(int position) {
+        CV cardView = findCardView(position);
         ViewParent parent = cardView.getParent();
         ((ViewGroup) parent).removeView(cardView);
         cards.remove(cardView);
