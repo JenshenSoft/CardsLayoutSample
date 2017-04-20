@@ -25,7 +25,15 @@ public interface Card<Entity> {
 
     void setX(@Px float x);
 
+    float getX();
+
     void setY(@Px float y);
+
+    float getY();
+
+    void setElevation(@Px float z);
+
+    float getElevation();
 
     void setRotation(float rotation);
 

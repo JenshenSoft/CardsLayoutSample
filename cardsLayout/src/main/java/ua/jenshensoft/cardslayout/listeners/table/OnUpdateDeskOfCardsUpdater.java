@@ -16,8 +16,13 @@ public abstract class OnUpdateDeskOfCardsUpdater<Entity> {
         cards = new ArrayList<>();
     }
 
+    protected float getShadowOffset() {
+        return 0f;
+    }
+
     /**
-     called in on the onMeasure method
+     * called in on the onMeasure method
+     *
      * @return
      */
     public abstract float[] getPosition();
@@ -28,12 +33,22 @@ public abstract class OnUpdateDeskOfCardsUpdater<Entity> {
 
     public void updatePosition() {
         float[] position = getPosition();
+        float x = position[0];
+        float y = position[1];
+        float z = -1;
         for (Card<Entity> card : cards) {
             CardInfo<Entity> cardInfo = card.getCardInfo();
-            cardInfo.setFirstPositionX((int) position[0]);
-            cardInfo.setFirstPositionY((int) position[1]);
-            card.setX((int) position[0]);
-            card.setY((int) position[1]);
+            if (z == -1) {
+                z = card.getElevation();
+            }
+            cardInfo.setFirstPositionX(Math.round(x));
+            cardInfo.setFirstPositionY(Math.round(y));
+            card.setX(Math.round(x));
+            card.setY(Math.round(y));
+            card.setElevation(Math.round(z));
+            x -= getShadowOffset();
+            y -= getShadowOffset();
+            z -= getShadowOffset();
         }
     }
 

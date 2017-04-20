@@ -9,6 +9,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 
 import ua.jenshensoft.cardslayout.CardInfo;
+import ua.jenshensoft.cardslayout.R;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardPercentageChangeListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardSwipedListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardTranslationListener;
@@ -22,6 +23,8 @@ public class CardView<Entity> extends AppCompatImageView implements Card<Entity>
     private SwipeGestureManager<Entity> swipeManager;
     private CardInfo<Entity> cardInfo;
     private boolean scrollAndClickable = true;
+    private float cardElevation = - 1;
+    private float cardElevationPressed = -1;
 
     public CardView(Context context) {
         super(context);
@@ -158,6 +161,8 @@ public class CardView<Entity> extends AppCompatImageView implements Card<Entity>
                 swipeOrientationMode = attributes.getInt(ua.jenshensoft.cardslayout.R.styleable.SwipeableLayout_card_swipeOrientation, swipeOrientationMode);
                 swipeOffset = attributes.getFloat(ua.jenshensoft.cardslayout.R.styleable.SwipeableLayout_card_swipeOffset, swipeOffset);
                 scrollAndClickable = attributes.getBoolean(ua.jenshensoft.cardslayout.R.styleable.SwipeableLayout_card_scrollAndClickable, scrollAndClickable);
+                cardElevation = attributes.getDimension(ua.jenshensoft.cardslayout.R.styleable.SwipeableLayout_card_elevation, cardElevation);
+                cardElevationPressed = attributes.getDimension(R.styleable.SwipeableLayout_card_elevation_pressed, cardElevationPressed);
             } finally {
                 attributes.recycle();
             }
@@ -165,6 +170,9 @@ public class CardView<Entity> extends AppCompatImageView implements Card<Entity>
     }
 
     private void init() {
+        if (cardElevation == -1) {
+            cardElevation = getR
+        }
         SwipeGestureManager.Builder<Entity> builder = new SwipeGestureManager.Builder<>(getContext());
         builder.setSwipeSpeed(swipeSpeed);
         builder.setSwipeOffset(swipeOffset);

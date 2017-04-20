@@ -66,6 +66,11 @@ public class GameTable extends GameTableLayout<CardsLayoutDefault.CardInfo, Card
                        int y = getMeasuredHeight() / 2 - imageView.getMeasuredHeight() / 2;
                        return new float[]{x, y};
                    }
+
+                   @Override
+                   protected float getShadowOffset() {
+                       return getContext().getResources().getDimension(R.dimen.shadow_desk_offset);
+                   }
                };
            }
 

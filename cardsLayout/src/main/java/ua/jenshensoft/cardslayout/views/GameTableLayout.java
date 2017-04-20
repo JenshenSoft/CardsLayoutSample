@@ -117,9 +117,11 @@ public abstract class GameTableLayout<
     public void onUpdateViewParams(GameTableParams params) {
         if (hasDistributionState()) {
             DistributionState distributionState = params.getDistributionState();
-            distributionState.getDeskOfCardsUpdater().updatePosition();
-            if (canAutoDistribute) {
-                startDistributeCards();
+            if (!distributionState.isCardsAlreadyDistributed()) {
+                distributionState.getDeskOfCardsUpdater().updatePosition();
+                if (canAutoDistribute) {
+                    startDistributeCards();
+                }
             }
         }
     }
@@ -178,12 +180,12 @@ public abstract class GameTableLayout<
         }
     }
 
-    public void setDurationOfDistributeAnimation(int durationOfDistributeAnimation) {
-        this.durationOfDistributeAnimation = durationOfDistributeAnimation;
-    }
-
     public int getDurationOfDistributeAnimation() {
         return durationOfDistributeAnimation;
+    }
+
+    public void setDurationOfDistributeAnimation(int durationOfDistributeAnimation) {
+        this.durationOfDistributeAnimation = durationOfDistributeAnimation;
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -228,11 +230,11 @@ public abstract class GameTableLayout<
         }
         viewUpdater.addAction(() -> {
             DistributionState<Entity> distributionState = viewUpdater.getParams().getDistributionState();
-            startDistributeCards(distributionState.getPredicateForCardsForDistribution(), distributionState.getDeskOfCardsUpdater().getPosition());
+            startDistributeCards(distributionState.getPredicateForCardsForDistribution());
         });
     }
 
-    public void startDistributeCards(Predicate<Card<Entity>> predicate, float[] coordinateForDistribution) {
+    public void startDistributeCards(Predicate<Card<Entity>> predicate) {
         OnDistributedCardsListener<Entity> onDistributedCardsListener = new OnDistributedCardsListener<Entity>() {
 
             private int count;
@@ -271,7 +273,6 @@ public abstract class GameTableLayout<
             distributeCardForPlayer(
                     cardsLayout,
                     predicate,
-                    coordinateForDistribution,
                     onDistributedCardsListener);
         }
     }
@@ -311,15 +312,14 @@ public abstract class GameTableLayout<
     }
 
     protected CardsLayout.OnCreateAnimatorAction<Entity> creteAnimationForCardDistribution(Layout cardsLayout,
-                                                                                           Card<Entity> card,
-                                                                                           float[] distributeFromCoordinates) {
+                                                                                           Card<Entity> card) {
         return new CardsLayout.OnCreateAnimatorAction<Entity>() {
             @Override
             public <C extends View & Card<Entity>> Animator createAnimation(C view) {
                 if (view.equals(card)) {
                     AwesomeAnimation.Builder awesomeAnimation = new AwesomeAnimation.Builder(view)
-                            .setX(AwesomeAnimation.CoordinationMode.COORDINATES, distributeFromCoordinates[0], view.getCardInfo().getFirstPositionX())
-                            .setY(AwesomeAnimation.CoordinationMode.COORDINATES, distributeFromCoordinates[1], view.getCardInfo().getFirstPositionY())
+                            .setX(AwesomeAnimation.CoordinationMode.COORDINATES, view.getCardInfo().getCurrentPositionX(), view.getCardInfo().getFirstPositionX())
+                            .setY(AwesomeAnimation.CoordinationMode.COORDINATES, view.getCardInfo().getCurrentPositionY(), view.getCardInfo().getFirstPositionY())
                             .setRotation(180, card.getCardInfo().getFirstRotation())
                             .setDuration(durationOfDistributeAnimation);
                     if (cardsLayout.getInterpolator() != null) {
@@ -366,7 +366,6 @@ public abstract class GameTableLayout<
 
     private void distributeCardForPlayer(final Layout cardsLayout,
                                          final Predicate<Card<Entity>> predicate,
-                                         final float[] distributeFromCoordinates,
                                          final OnDistributedCardsListener<Entity> onDistributedCardsListener) {
         List<Card<Entity>> filteredCardsViews = new ArrayList<>();
         List<Card<Entity>> cards = cardsLayout.getCards();
@@ -375,25 +374,24 @@ public abstract class GameTableLayout<
                 filteredCardsViews.add(card);
             }
         }
-        animateCardViews(cardsLayout, filteredCardsViews.iterator(), distributeFromCoordinates, onDistributedCardsListener);
+        animateCardViews(cardsLayout, filteredCardsViews.iterator(), onDistributedCardsListener);
     }
 
     private void animateCardViews(final Layout cardsLayout,
                                   final Iterator<Card<Entity>> cardViewsIterator,
-                                  final float[] distributeFromCoordinates,
                                   final OnDistributedCardsListener<Entity> onDistributedCardsListener) {
         if (cardViewsIterator.hasNext()) {
             final Card<Entity> card = cardViewsIterator.next();
             if (onDistributedCardsListener != null) {
                 onDistributedCardsListener.onStartDistributedCardWave(Collections.singletonList(card));
             }
-            animateCardView(cardsLayout, card, distributeFromCoordinates, new AnimatorListenerAdapter() {
+            animateCardView(cardsLayout, card, new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     if (onDistributedCardsListener != null) {
                         onDistributedCardsListener.onEndDistributeCardWave(Collections.singletonList(card));
                     }
-                    animateCardViews(cardsLayout, cardViewsIterator, distributeFromCoordinates, onDistributedCardsListener);
+                    animateCardViews(cardsLayout, cardViewsIterator, onDistributedCardsListener);
                 }
             });
         } else {
@@ -405,14 +403,13 @@ public abstract class GameTableLayout<
 
     private void animateCardView(Layout cardsLayout,
                                  Card<Entity> card,
-                                 float[] distributeFromCoordinates,
                                  AnimatorListenerAdapter adapter) {
         if (hasDistributionState() && deskOfCardsEnable) {
             card.getCardInfo().setCardDistributed(true);
         } else {
             card.setVisibility(VISIBLE);
         }
-        cardsLayout.invalidateCardsPosition(true, creteAnimationForCardDistribution(cardsLayout, card, distributeFromCoordinates), adapter);
+        cardsLayout.invalidateCardsPosition(true, creteAnimationForCardDistribution(cardsLayout, card), adapter);
     }
 
     private boolean hasDistributionState() {
