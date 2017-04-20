@@ -182,6 +182,10 @@ public abstract class GameTableLayout<
         this.durationOfDistributeAnimation = durationOfDistributeAnimation;
     }
 
+    public int getDurationOfDistributeAnimation() {
+        return durationOfDistributeAnimation;
+    }
+
     @SuppressWarnings("ConstantConditions")
     public void setCardsBeforeDistribution() {
         if (!hasDistributionState()) {
