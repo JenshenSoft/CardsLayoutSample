@@ -306,6 +306,29 @@ public abstract class GameTableLayout<
         }
     }
 
+    protected CardsLayout.OnCreateAnimatorAction<Entity> creteAnimationForCardDistribution(Layout cardsLayout,
+                                                                                           Card<Entity> card,
+                                                                                           float[] distributeFromCoordinates) {
+        return new CardsLayout.OnCreateAnimatorAction<Entity>() {
+            @Override
+            public <C extends View & Card<Entity>> Animator createAnimation(C view) {
+                if (view.equals(card)) {
+                    AwesomeAnimation.Builder awesomeAnimation = new AwesomeAnimation.Builder(view)
+                            .setX(AwesomeAnimation.CoordinationMode.COORDINATES, distributeFromCoordinates[0], view.getCardInfo().getFirstPositionX())
+                            .setY(AwesomeAnimation.CoordinationMode.COORDINATES, distributeFromCoordinates[1], view.getCardInfo().getFirstPositionY())
+                            .setRotation(180, card.getCardInfo().getFirstRotation())
+                            .setDuration(durationOfDistributeAnimation);
+                    if (cardsLayout.getInterpolator() != null) {
+                        awesomeAnimation.setInterpolator(cardsLayout.getInterpolator());
+                    }
+                    return awesomeAnimation.build().getAnimatorSet();
+                } else {
+                    return cardsLayout.getDefaultCreateAnimatorAction().createAnimation(view);
+                }
+            }
+        };
+    }
+
     /* private methods */
 
     @SuppressWarnings({"unchecked"})
@@ -385,26 +408,7 @@ public abstract class GameTableLayout<
         } else {
             card.setVisibility(VISIBLE);
         }
-
-        CardsLayout.OnCreateAnimatorAction<Entity> onCreateAnimatorAction = new CardsLayout.OnCreateAnimatorAction<Entity>() {
-            @Override
-            public <C extends View & Card<Entity>> Animator createAnimation(C view) {
-                if (view.equals(card)) {
-                    AwesomeAnimation.Builder awesomeAnimation = new AwesomeAnimation.Builder(view)
-                            .setX(AwesomeAnimation.CoordinationMode.COORDINATES, distributeFromCoordinates[0], view.getCardInfo().getFirstPositionX())
-                            .setY(AwesomeAnimation.CoordinationMode.COORDINATES, distributeFromCoordinates[1], view.getCardInfo().getFirstPositionY())
-                            .setRotation(180, card.getCardInfo().getFirstRotation())
-                            .setDuration(durationOfDistributeAnimation);
-                    if (cardsLayout.getInterpolator() != null) {
-                        awesomeAnimation.setInterpolator(cardsLayout.getInterpolator());
-                    }
-                    return awesomeAnimation.build().getAnimatorSet();
-                } else {
-                    return cardsLayout.getDefaultCreateAnimatorAction().createAnimation(view);
-                }
-            }
-        };
-        cardsLayout.invalidateCardsPosition(true, onCreateAnimatorAction, adapter);
+        cardsLayout.invalidateCardsPosition(true, creteAnimationForCardDistribution(cardsLayout, card, distributeFromCoordinates), adapter);
     }
 
     private boolean hasDistributionState() {
