@@ -198,8 +198,9 @@ public abstract class GameTableLayout<
     }
 
     public void setCardsBeforeDistribution(Predicate<Card<Entity>> predicate, OnUpdateDeskOfCardsUpdater<Entity> onUpdateDeskOfCardsUpdater) {
-        List<Card<Entity>> cardInDesk = new ArrayList<>();
+        List<Iterator<Card<Entity>>> cardsInDeskForPlayers = new ArrayList<>();
         for (Layout cardsLayout : cardsLayouts) {
+            List<Card<Entity>> cardsInDeskForPlayer = new ArrayList<>();
             for (Card<Entity> card : cardsLayout.getCards()) {
                 if (predicate.apply(card)) {
                     if (deskOfCardsEnable) {
@@ -211,15 +212,18 @@ public abstract class GameTableLayout<
                     if (deskOfCardsEnable) {
                         CardInfo<Entity> cardInfo = card.getCardInfo();
                         cardInfo.setCardDistributed(false);
-                        cardInDesk.add(card);
+                        cardsInDeskForPlayer.add(card);
                     } else {
                         card.setVisibility(INVISIBLE);
                     }
                 }
             }
+            if (!cardsInDeskForPlayer.isEmpty()) {
+                cardsInDeskForPlayers.add(cardsInDeskForPlayer.iterator());
+            }
         }
-        if (!cardInDesk.isEmpty()) {
-            onUpdateDeskOfCardsUpdater.addCards(cardInDesk);
+        if (!cardsInDeskForPlayers.isEmpty()) {
+            onUpdateDeskOfCardsUpdater.addCards(getCardsForDesk(cardsInDeskForPlayers));
         }
     }
 
@@ -289,27 +293,36 @@ public abstract class GameTableLayout<
             distributionState.setCardsAlreadyDistributed(true);
             distributionState.getDeskOfCardsUpdater().clear();
         }
+        //set elevation
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            for (Layout layout : cardsLayouts) {
+                for (Card<Entity> card : layout.getCards()) {
+                    card.setElevation(card.getNormalElevation());
+                }
+            }
+        }
         if (GameTableLayout.this.onDistributedCardsListener != null) {
             GameTableLayout.this.onDistributedCardsListener.onDistributedCards();
         }
     }
 
-    @SuppressWarnings("ConstantConditions")
     protected void onStartDistributedCardWave(List<Card<Entity>> cards) {
-        if (hasDistributionState()) {
-            DistributionState<Entity> distributionState = viewUpdater.getParams().getDistributionState();
-            distributionState.getDeskOfCardsUpdater().removeCardsFromDesk(cards);
-        }
         if (GameTableLayout.this.onDistributedCardsListener != null) {
             GameTableLayout.this.onDistributedCardsListener.onStartDistributedCardWave(cards);
         }
     }
 
+    @SuppressWarnings("ConstantConditions")
     protected void onEndDistributeCardWave(List<Card<Entity>> cards) {
+        //set elevation
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             for (Card<Entity> card : cards) {
-                card.setElevation(card.getNormalElevation());
+                card.setElevation(card.getNormalElevation() / 3);
             }
+        }
+        if (hasDistributionState()) {
+            DistributionState<Entity> distributionState = viewUpdater.getParams().getDistributionState();
+            distributionState.getDeskOfCardsUpdater().removeCardsFromDesk(cards);
         }
         if (GameTableLayout.this.onDistributedCardsListener != null) {
             GameTableLayout.this.onDistributedCardsListener.onEndDistributeCardWave(cards);
@@ -423,5 +436,26 @@ public abstract class GameTableLayout<
 
     private boolean isDeskOfCardsEnable() {
         return hasDistributionState() && deskOfCardsEnable;
+    }
+
+    private List<Card<Entity>> getCardsForDesk(List<Iterator<Card<Entity>>> cardsInDeskForPlayers) {
+        List<Card<Entity>> cardsForDesk = new ArrayList<>();
+        while (hasNextCardForWave(cardsInDeskForPlayers)) {
+            for (Iterator<Card<Entity>> cardIterator : cardsInDeskForPlayers) {
+                if (cardIterator.hasNext()) {
+                    cardsForDesk.add(cardIterator.next());
+                }
+            }
+        }
+        return cardsForDesk;
+    }
+
+    private boolean hasNextCardForWave(List<Iterator<Card<Entity>>> cards) {
+        for (Iterator<Card<Entity>> cardIterator : cards) {
+            if (cardIterator.hasNext()) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -25,7 +25,6 @@ public class SwipeGestureManager<Entity> implements View.OnTouchListener {
     public static final float EPSILON = 0.00000001f;
 
     private final GestureDetector gestureDetector;
-    private final Context context;
     //Listeners
     private OnCardTranslationListener<Entity> cardTranslationListener;
     private OnCardSwipedListener<Entity> cardSwipedListener;
@@ -46,7 +45,6 @@ public class SwipeGestureManager<Entity> implements View.OnTouchListener {
     private CardInfoProvider<Entity> cardInfoProvider;
 
     private SwipeGestureManager(Context context, float swipeSpeed, float swipeOffset, int orientationMode) {
-        this.context = context;
         this.swipeSpeed = swipeSpeed;
         this.swipeOffset = swipeOffset;
         this.orientationMode = orientationMode;
@@ -68,7 +66,7 @@ public class SwipeGestureManager<Entity> implements View.OnTouchListener {
                     .setDuration(200)
                     .build();
             awesomeAnimation.start();
-            ViewCompat.setElevation(view, ((Card<Entity>) view).getNormalElevation());
+            ViewCompat.setElevation(view, ((Card<Entity>) view).getPressedElevation());
         } else if (event.getActionMasked() == MotionEvent.ACTION_UP) {
             AwesomeAnimation awesomeAnimation = new AwesomeAnimation.Builder(view)
                     .setSizeX(AwesomeAnimation.SizeMode.SCALE, 1f)
@@ -76,7 +74,7 @@ public class SwipeGestureManager<Entity> implements View.OnTouchListener {
                     .setDuration(200)
                     .build();
             awesomeAnimation.start();
-            ViewCompat.setElevation(view, ((Card<Entity>) view).getPressedElevation());
+            ViewCompat.setElevation(view, ((Card<Entity>) view).getNormalElevation());
         }
 
         boolean status;

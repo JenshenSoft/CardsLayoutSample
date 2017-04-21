@@ -69,15 +69,10 @@ public class GameTable extends GameTableLayout<CardsLayoutDefault.CardInfo, Card
            protected OnUpdateDeskOfCardsUpdater<CardsLayoutDefault.CardInfo> provideDeskOfCardsUpdater() {
                return new OnUpdateDeskOfCardsUpdater<CardsLayoutDefault.CardInfo>() {
                    @Override
-                   public float[] getPosition() {
+                   public DeskOfCardsLocation getLocation() {
                        int x = getMeasuredWidth() / 2 - imageView.getMeasuredWidth() / 2;
                        int y = getMeasuredHeight() / 2 - imageView.getMeasuredHeight() / 2;
-                       return new float[]{x, y};
-                   }
-
-                   @Override
-                   protected float getShadowOffset() {
-                       return getContext().getResources().getDimension(R.dimen.shadow_desk_offset);
+                       return new DeskOfCardsLocation(getContext(), x, y);
                    }
                };
            }
