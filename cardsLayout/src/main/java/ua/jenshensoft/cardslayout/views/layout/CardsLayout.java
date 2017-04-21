@@ -831,9 +831,6 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         card.setCardTranslationListener(this);
         card.setCardSwipedListener(this);
         card.setCardPercentageChangeListener(this, CardBoxView.START_TO_CURRENT);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            card.setElevation(getResources().getDimensionPixelOffset(R.dimen.cardsLayout_card_elevation_normal));
-        }
     }
 
     private <CV extends View & Card<Entity>> CV findCardView(int position) {

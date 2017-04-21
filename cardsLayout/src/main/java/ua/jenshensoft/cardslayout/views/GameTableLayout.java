@@ -306,6 +306,11 @@ public abstract class GameTableLayout<
     }
 
     protected void onEndDistributeCardWave(List<Card<Entity>> cards) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            for (Card<Entity> card : cards) {
+                card.setElevation(card.getNormalElevation());
+            }
+        }
         if (GameTableLayout.this.onDistributedCardsListener != null) {
             GameTableLayout.this.onDistributedCardsListener.onEndDistributeCardWave(cards);
         }

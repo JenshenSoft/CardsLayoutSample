@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.annotation.Nullable;
 import android.support.annotation.Px;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -15,6 +16,8 @@ import ua.jenshensoft.cardslayout.listeners.card.OnCardSwipedListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardTranslationListener;
 import ua.jenshensoft.cardslayout.util.SwipeGestureManager;
 
+import static ua.jenshensoft.cardslayout.util.SwipeGestureManager.EPSILON;
+
 public class CardView<Entity> extends AppCompatImageView implements Card<Entity> {
     //attr
     private float swipeSpeed = 1.0f;
@@ -23,7 +26,7 @@ public class CardView<Entity> extends AppCompatImageView implements Card<Entity>
     private SwipeGestureManager<Entity> swipeManager;
     private CardInfo<Entity> cardInfo;
     private boolean scrollAndClickable = true;
-    private float cardElevation = - 1;
+    private float cardElevation = -1;
     private float cardElevationPressed = -1;
 
     public CardView(Context context) {
@@ -99,6 +102,28 @@ public class CardView<Entity> extends AppCompatImageView implements Card<Entity>
     }
 
     @Override
+    public float getElevation() {
+        return super.getElevation();
+    }
+
+    @Override
+    public void setElevation(@Px float elevation) {
+        super.setElevation(elevation);
+    }
+
+    /* attr */
+
+    @Override
+    public float getNormalElevation() {
+        return cardElevation;
+    }
+
+    @Override
+    public float getPressedElevation() {
+        return cardElevationPressed;
+    }
+
+    @Override
     public CardInfo<Entity> getCardInfo() {
         return cardInfo;
     }
@@ -130,22 +155,27 @@ public class CardView<Entity> extends AppCompatImageView implements Card<Entity>
         swipeManager.setCardPercentageChangeListener(cardPercentageChangeListener, mode);
     }
 
+    @Override
     public void addBlock(int orientationMode) {
         swipeManager.addBlock(orientationMode);
     }
 
+    @Override
     public void removeBlock(int orientationMode) {
         swipeManager.removeBlock(orientationMode);
     }
 
+    @Override
     public void setSwipeSpeed(int swipeSpeed) {
         swipeManager.setSwipeSpeed(swipeSpeed);
     }
 
+    @Override
     public void setSwipeOffset(float swipeOffset) {
         swipeManager.setSwipeOffset(swipeOffset);
     }
 
+    @Override
     public void setScrollAndClickableState(boolean scrollAndClickable) {
         this.scrollAndClickable = scrollAndClickable;
     }
@@ -170,8 +200,12 @@ public class CardView<Entity> extends AppCompatImageView implements Card<Entity>
     }
 
     private void init() {
-        if (cardElevation == -1) {
-            cardElevation = getR
+        if (Math.abs(cardElevation - (-1)) < EPSILON) {
+            cardElevation = getResources().getDimension(R.dimen.cardsLayout_card_elevation_normal);
+        }
+        ViewCompat.setElevation(this, cardElevation);
+        if (Math.abs(cardElevationPressed - (-1)) < EPSILON) {
+            cardElevationPressed = getResources().getDimension(R.dimen.cardsLayout_card_elevation_pressed);
         }
         SwipeGestureManager.Builder<Entity> builder = new SwipeGestureManager.Builder<>(getContext());
         builder.setSwipeSpeed(swipeSpeed);

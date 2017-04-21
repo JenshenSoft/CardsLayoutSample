@@ -4,15 +4,19 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.annotation.Nullable;
 import android.support.annotation.Px;
+import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.FrameLayout;
 
 import ua.jenshensoft.cardslayout.CardInfo;
+import ua.jenshensoft.cardslayout.R;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardPercentageChangeListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardSwipedListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardTranslationListener;
 import ua.jenshensoft.cardslayout.util.SwipeGestureManager;
+
+import static ua.jenshensoft.cardslayout.util.SwipeGestureManager.EPSILON;
 
 public class CardBoxView<Entity> extends FrameLayout implements Card<Entity> {
     //attr
@@ -22,6 +26,8 @@ public class CardBoxView<Entity> extends FrameLayout implements Card<Entity> {
     private SwipeGestureManager<Entity> swipeManager;
     private CardInfo<Entity> cardInfo;
     private boolean scrollAndClickable = true;
+    private float cardElevation = -1;
+    private float cardElevationPressed = -1;
 
     public CardBoxView(Context context) {
         super(context);
@@ -96,6 +102,28 @@ public class CardBoxView<Entity> extends FrameLayout implements Card<Entity> {
     }
 
     @Override
+    public float getElevation() {
+        return super.getElevation();
+    }
+
+    @Override
+    public void setElevation(@Px float elevation) {
+        super.setElevation(elevation);
+    }
+
+    /* attr */
+
+    @Override
+    public float getNormalElevation() {
+        return cardElevation;
+    }
+
+    @Override
+    public float getPressedElevation() {
+        return cardElevationPressed;
+    }
+
+    @Override
     public CardInfo<Entity> getCardInfo() {
         return cardInfo;
     }
@@ -127,22 +155,27 @@ public class CardBoxView<Entity> extends FrameLayout implements Card<Entity> {
         swipeManager.setCardPercentageChangeListener(cardPercentageChangeListener, mode);
     }
 
+    @Override
     public void addBlock(int orientationMode) {
         swipeManager.addBlock(orientationMode);
     }
 
+    @Override
     public void removeBlock(int orientationMode) {
         swipeManager.removeBlock(orientationMode);
     }
 
+    @Override
     public void setSwipeSpeed(int swipeSpeed) {
         swipeManager.setSwipeSpeed(swipeSpeed);
     }
 
+    @Override
     public void setSwipeOffset(float swipeOffset) {
         swipeManager.setSwipeOffset(swipeOffset);
     }
 
+    @Override
     public void setScrollAndClickableState(boolean scrollAndClickable) {
         this.scrollAndClickable = scrollAndClickable;
     }
@@ -158,6 +191,8 @@ public class CardBoxView<Entity> extends FrameLayout implements Card<Entity> {
                 swipeOrientationMode = attributes.getInt(ua.jenshensoft.cardslayout.R.styleable.SwipeableLayout_card_swipeOrientation, swipeOrientationMode);
                 swipeOffset = attributes.getFloat(ua.jenshensoft.cardslayout.R.styleable.SwipeableLayout_card_swipeOffset, swipeOffset);
                 scrollAndClickable = attributes.getBoolean(ua.jenshensoft.cardslayout.R.styleable.SwipeableLayout_card_scrollAndClickable, scrollAndClickable);
+                cardElevation = attributes.getDimension(ua.jenshensoft.cardslayout.R.styleable.SwipeableLayout_card_elevation, cardElevation);
+                cardElevationPressed = attributes.getDimension(R.styleable.SwipeableLayout_card_elevation_pressed, cardElevationPressed);
             } finally {
                 attributes.recycle();
             }
@@ -165,6 +200,13 @@ public class CardBoxView<Entity> extends FrameLayout implements Card<Entity> {
     }
 
     private void init() {
+        if (Math.abs(cardElevation - (-1)) < EPSILON) {
+            cardElevation = getResources().getDimension(R.dimen.cardsLayout_card_elevation_normal);
+        }
+        ViewCompat.setElevation(this, cardElevation);
+        if (Math.abs(cardElevationPressed - (-1)) < EPSILON) {
+            cardElevationPressed = getResources().getDimension(R.dimen.cardsLayout_card_elevation_pressed);
+        }
         SwipeGestureManager.Builder<Entity> builder = new SwipeGestureManager.Builder<>(getContext());
         builder.setSwipeSpeed(swipeSpeed);
         builder.setSwipeOffset(swipeOffset);

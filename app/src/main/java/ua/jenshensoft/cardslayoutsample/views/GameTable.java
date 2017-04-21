@@ -56,6 +56,14 @@ public class GameTable extends GameTableLayout<CardsLayoutDefault.CardInfo, Card
 
         }
 
+        int i = 0;
+        for (CardsLayout<CardsLayoutDefault.CardInfo> cardsLayout : cardsLayouts) {
+            for (Card<CardsLayoutDefault.CardInfo> card : cardsLayout.getCards()) {
+                card.getCardInfo().setEntity(new CardsLayoutDefault.CardInfo(i));
+                i ++;
+            }
+        }
+
        updateDistributionState(new DistributionState<CardsLayoutDefault.CardInfo>(false) {
            @Override
            protected OnUpdateDeskOfCardsUpdater<CardsLayoutDefault.CardInfo> provideDeskOfCardsUpdater() {

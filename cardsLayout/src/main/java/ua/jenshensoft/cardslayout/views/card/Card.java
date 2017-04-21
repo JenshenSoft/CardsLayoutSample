@@ -1,7 +1,9 @@
 package ua.jenshensoft.cardslayout.views.card;
 
 
+import android.os.Build;
 import android.support.annotation.Px;
+import android.support.annotation.RequiresApi;
 
 import ua.jenshensoft.cardslayout.CardInfo;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardPercentageChangeListener;
@@ -31,11 +33,19 @@ public interface Card<Entity> {
 
     float getY();
 
+    void setRotation(float rotation);
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     void setElevation(@Px float z);
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     float getElevation();
 
-    void setRotation(float rotation);
+    /* attr */
+
+    float getNormalElevation();
+
+    float getPressedElevation();
 
     /**
      * @param mode 0 - LEFT_RIGHT , 1 - UP_BOTTOM, 2 - BOTH, 3 - NONE
@@ -52,4 +62,13 @@ public interface Card<Entity> {
     void setCardPercentageChangeListener(OnCardPercentageChangeListener<Entity> cardPercentageChangeListener, int mode);
 
 
+    void addBlock(int orientationMode);
+
+    void removeBlock(int orientationMode);
+
+    void setSwipeSpeed(int swipeSpeed);
+
+    void setSwipeOffset(float swipeOffset);
+
+    void setScrollAndClickableState(boolean scrollAndClickable);
 }
