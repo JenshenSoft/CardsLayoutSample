@@ -40,6 +40,7 @@ import ua.jenshensoft.cardslayout.provider.CardsCoordinatesProvider;
 import ua.jenshensoft.cardslayout.util.DrawableUtils;
 import ua.jenshensoft.cardslayout.util.FlagManager;
 import ua.jenshensoft.cardslayout.util.SwipeGestureManager;
+import ua.jenshensoft.cardslayout.views.ViewMeasureConfig;
 import ua.jenshensoft.cardslayout.views.card.Card;
 import ua.jenshensoft.cardslayout.views.card.CardBoxView;
 import ua.jenshensoft.cardslayout.views.card.CardView;
@@ -70,7 +71,6 @@ public abstract class CardsLayout<Entity> extends FrameLayout
     private int childListOrientation;
     @CardsDirection
     private int cardsLayout_cardsDirection;
-
     private int childListPaddingLeft;
     private int childListPaddingRight;
     private int childListPaddingTop;
@@ -99,7 +99,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout
     private OnCardTranslationListener<Entity> onCardTranslationListener;
 
     private boolean animateOnMeasure;
-    private boolean enableValidatePositions = true;
+    private ViewMeasureConfig viewMeasureConfig;
 
     @Nullable
     private Animator animator;
@@ -143,7 +143,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        if (enableValidatePositions) {
+        if (viewMeasureConfig.needUpdateView()) {
             invalidateCardsPosition(animateOnMeasure);
             animateOnMeasure = false;
         }
@@ -215,7 +215,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         this.addView(cardView);
     }
 
-    public  <CV extends View & Card<Entity>> void removeCardView(int position) {
+    public <CV extends View & Card<Entity>> void removeCardView(int position) {
         CV cardView = findCardView(position);
         ViewParent parent = cardView.getParent();
         ((ViewGroup) parent).removeView(cardView);
@@ -238,14 +238,6 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         if (childList_width != EMPTY) {
             childList_width += getContext().getResources().getDimensionPixelOffset(R.dimen.cardsLayout_test_card_offset);
         }
-    }
-
-    public boolean isEnableValidatePositions() {
-        return enableValidatePositions;
-    }
-
-    public void setEnableValidatePositions(boolean enableValidatePositions) {
-        this.enableValidatePositions = enableValidatePositions;
     }
 
 
@@ -499,13 +491,11 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         }
 
         if (!animators.isEmpty()) {
-            enableValidatePositions = false;
             AnimatorSet animatorSet = new AnimatorSet();
             animatorSet.playTogether(animators);
             animatorSet.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    enableValidatePositions = true;
                     CardsLayout.this.animator = null;
                 }
             });
@@ -768,6 +758,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout
                 return awesomeAnimation.build().getAnimatorSet();
             }
         };
+        viewMeasureConfig = new ViewMeasureConfig(this);
     }
 
     @SuppressWarnings("WrongConstant")

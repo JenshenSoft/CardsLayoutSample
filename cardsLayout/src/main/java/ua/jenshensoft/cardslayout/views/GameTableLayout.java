@@ -47,10 +47,13 @@ public abstract class GameTableLayout<
     private int currentPlayerLayoutId = -1;
     private boolean canAutoDistribute = true;
     private boolean deskOfCardsEnable = true;
+    //listeners
     @Nullable
     private OnCardClickListener<Entity> onCardClickListener;
     @Nullable
     private OnDistributedCardsListener<Entity> onDistributedCardsListener;
+
+    private ViewMeasureConfig viewMeasureConfig;
 
     public GameTableLayout(Context context) {
         super(context);
@@ -101,7 +104,9 @@ public abstract class GameTableLayout<
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        viewUpdater.onViewMeasured();
+        if (viewMeasureConfig.needUpdateView()) {
+            viewUpdater.onViewMeasured();
+        }
     }
 
     @Override
@@ -373,6 +378,7 @@ public abstract class GameTableLayout<
     private void inflateLayout() {
         cardsLayouts = new ArrayList<>();
         viewUpdater = new ViewUpdater<>(this);
+        viewMeasureConfig = new ViewMeasureConfig(this);
         inflate(getContext(), getLayoutId(), this);
     }
 
