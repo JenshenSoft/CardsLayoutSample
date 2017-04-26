@@ -24,14 +24,14 @@ public abstract class OnUpdateDeskOfCardsUpdater<Entity> {
      *
      * @return
      */
-    public abstract DeskOfCardsLocation getLocation();
+    public abstract DeskOfCardsInfo getDeskOfCardsInfo();
 
     public void addCards(@NonNull List<Card<Entity>> cards) {
         this.cards.addAll(cards);
     }
 
     public void updatePosition() {
-        DeskOfCardsLocation location = getLocation();
+        DeskOfCardsInfo location = getDeskOfCardsInfo();
         float shadowXOffset = location.getXCardOffset();
         float shadowYOffset = location.getYCardOffset();
         float shadowZOffset = location.getZCardOffset();
@@ -43,10 +43,10 @@ public abstract class OnUpdateDeskOfCardsUpdater<Entity> {
 
             cardInfo.setFirstPositionX(Math.round(x));
             card.setX(Math.round(x));
-            x -= shadowXOffset;
+            x += shadowXOffset;
             cardInfo.setFirstPositionY(Math.round(y));
             card.setY(Math.round(y));
-            y -= shadowYOffset;
+            y += shadowYOffset;
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 card.setElevation(Math.round(z));
@@ -63,7 +63,7 @@ public abstract class OnUpdateDeskOfCardsUpdater<Entity> {
         this.cards.removeAll(cards);
     }
 
-    public static class DeskOfCardsLocation {
+    public static class DeskOfCardsInfo {
 
         private final float x;
         private final float y;
@@ -72,7 +72,7 @@ public abstract class OnUpdateDeskOfCardsUpdater<Entity> {
         private final float yCardOffset;
         private final float zCardOffset;
 
-        public DeskOfCardsLocation(Context context, float x, float y) {
+        public DeskOfCardsInfo(Context context, float x, float y) {
             this(x,
                     y,
                     context.getResources().getDimension(R.dimen.cardsLayout_card_elevation_normal),
@@ -81,12 +81,12 @@ public abstract class OnUpdateDeskOfCardsUpdater<Entity> {
                     1);
         }
 
-        public DeskOfCardsLocation(float x,
-                                   float y,
-                                   float elevation,
-                                   float xCardOffset,
-                                   float yCardOffset,
-                                   float zCardOffset) {
+        public DeskOfCardsInfo(float x,
+                               float y,
+                               float elevation,
+                               float xCardOffset,
+                               float yCardOffset,
+                               float zCardOffset) {
             this.x = x;
             this.y = y;
             this.elevation = elevation;

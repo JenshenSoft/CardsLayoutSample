@@ -69,10 +69,10 @@ public class GameTable extends GameTableLayout<CardsLayoutDefault.CardInfo, Card
            protected OnUpdateDeskOfCardsUpdater<CardsLayoutDefault.CardInfo> provideDeskOfCardsUpdater() {
                return new OnUpdateDeskOfCardsUpdater<CardsLayoutDefault.CardInfo>() {
                    @Override
-                   public DeskOfCardsLocation getLocation() {
+                   public DeskOfCardsInfo getDeskOfCardsInfo() {
                        int x = getMeasuredWidth() / 2 - imageView.getMeasuredWidth() / 2;
                        int y = getMeasuredHeight() / 2 - imageView.getMeasuredHeight() / 2;
-                       return new DeskOfCardsLocation(getContext(), x, y);
+                       return new DeskOfCardsInfo(getContext(), x, y);
                    }
                };
            }
