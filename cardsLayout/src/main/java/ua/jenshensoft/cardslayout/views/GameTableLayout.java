@@ -308,14 +308,6 @@ public abstract class GameTableLayout<
             distributionState.setCardsAlreadyDistributed(true);
             distributionState.getDeskOfCardsUpdater().clear();
         }
-        //set elevation
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            for (Layout layout : cardsLayouts) {
-                for (Card<Entity> card : layout.getCards()) {
-                    card.setElevation(card.getNormalElevation());
-                }
-            }
-        }
         if (GameTableLayout.this.onDistributedCardsListener != null) {
             GameTableLayout.this.onDistributedCardsListener.onDistributedCards();
         }
@@ -332,7 +324,7 @@ public abstract class GameTableLayout<
         //set elevation
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             for (Card<Entity> card : cards) {
-                card.setElevation(card.getNormalElevation() / 3);
+                card.setElevation(card.getNormalElevation());
             }
         }
         if (hasDistributionState()) {
