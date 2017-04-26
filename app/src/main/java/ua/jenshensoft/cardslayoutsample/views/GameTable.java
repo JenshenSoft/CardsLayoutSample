@@ -10,7 +10,7 @@ import com.android.internal.util.Predicate;
 
 import ua.jenshensoft.cardslayout.CardInfo;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardSwipedListener;
-import ua.jenshensoft.cardslayout.listeners.table.OnUpdateDeskOfCardsUpdater;
+import ua.jenshensoft.cardslayout.listeners.table.CardDeckUpdater;
 import ua.jenshensoft.cardslayout.util.DistributionState;
 import ua.jenshensoft.cardslayout.views.GameTableLayout;
 import ua.jenshensoft.cardslayout.views.card.Card;
@@ -44,6 +44,7 @@ public class GameTable extends GameTableLayout<CardsLayoutDefault.CardInfo, Card
     }
 
     private void init() {
+        setDurationOfDistributeAnimation(1000);
         imageView = (ImageView) findViewById(R.id.imageView);
         for (final CardsLayout<CardsLayoutDefault.CardInfo> cardsLayout : cardsLayouts) {
             cardsLayout.setOnCardSwipedListener(new OnCardSwipedListener<CardsLayoutDefault.CardInfo>() {
@@ -56,8 +57,8 @@ public class GameTable extends GameTableLayout<CardsLayoutDefault.CardInfo, Card
 
         }
 
-        int i = 0;
         for (CardsLayout<CardsLayoutDefault.CardInfo> cardsLayout : cardsLayouts) {
+            int i = 0;
             for (Card<CardsLayoutDefault.CardInfo> card : cardsLayout.getCards()) {
                 card.getCardInfo().setEntity(new CardsLayoutDefault.CardInfo(i));
                 i ++;
@@ -66,33 +67,33 @@ public class GameTable extends GameTableLayout<CardsLayoutDefault.CardInfo, Card
 
        updateDistributionState(new DistributionState<CardsLayoutDefault.CardInfo>(false) {
            @Override
-           protected OnUpdateDeskOfCardsUpdater<CardsLayoutDefault.CardInfo> provideDeskOfCardsUpdater() {
-               return new OnUpdateDeskOfCardsUpdater<CardsLayoutDefault.CardInfo>() {
+           protected CardDeckUpdater<CardsLayoutDefault.CardInfo> provideDeskOfCardsUpdater() {
+               return new CardDeckUpdater<CardsLayoutDefault.CardInfo>() {
                    @Override
-                   public DeskOfCardsInfo getDeskOfCardsInfo() {
+                   public CardDeckLocation getLocation() {
                        int x = getMeasuredWidth() / 2 - imageView.getMeasuredWidth() / 2;
                        int y = getMeasuredHeight() / 2 - imageView.getMeasuredHeight() / 2;
-                       return new DeskOfCardsInfo(getContext(), x, y);
+                       return new CardDeckLocation(getContext(), x, y);
                    }
                };
            }
 
            @Override
-           public Predicate<Card<CardsLayoutDefault.CardInfo>> getPredicateForCardsForDistribution() {
+           public Predicate<Card<CardsLayoutDefault.CardInfo>> getCardsPredicateBeforeDistribution() {
                return new Predicate<Card<CardsLayoutDefault.CardInfo>>() {
                    @Override
                    public boolean apply(Card<CardsLayoutDefault.CardInfo> cardInfoCard) {
-                       return true;
+                       return cardInfoCard.getCardInfo().getEntity().getNumber() < 2;
                    }
                };
            }
 
            @Override
-           public Predicate<Card<CardsLayoutDefault.CardInfo>> getPredicateForCardsBeforeDistribution() {
+           public Predicate<Card<CardsLayoutDefault.CardInfo>> getCardsPredicateForDistribution() {
                return new Predicate<Card<CardsLayoutDefault.CardInfo>>() {
                    @Override
                    public boolean apply(Card<CardsLayoutDefault.CardInfo> cardInfoCard) {
-                       return false;
+                       return cardInfoCard.getCardInfo().getEntity().getNumber() >= 2 && cardInfoCard.getCardInfo().getEntity().getNumber() < 6;
                    }
                };
            }

@@ -24,7 +24,7 @@ import ua.jenshensoft.cardslayout.CardInfo;
 import ua.jenshensoft.cardslayout.R;
 import ua.jenshensoft.cardslayout.listeners.table.OnCardClickListener;
 import ua.jenshensoft.cardslayout.listeners.table.OnDistributedCardsListener;
-import ua.jenshensoft.cardslayout.listeners.table.OnUpdateDeskOfCardsUpdater;
+import ua.jenshensoft.cardslayout.listeners.table.CardDeckUpdater;
 import ua.jenshensoft.cardslayout.util.DistributionState;
 import ua.jenshensoft.cardslayout.views.card.Card;
 import ua.jenshensoft.cardslayout.views.layout.CardsLayout;
@@ -132,11 +132,9 @@ public abstract class GameTableLayout<
     public void onUpdateViewParams(GameTableParams params) {
         if (hasDistributionState()) {
             DistributionState distributionState = params.getDistributionState();
-            if (!distributionState.isCardsAlreadyDistributed()) {
-                distributionState.getDeskOfCardsUpdater().updatePosition();
-                if (canAutoDistribute) {
-                    startDistributeCards();
-                }
+            distributionState.getDeskOfCardsUpdater().updatePosition();
+            if (!distributionState.isCardsAlreadyDistributed() && canAutoDistribute) {
+                startDistributeCards();
             }
         }
     }
@@ -153,9 +151,7 @@ public abstract class GameTableLayout<
 
     public void updateDistributionState(@Nullable DistributionState<Entity> distributionState) {
         viewUpdater.setParams(new GameTableParams<>(distributionState));
-        if (distributionState != null && !distributionState.isCardsAlreadyDistributed()) {
-            setCardsBeforeDistribution(distributionState.getPredicateForCardsBeforeDistribution(), distributionState.getDeskOfCardsUpdater());
-        }
+        setCardDeckCards();
     }
 
     public Layout getCurrentPlayerCardsLayout() {
@@ -204,20 +200,27 @@ public abstract class GameTableLayout<
     }
 
     @SuppressWarnings("ConstantConditions")
-    public void setCardsBeforeDistribution() {
+    public void setCardDeckCards() {
         if (!hasDistributionState()) {
             throw new RuntimeException("You need to set distribution state before");
         }
         DistributionState<Entity> distributionState = viewUpdater.getParams().getDistributionState();
-        setCardsBeforeDistribution(distributionState.getPredicateForCardsBeforeDistribution(), distributionState.getDeskOfCardsUpdater());
+        if (distributionState.isCardsAlreadyDistributed()) {
+            Predicate<Card<Entity>> predicateForCardsOnTheHands = entityCard ->
+                    distributionState.getCardsPredicateBeforeDistribution().apply(entityCard) ||
+                    distributionState.getCardsPredicateForDistribution().apply(entityCard);
+            setCardDeckCards(predicateForCardsOnTheHands, distributionState.getDeskOfCardsUpdater());
+        } else {
+            setCardDeckCards(distributionState.getCardsPredicateBeforeDistribution(), distributionState.getDeskOfCardsUpdater());
+        }
     }
 
-    public void setCardsBeforeDistribution(Predicate<Card<Entity>> predicate, OnUpdateDeskOfCardsUpdater<Entity> onUpdateDeskOfCardsUpdater) {
+    public void setCardDeckCards(Predicate<Card<Entity>> predicateForCardsOnTheHands, CardDeckUpdater<Entity> cardDeckUpdater) {
         List<Iterator<Card<Entity>>> cardsInDeskForPlayers = new ArrayList<>();
         for (Layout cardsLayout : cardsLayouts) {
             List<Card<Entity>> cardsInDeskForPlayer = new ArrayList<>();
             for (Card<Entity> card : cardsLayout.getCards()) {
-                if (predicate.apply(card)) {
+                if (predicateForCardsOnTheHands.apply(card)) {
                     if (deskOfCardsEnable) {
                         card.getCardInfo().setCardDistributed(true);
                     } else {
@@ -238,7 +241,7 @@ public abstract class GameTableLayout<
             }
         }
         if (!cardsInDeskForPlayers.isEmpty()) {
-            onUpdateDeskOfCardsUpdater.addCards(getCardsForDesk(cardsInDeskForPlayers));
+            cardDeckUpdater.setCardsForCardDeck(getCardsForDesk(cardsInDeskForPlayers));
         }
     }
 
@@ -249,7 +252,7 @@ public abstract class GameTableLayout<
         }
         viewUpdater.addAction(() -> {
             DistributionState<Entity> distributionState = viewUpdater.getParams().getDistributionState();
-            startDistributeCards(distributionState.getPredicateForCardsForDistribution());
+            startDistributeCards(distributionState.getCardsPredicateForDistribution());
         });
     }
 
@@ -306,7 +309,6 @@ public abstract class GameTableLayout<
         if (hasDistributionState()) {
             DistributionState<Entity> distributionState = viewUpdater.getParams().getDistributionState();
             distributionState.setCardsAlreadyDistributed(true);
-            distributionState.getDeskOfCardsUpdater().clear();
         }
         if (GameTableLayout.this.onDistributedCardsListener != null) {
             GameTableLayout.this.onDistributedCardsListener.onDistributedCards();

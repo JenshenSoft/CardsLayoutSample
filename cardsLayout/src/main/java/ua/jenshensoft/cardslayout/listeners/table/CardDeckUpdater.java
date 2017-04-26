@@ -3,35 +3,35 @@ package ua.jenshensoft.cardslayout.listeners.table;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import ua.jenshensoft.cardslayout.CardInfo;
 import ua.jenshensoft.cardslayout.R;
 import ua.jenshensoft.cardslayout.views.card.Card;
 
-public abstract class OnUpdateDeskOfCardsUpdater<Entity> {
+public abstract class CardDeckUpdater<Entity> {
 
+    @Nullable
     private List<Card<Entity>> cards;
-
-    protected OnUpdateDeskOfCardsUpdater() {
-        cards = new ArrayList<>();
-    }
 
     /**
      * called in on the onMeasure method
      *
      * @return
      */
-    public abstract DeskOfCardsInfo getDeskOfCardsInfo();
+    public abstract CardDeckLocation getLocation();
 
-    public void addCards(@NonNull List<Card<Entity>> cards) {
-        this.cards.addAll(cards);
+    public void setCardsForCardDeck(@NonNull List<Card<Entity>> cards) {
+        this.cards = cards;
     }
 
     public void updatePosition() {
-        DeskOfCardsInfo location = getDeskOfCardsInfo();
+        if (cards == null || cards.isEmpty()) {
+            return;
+        }
+        CardDeckLocation location = getLocation();
         float shadowXOffset = location.getXCardOffset();
         float shadowYOffset = location.getYCardOffset();
         float shadowZOffset = location.getZCardOffset();
@@ -55,15 +55,11 @@ public abstract class OnUpdateDeskOfCardsUpdater<Entity> {
         }
     }
 
-    public void clear() {
-        cards.clear();
-    }
-
     public void removeCardsFromDesk(List<Card<Entity>> cards) {
         this.cards.removeAll(cards);
     }
 
-    public static class DeskOfCardsInfo {
+    public static class CardDeckLocation {
 
         private final float x;
         private final float y;
@@ -72,7 +68,7 @@ public abstract class OnUpdateDeskOfCardsUpdater<Entity> {
         private final float yCardOffset;
         private final float zCardOffset;
 
-        public DeskOfCardsInfo(Context context, float x, float y) {
+        public CardDeckLocation(Context context, float x, float y) {
             this(x,
                     y,
                     context.getResources().getDimension(R.dimen.cardsLayout_card_elevation_normal),
@@ -81,12 +77,12 @@ public abstract class OnUpdateDeskOfCardsUpdater<Entity> {
                     1);
         }
 
-        public DeskOfCardsInfo(float x,
-                               float y,
-                               float elevation,
-                               float xCardOffset,
-                               float yCardOffset,
-                               float zCardOffset) {
+        public CardDeckLocation(float x,
+                                float y,
+                                float elevation,
+                                float xCardOffset,
+                                float yCardOffset,
+                                float zCardOffset) {
             this.x = x;
             this.y = y;
             this.elevation = elevation;

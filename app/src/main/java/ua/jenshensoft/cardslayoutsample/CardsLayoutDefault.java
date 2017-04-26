@@ -30,5 +30,9 @@ public class CardsLayoutDefault extends CardsLayout<CardsLayoutDefault.CardInfo>
         public CardInfo(int number) {
             this.number = number;
         }
+
+        public int getNumber() {
+            return number;
+        }
     }
 }
