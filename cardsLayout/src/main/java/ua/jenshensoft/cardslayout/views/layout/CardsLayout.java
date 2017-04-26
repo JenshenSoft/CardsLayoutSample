@@ -343,12 +343,20 @@ public abstract class CardsLayout<Entity> extends FrameLayout
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
-        setEnabledExceptViewsWithPositions(enabled);
+        setEnabledExceptViewsWithPositions(enabled, colorFilter);
     }
 
-    public void setEnabledExceptPositions(boolean enabled, @Nullable int... position) {
+    public void setEnabled(boolean enabled,
+                           @Nullable int... ignoredPositions) {
         super.setEnabled(enabled);
-        setEnabledExceptViewsWithPositions(enabled, position);
+        setEnabledExceptViewsWithPositions(enabled, colorFilter, ignoredPositions);
+    }
+
+    public void setEnabled(boolean enabled,
+                           @Nullable ColorFilter colorFilter,
+                           @Nullable int... ignoredPositions) {
+        super.setEnabled(enabled);
+        setEnabledExceptViewsWithPositions(enabled, colorFilter, ignoredPositions);
     }
 
     public void setColorFilter(@Nullable ColorFilter colorFilter) {
@@ -845,13 +853,15 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         return count;
     }
 
-    private <CV extends View & Card<Entity>> void setEnabledExceptViewsWithPositions(boolean state, @Nullable int... positions) {
+    private <CV extends View & Card<Entity>> void setEnabledExceptViewsWithPositions(boolean state,
+                                                                                     @Nullable ColorFilter colorFilter,
+                                                                                     @Nullable int... ignoredPositions) {
         List<Integer> positionsList = null;
-        if (positions != null) {
+        if (ignoredPositions != null) {
             positionsList = new ArrayList<>();
             //noinspection ForLoopReplaceableByForEach
-            for (int i = 0; i < positions.length; i++) {
-                positionsList.add(positions[i]);
+            for (int i = 0; i < ignoredPositions.length; i++) {
+                positionsList.add(ignoredPositions[i]);
             }
         }
         List<CV> cards = getCardViews();

@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.ColorFilter;
 import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -112,7 +113,16 @@ public abstract class GameTableLayout<
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
-        getCurrentPlayerCardsLayout().setEnabled(enabled);
+        for (Layout cardsLayout : cardsLayouts) {
+            cardsLayout.setEnabled(enabled);
+        }
+    }
+
+    public void setEnabled(boolean enabled, @Nullable ColorFilter colorFilter) {
+        super.setEnabled(enabled);
+        for (Layout cardsLayout : cardsLayouts) {
+            cardsLayout.setEnabled(enabled, colorFilter, (int[]) null);
+        }
     }
 
     /* view updater */
@@ -177,7 +187,7 @@ public abstract class GameTableLayout<
                     }
                     cardsLayout.setEnabled(true);
                 } else {
-                    cardsLayout.setEnabledExceptPositions(false, cardInfo.getCardPositionInLayout());
+                    cardsLayout.setEnabled(false, cardInfo.getCardPositionInLayout());
                 }
             });
         } else {
