@@ -9,7 +9,6 @@
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:srcCompat="@drawable/cat" />
@@ -29,49 +28,49 @@
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
-            android:src="@drawable/ic_card0" />
+            tools:src="@drawable/ic_card0" />
 
         <ImageView
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
-            android:src="@drawable/ic_card1" />
+            tools:src="@drawable/ic_card1" />
 
         <ImageView
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
-            android:src="@drawable/ic_card2" />
+            tools:src="@drawable/ic_card2" />
 
         <ImageView
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
-            android:src="@drawable/ic_card3" />
+            tools:src="@drawable/ic_card3" />
 
         <ImageView
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
-            android:src="@drawable/ic_card4" />
+            tools:src="@drawable/ic_card4" />
 
         <ImageView
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
-            android:src="@drawable/ic_card5" />
+            tools:src="@drawable/ic_card5" />
 
         <ImageView
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
-            android:src="@drawable/ic_card6" />
+            tools:src="@drawable/ic_card6" />
 
         <ImageView
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
-            android:src="@drawable/ic_card7" />
+            tools:src="@drawable/ic_card7" />
     </ua.jenshensoft.cardslayoutsample.CardsLayoutDefault>
 
     <ua.jenshensoft.cardslayoutsample.CardsLayoutDefault
@@ -89,49 +88,49 @@
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
-            android:src="@drawable/ic_card0" />
+            tools:src="@drawable/ic_card0" />
 
         <ImageView
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
-            android:src="@drawable/ic_card1" />
+            tools:src="@drawable/ic_card1" />
 
         <ImageView
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
-            android:src="@drawable/ic_card2" />
+            tools:src="@drawable/ic_card2" />
 
         <ImageView
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
-            android:src="@drawable/ic_card3" />
+            tools:src="@drawable/ic_card3" />
 
         <ImageView
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
-            android:src="@drawable/ic_card4" />
+            tools:src="@drawable/ic_card4" />
 
         <ImageView
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
-            android:src="@drawable/ic_card5" />
+            tools:src="@drawable/ic_card5" />
 
         <ImageView
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
-            android:src="@drawable/ic_card6" />
+            tools:src="@drawable/ic_card6" />
 
         <ImageView
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
-            android:src="@drawable/ic_card7" />
+            tools:src="@drawable/ic_card7" />
     </ua.jenshensoft.cardslayoutsample.CardsLayoutDefault>
 
     <ua.jenshensoft.cardslayoutsample.CardsLayoutDefault
@@ -148,49 +147,49 @@
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
-            android:src="@drawable/ic_card0" />
+            tools:src="@drawable/ic_card0" />
 
         <ImageView
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
-            android:src="@drawable/ic_card1" />
+            tools:src="@drawable/ic_card1" />
 
         <ImageView
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
-            android:src="@drawable/ic_card2" />
+            tools:src="@drawable/ic_card2" />
 
         <ImageView
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
-            android:src="@drawable/ic_card3" />
+            tools:src="@drawable/ic_card3" />
 
         <ImageView
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
-            android:src="@drawable/ic_card4" />
+            tools:src="@drawable/ic_card4" />
 
         <ImageView
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
-            android:src="@drawable/ic_card5" />
+            tools:src="@drawable/ic_card5" />
 
         <ImageView
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
-            android:src="@drawable/ic_card6" />
+            tools:src="@drawable/ic_card6" />
 
         <ImageView
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
-            android:src="@drawable/ic_card7" />
+            tools:src="@drawable/ic_card7" />
     </ua.jenshensoft.cardslayoutsample.CardsLayoutDefault>
 
     <ua.jenshensoft.cardslayoutsample.CardsLayoutDefault
@@ -206,49 +205,49 @@
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
-            android:src="@drawable/ic_card0" />
+            tools:src="@drawable/ic_card0" />
 
         <ImageView
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
-            android:src="@drawable/ic_card1" />
+            tools:src="@drawable/ic_card1" />
 
         <ImageView
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
-            android:src="@drawable/ic_card2" />
+            tools:src="@drawable/ic_card2" />
 
         <ImageView
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
-            android:src="@drawable/ic_card3" />
+            tools:src="@drawable/ic_card3" />
 
         <ImageView
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
-            android:src="@drawable/ic_card4" />
+            tools:src="@drawable/ic_card4" />
 
         <ImageView
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
-            android:src="@drawable/ic_card5" />
+            tools:src="@drawable/ic_card5" />
 
         <ImageView
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
-            android:src="@drawable/ic_card6" />
+            tools:src="@drawable/ic_card6" />
 
         <ImageView
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
-            android:src="@drawable/ic_card7" />
+            tools:src="@drawable/ic_card7" />
     </ua.jenshensoft.cardslayoutsample.CardsLayoutDefault>
 
 

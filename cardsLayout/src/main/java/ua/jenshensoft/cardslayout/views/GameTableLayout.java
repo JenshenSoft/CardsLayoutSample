@@ -22,9 +22,10 @@ import java.util.List;
 
 import ua.jenshensoft.cardslayout.CardInfo;
 import ua.jenshensoft.cardslayout.R;
+import ua.jenshensoft.cardslayout.listeners.table.CardDeckUpdater;
 import ua.jenshensoft.cardslayout.listeners.table.OnCardClickListener;
 import ua.jenshensoft.cardslayout.listeners.table.OnDistributedCardsListener;
-import ua.jenshensoft.cardslayout.listeners.table.CardDeckUpdater;
+import ua.jenshensoft.cardslayout.util.CardsUtil;
 import ua.jenshensoft.cardslayout.util.DistributionState;
 import ua.jenshensoft.cardslayout.views.card.Card;
 import ua.jenshensoft.cardslayout.views.layout.CardsLayout;
@@ -208,7 +209,7 @@ public abstract class GameTableLayout<
         if (distributionState.isCardsAlreadyDistributed()) {
             Predicate<Card<Entity>> predicateForCardsOnTheHands = entityCard ->
                     distributionState.getCardsPredicateBeforeDistribution().apply(entityCard) ||
-                    distributionState.getCardsPredicateForDistribution().apply(entityCard);
+                            distributionState.getCardsPredicateForDistribution().apply(entityCard);
             setCardDeckCards(predicateForCardsOnTheHands, distributionState.getDeskOfCardsUpdater());
         } else {
             setCardDeckCards(distributionState.getCardsPredicateBeforeDistribution(), distributionState.getDeskOfCardsUpdater());
@@ -241,7 +242,7 @@ public abstract class GameTableLayout<
             }
         }
         if (!cardsInDeskForPlayers.isEmpty()) {
-            cardDeckUpdater.setCardsForCardDeck(getCardsForDesk(cardsInDeskForPlayers));
+            cardDeckUpdater.setCardsForCardDeck(CardsUtil.getCardsForDesk(cardsInDeskForPlayers));
         }
     }
 
@@ -446,26 +447,5 @@ public abstract class GameTableLayout<
 
     private boolean isDeskOfCardsEnable() {
         return hasDistributionState() && deskOfCardsEnable;
-    }
-
-    private List<Card<Entity>> getCardsForDesk(List<Iterator<Card<Entity>>> cardsInDeskForPlayers) {
-        List<Card<Entity>> cardsForDesk = new ArrayList<>();
-        while (hasNextCardForWave(cardsInDeskForPlayers)) {
-            for (Iterator<Card<Entity>> cardIterator : cardsInDeskForPlayers) {
-                if (cardIterator.hasNext()) {
-                    cardsForDesk.add(cardIterator.next());
-                }
-            }
-        }
-        return cardsForDesk;
-    }
-
-    private boolean hasNextCardForWave(List<Iterator<Card<Entity>>> cards) {
-        for (Iterator<Card<Entity>> cardIterator : cards) {
-            if (cardIterator.hasNext()) {
-                return true;
-            }
-        }
-        return false;
     }
 }

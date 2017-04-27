@@ -35,8 +35,8 @@ public abstract class CardDeckUpdater<Entity> {
         float shadowXOffset = location.getXCardOffset();
         float shadowYOffset = location.getYCardOffset();
         float shadowZOffset = location.getZCardOffset();
-        float x = location.getX();
-        float y = location.getY();
+        float x = location.getX() - (cards.size() * shadowXOffset);
+        float y = location.getY() - (cards.size() * shadowYOffset);
         float z = location.getElevation() + (cards.size() * shadowZOffset);
         for (Card<Entity> card : cards) {
             CardInfo<Entity> cardInfo = card.getCardInfo();
