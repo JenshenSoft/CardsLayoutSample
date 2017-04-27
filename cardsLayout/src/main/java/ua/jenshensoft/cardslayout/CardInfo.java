@@ -11,6 +11,7 @@ public class CardInfo<Entity> {
     private int currentPositionY;
     private int firstRotation;
     private int currentRotation;
+    private boolean hasFilter;
     private boolean cardDistributed = true;
     @Nullable
     private Entity entity;
@@ -91,7 +92,14 @@ public class CardInfo<Entity> {
 
     public void setCardPositionInLayout(int cardPositionInLayout) {
         this.cardPositionInLayout = cardPositionInLayout;
+    }
 
+    public void setHasFilter(boolean hasFilter) {
+        this.hasFilter = hasFilter;
+    }
+
+    public boolean hasFilter() {
+        return hasFilter;
     }
 
     @Override
