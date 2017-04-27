@@ -866,14 +866,18 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         }
         List<CV> cards = getCardViews();
         for (CV card : cards) {
-            if (state) {
+            if (state && card.getCardInfo().isCardDistributed()) {
                 if (!card.isEnabled()) {
                     DrawableUtils.setColorFilter(card, null);
                 }
                 card.setEnabled(true);
             } else {
-                if (card.getCardInfo() == null || (positionsList != null && !positionsList.contains(card.getCardInfo().getCardPositionInLayout()))) {
-                    if (card.isEnabled() && colorFilter != null) {
+                boolean ignoredCard =
+                        card.getCardInfo() != null &&
+                                positionsList != null &&
+                                        positionsList.contains(card.getCardInfo().getCardPositionInLayout());
+                if (!ignoredCard) {
+                    if (card.isEnabled() && card.getCardInfo().isCardDistributed() && colorFilter != null) {
                         DrawableUtils.setColorFilter(card, colorFilter);
                     }
                     card.setEnabled(false);

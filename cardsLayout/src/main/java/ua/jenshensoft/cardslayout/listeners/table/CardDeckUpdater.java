@@ -23,6 +23,11 @@ public abstract class CardDeckUpdater<Entity> {
      */
     public abstract CardDeckLocation getLocation();
 
+    @Nullable
+    public List<Card<Entity>> getCards() {
+        return cards;
+    }
+
     public void setCardsForCardDeck(@NonNull List<Card<Entity>> cards) {
         this.cards = cards;
     }
