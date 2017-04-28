@@ -54,6 +54,7 @@ public class GameTable extends GameTableLayout<CardsLayoutDefault.CardInfo, Card
     }
 
     private void init() {
+        inflate(getContext(), R.layout.viewgroup_table, this);
         setDurationOfDistributeAnimation(100000);
         imageView = (ImageView) findViewById(R.id.imageView);
         for (final CardsLayout<CardsLayoutDefault.CardInfo> cardsLayout : cardsLayouts) {
@@ -105,10 +106,5 @@ public class GameTable extends GameTableLayout<CardsLayoutDefault.CardInfo, Card
                 };
             }
         });
-    }
-
-    @Override
-    protected int getLayoutId() {
-        return R.layout.viewgroup_table;
     }
 }

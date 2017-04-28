@@ -155,6 +155,14 @@ public abstract class GameTableLayout<
         setCardDeckCards();
     }
 
+    public int getCurrentPlayerLayoutId() {
+        return currentPlayerLayoutId;
+    }
+
+    public void setCurrentPlayerLayoutId(int currentPlayerLayoutId) {
+        this.currentPlayerLayoutId = currentPlayerLayoutId;
+    }
+
     public Layout getCurrentPlayerCardsLayout() {
         if (currentPlayerLayoutId != -1) {
             for (Layout layout : cardsLayouts) {
@@ -303,8 +311,6 @@ public abstract class GameTableLayout<
 
     /* protected methods */
 
-    protected abstract int getLayoutId();
-
     @SuppressWarnings("ConstantConditions")
     protected void onDistributedCards() {
         if (hasDistributionState()) {
@@ -384,7 +390,6 @@ public abstract class GameTableLayout<
         cardsLayouts = new ArrayList<>();
         viewUpdater = new ViewUpdater<>(this);
         viewMeasureConfig = new ViewMeasureConfig(this);
-        inflate(getContext(), getLayoutId(), this);
     }
 
     private void onActionWithCard(Entity entity) {

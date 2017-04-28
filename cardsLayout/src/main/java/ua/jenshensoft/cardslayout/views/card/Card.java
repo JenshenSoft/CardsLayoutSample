@@ -35,6 +35,8 @@ public interface Card<Entity> {
 
     void setRotation(float rotation);
 
+    float getRotation();
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     void setElevation(@Px float z);
 
