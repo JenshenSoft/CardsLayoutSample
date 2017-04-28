@@ -242,7 +242,7 @@ public abstract class GameTableLayout<
             }
         }
         if (!cardsInDeskForPlayers.isEmpty()) {
-            cardDeckUpdater.setCardsForCardDeck(CardsUtil.getCardsForDesk(cardsInDeskForPlayers));
+            cardDeckUpdater.addCardsToCardDeck(CardsUtil.getCardsForDesk(cardsInDeskForPlayers));
         }
     }
 

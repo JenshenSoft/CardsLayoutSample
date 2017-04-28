@@ -3,8 +3,8 @@ package ua.jenshensoft.cardslayout.listeners.table;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ua.jenshensoft.cardslayout.CardInfo;
@@ -13,8 +13,11 @@ import ua.jenshensoft.cardslayout.views.card.Card;
 
 public abstract class CardDeckUpdater<Entity> {
 
-    @Nullable
     private List<Card<Entity>> cards;
+
+    protected CardDeckUpdater() {
+        cards = new ArrayList<>();
+    }
 
     /**
      * called in on the onMeasure method
@@ -23,17 +26,16 @@ public abstract class CardDeckUpdater<Entity> {
      */
     public abstract CardDeckLocation getLocation();
 
-    @Nullable
     public List<Card<Entity>> getCards() {
         return cards;
     }
 
-    public void setCardsForCardDeck(@NonNull List<Card<Entity>> cards) {
-        this.cards = cards;
+    public void addCardsToCardDeck(@NonNull List<Card<Entity>> cards) {
+        this.cards.addAll(cards);
     }
 
     public void updatePosition() {
-        if (cards == null || cards.isEmpty()) {
+        if (cards.isEmpty()) {
             return;
         }
         CardDeckLocation location = getLocation();
@@ -82,7 +84,7 @@ public abstract class CardDeckUpdater<Entity> {
                     1);
         }
 
-        public CardDeckLocation(float x,
+        CardDeckLocation(float x,
                                 float y,
                                 float elevation,
                                 float xCardOffset,
@@ -96,27 +98,27 @@ public abstract class CardDeckUpdater<Entity> {
             this.zCardOffset = zCardOffset;
         }
 
-        public float getX() {
+        float getX() {
             return x;
         }
 
-        public float getY() {
+        float getY() {
             return y;
         }
 
-        public float getElevation() {
+        float getElevation() {
             return elevation;
         }
 
-        public float getXCardOffset() {
+        float getXCardOffset() {
             return xCardOffset;
         }
 
-        public float getYCardOffset() {
+        float getYCardOffset() {
             return yCardOffset;
         }
 
-        public float getZCardOffset() {
+        float getZCardOffset() {
             return zCardOffset;
         }
     }
