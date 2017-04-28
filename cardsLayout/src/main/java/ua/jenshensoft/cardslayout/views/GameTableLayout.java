@@ -41,7 +41,9 @@ public abstract class GameTableLayout<
 
     //Views
     protected List<Layout> cardsLayouts;
+    //updaters
     protected ViewUpdater<GameTableParams<Entity>> viewUpdater;
+    protected ViewMeasureConfig viewMeasureConfig;
     //attr
     private int durationOfDistributeAnimation = 1000;
     private boolean isEnableSwipe;
@@ -55,7 +57,6 @@ public abstract class GameTableLayout<
     @Nullable
     private OnDistributedCardsListener<Entity> onDistributedCardsListener;
 
-    private ViewMeasureConfig viewMeasureConfig;
 
     public GameTableLayout(Context context) {
         super(context);

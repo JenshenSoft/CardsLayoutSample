@@ -65,7 +65,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout
     @Nullable
     protected Interpolator interpolator;
     protected OnCreateAnimatorAction<Entity> defaultAnimatorAction;
-
+    protected ViewMeasureConfig viewMeasureConfig;
     //property
     @LinearLayoutCompat.OrientationMode
     private int childListOrientation;
@@ -92,15 +92,11 @@ public abstract class CardsLayout<Entity> extends FrameLayout
     private FlagManager gravityFlag;
     @Nullable
     private ColorFilter colorFilter;
-
     //listeners
     private OnCardSwipedListener<Entity> onCardSwipedListener;
     private OnCardPercentageChangeListener<Entity> onCardPercentageChangeListener;
     private OnCardTranslationListener<Entity> onCardTranslationListener;
-
     private boolean animateOnMeasure;
-    private ViewMeasureConfig viewMeasureConfig;
-
     @Nullable
     private Animator animator;
 
@@ -876,7 +872,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout
                 boolean ignoredCard =
                         card.getCardInfo() != null &&
                                 positionsList != null &&
-                                        positionsList.contains(card.getCardInfo().getCardPositionInLayout());
+                                positionsList.contains(card.getCardInfo().getCardPositionInLayout());
                 if (!ignoredCard) {
                     if (!card.getCardInfo().hasFilter() && card.getCardInfo().isCardDistributed() && colorFilter != null) {
                         DrawableUtils.setColorFilter(card, colorFilter);
