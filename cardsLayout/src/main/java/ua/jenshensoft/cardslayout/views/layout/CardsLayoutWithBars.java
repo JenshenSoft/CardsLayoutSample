@@ -4,7 +4,6 @@ package ua.jenshensoft.cardslayout.views.layout;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.support.annotation.CallSuper;
 import android.support.annotation.CheckResult;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
@@ -95,9 +94,10 @@ public abstract class CardsLayoutWithBars<
         }
     }
 
-    @CallSuper
     @Override
-    protected void moveViewsToStartPosition(boolean withAnimation, @Nullable OnCreateAnimatorAction animationCreateAction, @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
+    protected <CV extends View & Card<Entity>> void moveViewsToStartPosition(boolean withAnimation,
+                                                                             @Nullable OnCreateAnimatorAction<Entity> animationCreateAction,
+                                                                             @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
         super.moveViewsToStartPosition(withAnimation, animationCreateAction, animatorListenerAdapter);
         moveBarsToCurrentPosition(withAnimation);
     }
@@ -109,7 +109,7 @@ public abstract class CardsLayoutWithBars<
         for (T view : views) {
             coordinates[0] = (int) xConfig.getStartCoordinates();
             coordinates[1] = (int) yConfig.getStartCoordinates();
-            moveViewToPosition(view, coordinates, withAnimation);
+            moveViewToPosition(view, coordinates, withAnimation, null);
             if (getChildListOrientation() == LinearLayoutCompat.HORIZONTAL)
                 xConfig.setStartCoordinates(xConfig.getStartCoordinates() + view.getMeasuredWidth() - xConfig.getDistanceBetweenViews());
 
@@ -118,15 +118,15 @@ public abstract class CardsLayoutWithBars<
         }
     }
 
-    protected void moveUserBarToPosition(int[] coordinatesForUserInfo, boolean withAnimation) {
-        moveViewToPosition(firstBarView, coordinatesForUserInfo, withAnimation);
+    protected void moveUserBarToPosition(int[] coordinatesForUserInfo, boolean withAnimation, @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
+        moveViewToPosition(firstBarView, coordinatesForUserInfo, withAnimation, animatorListenerAdapter);
     }
 
-    protected void moveGameInfoBarToPosition(int[] coordinatesForGameInfoBar, boolean withAnimation) {
-        moveViewToPosition(secondBarView, coordinatesForGameInfoBar, withAnimation);
+    protected void moveGameInfoBarToPosition(int[] coordinatesForGameInfoBar, boolean withAnimation, @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
+        moveViewToPosition(secondBarView, coordinatesForGameInfoBar, withAnimation, animatorListenerAdapter);
     }
 
-    protected void moveViewToPosition(View view, int[] coordinates, boolean isAnimated) {
+    protected void moveViewToPosition(View view, int[] coordinates, boolean isAnimated, @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
         if (isAnimated) {
             AwesomeAnimation.Builder awesomeAnimation = new AwesomeAnimation.Builder(view)
                     .setX(AwesomeAnimation.CoordinationMode.COORDINATES, view.getX(), coordinates[0])
@@ -134,7 +134,11 @@ public abstract class CardsLayoutWithBars<
                     .setDuration(getDurationOfAnimation());
             if (interpolator != null)
                 awesomeAnimation.setInterpolator(interpolator);
-            awesomeAnimation.build().start();
+            AwesomeAnimation build = awesomeAnimation.build();
+            if (animatorListenerAdapter != null) {
+                build.getAnimatorSet().addListener(animatorListenerAdapter);
+            }
+            build.start();
         } else {
             view.setX(coordinates[0]);
             view.setY(coordinates[1]);
@@ -208,12 +212,12 @@ public abstract class CardsLayoutWithBars<
 
         if (firstBarView != null) {
             final int[] coordinatesForUserInfo = getBarCoordinates(userBarAnchorGravity, getAnchorViewInfo(firstBarAnchorPosition), firstBarView);
-            moveUserBarToPosition(coordinatesForUserInfo, withAnimation);
+            moveUserBarToPosition(coordinatesForUserInfo, withAnimation, null);
         }
 
         if (secondBarView != null) {
             int[] coordinatesForGameInfoBar = getBarCoordinates(gameInfoBarAnchorGravity, getAnchorViewInfo(secondBarAnchorPosition), secondBarView);
-            moveGameInfoBarToPosition(coordinatesForGameInfoBar, withAnimation);
+            moveGameInfoBarToPosition(coordinatesForGameInfoBar, withAnimation, null);
         }
     }
 

@@ -874,9 +874,14 @@ public abstract class CardsLayout<Entity> extends FrameLayout
                                 positionsList != null &&
                                 positionsList.contains(card.getCardInfo().getCardPositionInLayout());
                 if (!ignoredCard) {
-                    if (!card.getCardInfo().hasFilter() && card.getCardInfo().isCardDistributed() && colorFilter != null) {
-                        DrawableUtils.setColorFilter(card, colorFilter);
-                        card.getCardInfo().setHasFilter(true);
+                    if (card.getCardInfo().isCardDistributed()) {
+                        if (!card.getCardInfo().hasFilter() && colorFilter != null) {
+                            DrawableUtils.setColorFilter(card, colorFilter);
+                            card.getCardInfo().setHasFilter(true);
+                        } else if (card.getCardInfo().hasFilter() && colorFilter == null) {
+                            DrawableUtils.setColorFilter(card, null);
+                            card.getCardInfo().setHasFilter(false);
+                        }
                     }
                     card.setEnabled(false);
                 }
