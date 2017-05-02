@@ -46,9 +46,9 @@ public class DrawableUtils {
     public static void setColorFilter(View view, @Nullable ColorFilter colorFilter) {
         if (view instanceof ImageView) {
             ((ImageView) view).setColorFilter(colorFilter);
-           if (colorFilter == null) {
-               ((ImageView) view).clearColorFilter();
-           }
+            if (colorFilter == null) {
+                ((ImageView) view).clearColorFilter();
+            }
         } else if (view instanceof ViewGroup) {
             ViewGroup viewGroup = (ViewGroup) view;
             final Drawable background = viewGroup.getBackground();

@@ -338,21 +338,28 @@ public abstract class CardsLayout<Entity> extends FrameLayout
 
     @Override
     public void setEnabled(boolean enabled) {
-        super.setEnabled(enabled);
-        setEnabledExceptViewsWithPositions(enabled, colorFilter);
+        setEnabledCards(enabled, null);
     }
 
-    public void setEnabled(boolean enabled,
-                           @Nullable int... ignoredPositions) {
-        super.setEnabled(enabled);
-        setEnabledExceptViewsWithPositions(enabled, colorFilter, ignoredPositions);
+    public void setEnabledCards(boolean enabled,
+                                @Nullable List<Integer> ignoredPositions) {
+        setEnabledCards(enabled, colorFilter, ignoredPositions);
     }
 
-    public void setEnabled(boolean enabled,
-                           @Nullable ColorFilter colorFilter,
-                           @Nullable int... ignoredPositions) {
+    public void setEnabledCards(
+            boolean enabled,
+            @Nullable ColorFilter colorFilter,
+            @Nullable List<Integer> ignoredPositions) {
+        setEnabledCards(enabled, getCardViews(), colorFilter, ignoredPositions);
+    }
+
+    public <CV extends View & Card<Entity>> void setEnabledCards(
+            boolean enabled,
+            List<CV> cards,
+            @Nullable ColorFilter colorFilter,
+            @Nullable List<Integer> ignoredPositions) {
         super.setEnabled(enabled);
-        setEnabledExceptViewsWithPositions(enabled, colorFilter, ignoredPositions);
+        setEnabledCardsExceptPositions(enabled, cards, colorFilter, ignoredPositions);
     }
 
     public void setColorFilter(@Nullable ColorFilter colorFilter) {
@@ -849,18 +856,10 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         return count;
     }
 
-    private <CV extends View & Card<Entity>> void setEnabledExceptViewsWithPositions(boolean state,
-                                                                                     @Nullable ColorFilter colorFilter,
-                                                                                     @Nullable int... ignoredPositions) {
-        List<Integer> positionsList = null;
-        if (ignoredPositions != null) {
-            positionsList = new ArrayList<>();
-            //noinspection ForLoopReplaceableByForEach
-            for (int i = 0; i < ignoredPositions.length; i++) {
-                positionsList.add(ignoredPositions[i]);
-            }
-        }
-        List<CV> cards = getCardViews();
+    private <CV extends View & Card<Entity>> void setEnabledCardsExceptPositions(boolean state,
+                                                                                 List<CV> cards,
+                                                                                 @Nullable ColorFilter colorFilter,
+                                                                                 @Nullable List<Integer> ignoredPositions) {
         for (CV card : cards) {
             if (state && card.getCardInfo().isCardDistributed()) {
                 if (card.getCardInfo().hasFilter()) {
@@ -871,8 +870,8 @@ public abstract class CardsLayout<Entity> extends FrameLayout
             } else {
                 boolean ignoredCard =
                         card.getCardInfo() != null &&
-                                positionsList != null &&
-                                positionsList.contains(card.getCardInfo().getCardPositionInLayout());
+                                ignoredPositions != null &&
+                                ignoredPositions.contains(card.getCardInfo().getCardPositionInLayout());
                 if (!ignoredCard) {
                     if (card.getCardInfo().isCardDistributed()) {
                         if (!card.getCardInfo().hasFilter() && colorFilter != null) {

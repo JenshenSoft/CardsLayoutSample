@@ -123,7 +123,7 @@ public abstract class GameTableLayout<
     public void setEnabled(boolean enabled, @Nullable ColorFilter colorFilter) {
         super.setEnabled(enabled);
         for (Layout cardsLayout : cardsLayouts) {
-            cardsLayout.setEnabled(enabled, colorFilter, (int[]) null);
+            cardsLayout.setEnabledCards(enabled, colorFilter, null);
         }
     }
 
@@ -193,7 +193,7 @@ public abstract class GameTableLayout<
                     }
                     cardsLayout.setEnabled(true);
                 } else {
-                    cardsLayout.setEnabled(false, cardInfo.getCardPositionInLayout());
+                    cardsLayout.setEnabledCards(false, Collections.singletonList(cardInfo.getCardPositionInLayout()));
                 }
             });
         } else {
