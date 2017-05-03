@@ -1,8 +1,11 @@
 package ua.jenshensoft.cardslayoutsample.views;
 
 import android.content.Context;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
@@ -55,17 +58,17 @@ public class GameTable extends GameTableLayout<CardsLayoutDefault.CardInfo, Card
 
     private void init() {
         inflate(getContext(), R.layout.viewgroup_table, this);
-        setDurationOfDistributeAnimation(100000);
+        setDurationOfDistributeAnimation(1000);
         imageView = (ImageView) findViewById(R.id.imageView);
         for (final CardsLayout<CardsLayoutDefault.CardInfo> cardsLayout : cardsLayouts) {
-            cardsLayout.setOnCardSwipedListener(new OnCardSwipedListener<CardsLayoutDefault.CardInfo>() {
-
+            cardsLayout.addOnCardSwipedListener(new OnCardSwipedListener<CardsLayoutDefault.CardInfo>() {
                 @Override
                 public void onCardSwiped(CardInfo<CardsLayoutDefault.CardInfo> cardInfo) {
                     cardsLayout.removeCardView(cardInfo.getCardPositionInLayout());
                 }
             });
         }
+        getCurrentPlayerCardsLayout().setColorFilter(new PorterDuffColorFilter(ContextCompat.getColor(getContext(), R.color.colorAccent), PorterDuff.Mode.MULTIPLY));
 
         for (CardsLayout<CardsLayoutDefault.CardInfo> cardsLayout : cardsLayouts) {
             int i = 0;

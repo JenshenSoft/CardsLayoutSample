@@ -93,9 +93,9 @@ public abstract class CardsLayout<Entity> extends FrameLayout
     @Nullable
     private ColorFilter colorFilter;
     //listeners
-    private OnCardSwipedListener<Entity> onCardSwipedListener;
-    private OnCardPercentageChangeListener<Entity> onCardPercentageChangeListener;
-    private OnCardTranslationListener<Entity> onCardTranslationListener;
+    private List<OnCardSwipedListener<Entity>> onCardSwipedListeners;
+    private List<OnCardPercentageChangeListener<Entity>> onCardPercentageChangeListeners;
+    private List<OnCardTranslationListener<Entity>> onCardTranslationListeners;
     private boolean animateOnMeasure;
     @Nullable
     private Animator animator;
@@ -276,16 +276,16 @@ public abstract class CardsLayout<Entity> extends FrameLayout
     
     /* listeners */
 
-    public void setCardTranslationListener(OnCardTranslationListener<Entity> cardTranslationListener) {
-        this.onCardTranslationListener = cardTranslationListener;
+    public void addCardTranslationListener(OnCardTranslationListener<Entity> cardTranslationListener) {
+        this.onCardTranslationListeners.add(cardTranslationListener);
     }
 
-    public void setCardPercentageChangeListener(OnCardPercentageChangeListener<Entity> onCardPercentageChangeListener) {
-        this.onCardPercentageChangeListener = onCardPercentageChangeListener;
+    public void addCardPercentageChangeListener(OnCardPercentageChangeListener<Entity> onCardPercentageChangeListener) {
+        this.onCardPercentageChangeListeners.add(onCardPercentageChangeListener);
     }
 
-    public void setOnCardSwipedListener(OnCardSwipedListener<Entity> onCardSwipedListener) {
-        this.onCardSwipedListener = onCardSwipedListener;
+    public void addOnCardSwipedListener(OnCardSwipedListener<Entity> onCardSwipedListeners) {
+        this.onCardSwipedListeners.add(onCardSwipedListeners);
     }
     
     
@@ -419,20 +419,28 @@ public abstract class CardsLayout<Entity> extends FrameLayout
 
     @Override
     public void onCardTranslation(float positionX, float positionY, CardInfo<Entity> cardInfo, boolean isTouched) {
-        if (onCardTranslationListener != null)
-            onCardTranslationListener.onCardTranslation(positionX, positionY, cardInfo, isTouched);
+        if (!onCardTranslationListeners.isEmpty()) {
+            for (OnCardTranslationListener<Entity> listener : onCardTranslationListeners) {
+                listener.onCardTranslation(positionX, positionY, cardInfo, isTouched);
+            }
+        }
     }
 
     @Override
     public void onCardSwiped(CardInfo<Entity> cardInfo) {
-        if (onCardSwipedListener != null)
-            onCardSwipedListener.onCardSwiped(cardInfo);
+        if (!onCardSwipedListeners.isEmpty()) {
+            for (OnCardSwipedListener<Entity> listener : onCardSwipedListeners) {
+                listener.onCardSwiped(cardInfo);
+            }
+        }
     }
 
     @Override
     public void onPercentageChanged(float percentageX, float percentageY, CardInfo<Entity> cardInfo, boolean isTouched) {
-        if (onCardPercentageChangeListener != null) {
-            onCardPercentageChangeListener.onPercentageChanged(percentageX, percentageY, cardInfo, isTouched);
+        if (!onCardPercentageChangeListeners.isEmpty()) {
+            for (OnCardPercentageChangeListener<Entity> listener : onCardPercentageChangeListeners) {
+                listener.onPercentageChanged(percentageX, percentageY, cardInfo, isTouched);
+            }
         }
     }
 
@@ -770,6 +778,9 @@ public abstract class CardsLayout<Entity> extends FrameLayout
             }
         };
         viewMeasureConfig = new ViewMeasureConfig(this);
+        onCardPercentageChangeListeners = new ArrayList<>();
+        onCardSwipedListeners = new ArrayList<>();
+        onCardTranslationListeners = new ArrayList<>();
     }
 
     @SuppressWarnings("WrongConstant")
@@ -862,10 +873,8 @@ public abstract class CardsLayout<Entity> extends FrameLayout
                                                                                  @Nullable List<Integer> ignoredPositions) {
         for (CV card : cards) {
             if (state && card.getCardInfo().isCardDistributed()) {
-                if (card.getCardInfo().hasFilter()) {
-                    DrawableUtils.setColorFilter(card, null);
-                    card.getCardInfo().setHasFilter(false);
-                }
+                DrawableUtils.setColorFilter(card, null);
+                card.getCardInfo().setHasFilter(false);
                 card.setEnabled(true);
             } else {
                 boolean ignoredCard =
@@ -874,10 +883,10 @@ public abstract class CardsLayout<Entity> extends FrameLayout
                                 ignoredPositions.contains(card.getCardInfo().getCardPositionInLayout());
                 if (!ignoredCard) {
                     if (card.getCardInfo().isCardDistributed()) {
-                        if (!card.getCardInfo().hasFilter() && colorFilter != null) {
+                        if (colorFilter != null) {
                             DrawableUtils.setColorFilter(card, colorFilter);
                             card.getCardInfo().setHasFilter(true);
-                        } else if (card.getCardInfo().hasFilter() && colorFilter == null) {
+                        } else {
                             DrawableUtils.setColorFilter(card, null);
                             card.getCardInfo().setHasFilter(false);
                         }

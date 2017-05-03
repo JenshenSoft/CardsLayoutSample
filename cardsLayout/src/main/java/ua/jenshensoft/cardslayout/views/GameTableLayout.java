@@ -98,8 +98,12 @@ public abstract class GameTableLayout<
             Layout layout = (Layout) child;
             cardsLayouts.add(layout);
             if (currentPlayerLayoutId != -1 && currentPlayerLayoutId == child.getId()) {
-                setSwipeValidatorEnabled(layout, isEnableSwipe);
-                setTransitionValidatorEnabled(layout, isEnableTransition);
+                if (isEnableSwipe) {
+                    setSwipeValidatorEnabled(layout);
+                }
+                if (isEnableTransition) {
+                    setTransitionValidatorEnabled(layout);
+                }
             }
         }
     }
@@ -175,30 +179,31 @@ public abstract class GameTableLayout<
         throw new RuntimeException("Can't find the current player layout");
     }
 
-    public void setSwipeValidatorEnabled(final Layout cardsLayout, boolean enabled) {
-        if (enabled) {
-            cardsLayout.setOnCardSwipedListener(cardInfo -> onActionWithCard(cardInfo.getEntity()));
-        } else {
-            cardsLayout.setOnCardSwipedListener(null);
-        }
+    public void setSwipeValidatorEnabled(final Layout cardsLayout) {
+        cardsLayout.addOnCardSwipedListener(cardInfo -> {
+            onActionWithCard(cardInfo.getEntity());
+            if (!cardsLayout.isEnabled()) {
+                cardsLayout.setEnabled(true);
+            }
+        });
     }
 
-    public void setTransitionValidatorEnabled(final Layout cardsLayout, boolean enabled) {
-        if (enabled) {
-            cardsLayout.setCardPercentageChangeListener((percentageX, percentageY, cardInfo, isTouched) -> {
-                if (!isTouched) {
-                    if (percentageX >= 100 || percentageY >= 100) {
-                        onActionWithCard(cardInfo.getEntity());
-                        return;
-                    }
+    public void setTransitionValidatorEnabled(final Layout cardsLayout) {
+        cardsLayout.addCardTranslationListener((percentageX, percentageY, cardInfo, isTouched) -> {
+            if (!isTouched) {
+                if (percentageX >= 100 || percentageY >= 100) {
+                    onActionWithCard(cardInfo.getEntity());
+                    return;
+                }
+                if (!cardsLayout.isEnabled()) {
                     cardsLayout.setEnabled(true);
-                } else {
+                }
+            } else {
+                if (cardsLayout.isEnabled()) {
                     cardsLayout.setEnabledCards(false, Collections.singletonList(cardInfo.getCardPositionInLayout()));
                 }
-            });
-        } else {
-            cardsLayout.setCardPercentageChangeListener(null);
-        }
+            }
+        });
     }
 
     public int getDurationOfDistributeAnimation() {
@@ -267,6 +272,7 @@ public abstract class GameTableLayout<
     }
 
     public void startDistributeCards(Predicate<Card<Entity>> predicate) {
+        setEnabled(false, null);//disable cards without filters
         OnDistributedCardsListener<Entity> onDistributedCardsListener = new OnDistributedCardsListener<Entity>() {
 
             private int count;
@@ -314,6 +320,7 @@ public abstract class GameTableLayout<
 
     @SuppressWarnings("ConstantConditions")
     protected void onDistributedCards() {
+        setEnabled(true);
         if (hasDistributionState()) {
             DistributionState<Entity> distributionState = viewUpdater.getParams().getDistributionState();
             distributionState.setCardsAlreadyDistributed(true);
