@@ -358,19 +358,28 @@ public abstract class CardsLayout<Entity> extends FrameLayout
             List<CV> cards,
             @Nullable ColorFilter colorFilter,
             @Nullable List<Integer> ignoredPositions) {
+        setEnabledCards(enabled, cards, colorFilter, ignoredPositions, true);
+    }
+
+    public <CV extends View & Card<Entity>> void setEnabledCards(
+            boolean enabled,
+            List<CV> cards,
+            @Nullable ColorFilter colorFilter,
+            @Nullable List<Integer> ignoredPositions,
+            boolean forced) {
         super.setEnabled(enabled);
-        setEnabledCardsExceptPositions(enabled, cards, colorFilter, ignoredPositions);
+        setEnabledCardsExceptPositions(enabled, cards, colorFilter, ignoredPositions, forced);
     }
 
     public void setColorFilter(@Nullable ColorFilter colorFilter) {
         this.colorFilter = colorFilter;
     }
 
-    public void clearTints() {
-        clearTints(null);
+    public void clearCardTints() {
+        clearCardTints(null);
     }
 
-    public <CV extends View & Card<Entity>> void clearTints(@Nullable List<Integer> positions) {
+    public <CV extends View & Card<Entity>> void clearCardTints(@Nullable List<Integer> positions) {
         List<CV> cardViews = getCardViews();
         for (CV view : cardViews) {
             if (positions == null || positions.contains(view.getCardInfo().getCardPositionInLayout())) {
@@ -884,11 +893,14 @@ public abstract class CardsLayout<Entity> extends FrameLayout
     private <CV extends View & Card<Entity>> void setEnabledCardsExceptPositions(boolean state,
                                                                                  List<CV> cards,
                                                                                  @Nullable ColorFilter colorFilter,
-                                                                                 @Nullable List<Integer> ignoredPositions) {
+                                                                                 @Nullable List<Integer> ignoredPositions,
+                                                                                 boolean forced) {
         for (CV card : cards) {
             if (state && card.getCardInfo().isCardDistributed()) {
-                DrawableUtils.setColorFilter(card, null);
-                card.getCardInfo().setHasFilter(false);
+                if (forced || card.getCardInfo().hasFilter()) {
+                    DrawableUtils.setColorFilter(card, null);
+                    card.getCardInfo().setHasFilter(false);
+                }
                 card.setEnabled(true);
             } else {
                 boolean ignoredCard =
@@ -897,10 +909,10 @@ public abstract class CardsLayout<Entity> extends FrameLayout
                                 ignoredPositions.contains(card.getCardInfo().getCardPositionInLayout());
                 if (!ignoredCard) {
                     if (card.getCardInfo().isCardDistributed()) {
-                        if (colorFilter != null) {
+                        if (colorFilter != null && (forced || !card.getCardInfo().hasFilter())) {
                             DrawableUtils.setColorFilter(card, colorFilter);
                             card.getCardInfo().setHasFilter(true);
-                        } else {
+                        } else if (colorFilter == null && (forced || card.getCardInfo().hasFilter())) {
                             DrawableUtils.setColorFilter(card, null);
                             card.getCardInfo().setHasFilter(false);
                         }
