@@ -20,6 +20,8 @@ import ua.jenshensoft.cardslayout.listeners.card.OnCardSwipedListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardTranslationListener;
 import ua.jenshensoft.cardslayout.views.card.Card;
 
+import static ua.jenshensoft.cardslayout.util.CardsUtil.SIZE_MULTIPLIER;
+
 public class SwipeGestureManager<Entity> implements View.OnTouchListener {
 
     public static final float EPSILON = 0.00000001f;
@@ -61,8 +63,8 @@ public class SwipeGestureManager<Entity> implements View.OnTouchListener {
 
         if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
             AwesomeAnimation awesomeAnimation = new AwesomeAnimation.Builder(view)
-                    .setSizeX(AwesomeAnimation.SizeMode.SCALE, 1.2f)
-                    .setSizeY(AwesomeAnimation.SizeMode.SCALE, 1.2f)
+                    .setSizeX(AwesomeAnimation.SizeMode.SCALE, SIZE_MULTIPLIER)
+                    .setSizeY(AwesomeAnimation.SizeMode.SCALE, SIZE_MULTIPLIER)
                     .setDuration(200)
                     .build();
             awesomeAnimation.start();
