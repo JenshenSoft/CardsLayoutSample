@@ -366,6 +366,20 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         this.colorFilter = colorFilter;
     }
 
+    public void clearTints() {
+        clearTints(null);
+    }
+
+    public <CV extends View & Card<Entity>> void clearTints(@Nullable List<Integer> positions) {
+        List<CV> cardViews = getCardViews();
+        for (CV view : cardViews) {
+            if (positions == null || positions.contains(view.getCardInfo().getCardPositionInLayout())) {
+                DrawableUtils.setColorFilter(view, null);
+                view.getCardInfo().setHasFilter(false);
+            }
+        }
+    }
+
     /* animation property */
 
     public int getDurationOfAnimation() {
