@@ -28,7 +28,7 @@ public class ViewUpdater<P extends ViewUpdaterParams> {
     public void onViewMeasured() {
         measured = true;
         onUpdateViewParams();
-        onUpdateViewActions();
+        onUpdateViewActions(true);
     }
 
     @Nullable
@@ -43,7 +43,7 @@ public class ViewUpdater<P extends ViewUpdaterParams> {
     public void addAction(@NonNull ViewUpdaterAction params, boolean update) {
         this.actions.add(params);
         if (update) {
-            onUpdateViewActions();
+            onUpdateViewActions(false);
         }
     }
 
@@ -78,10 +78,10 @@ public class ViewUpdater<P extends ViewUpdaterParams> {
         }
     }
 
-    private void onUpdateViewActions() {
+    private void onUpdateViewActions(boolean calledInOnMeasure) {
         if (measured) {
             for (ViewUpdaterAction action : actions) {
-                action.onAction();
+                action.onAction(calledInOnMeasure);
             }
             actions.clear();
         }

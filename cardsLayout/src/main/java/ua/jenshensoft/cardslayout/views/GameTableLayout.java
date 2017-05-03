@@ -268,7 +268,7 @@ public abstract class GameTableLayout<
         if (!hasDistributionState()) {
             throw new RuntimeException("You need to set distribution state before");
         }
-        viewUpdater.addAction(() -> {
+        viewUpdater.addAction((calledInOnMeasure) -> {
             DistributionState<Entity> distributionState = viewUpdater.getParams().getDistributionState();
             startDistributeCards(distributionState.getCardsPredicateForDistribution());
         });
