@@ -9,6 +9,7 @@ import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -102,7 +103,7 @@ public abstract class GameTableLayout<
                     setSwipeValidatorEnabled(layout);
                 }
                 if (isEnableTransition) {
-                    setTransitionValidatorEnabled(layout);
+                    setPercentageValidatorEnabled(layout);
                 }
             }
         }
@@ -181,6 +182,7 @@ public abstract class GameTableLayout<
 
     public void setSwipeValidatorEnabled(final Layout cardsLayout) {
         cardsLayout.addOnCardSwipedListener(cardInfo -> {
+            Log.d("Motion", "Swiped");
             onActionWithCard(cardInfo.getEntity());
             if (!cardsLayout.isEnabled()) {
                 cardsLayout.setEnabled(true);
@@ -188,8 +190,9 @@ public abstract class GameTableLayout<
         });
     }
 
-    public void setTransitionValidatorEnabled(final Layout cardsLayout) {
-        cardsLayout.addCardTranslationListener((percentageX, percentageY, cardInfo, isTouched) -> {
+    public void setPercentageValidatorEnabled(final Layout cardsLayout) {
+        cardsLayout.addCardPercentageChangeListener((percentageX, percentageY, cardInfo, isTouched) -> {
+            Log.d("Motion", "Percentage percentageX = " + percentageX + ", percentageY = " + percentageY + ", isTouched: " + isTouched);
             if (!isTouched) {
                 if (percentageX >= 100 || percentageY >= 100) {
                     onActionWithCard(cardInfo.getEntity());
