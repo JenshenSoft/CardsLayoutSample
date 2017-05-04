@@ -7,6 +7,8 @@ import java.util.List;
 
 public class CardsUtil {
 
+    public static final float SIZE_MULTIPLIER = 1.2f;
+
     public static <Entity> List<Entity> getCardsForDesk(List<Iterator<Entity>> cardsInDeskForPlayers) {
         List<Entity> entities = new ArrayList<>();
         while (hasNextCardForWave(cardsInDeskForPlayers)) {
