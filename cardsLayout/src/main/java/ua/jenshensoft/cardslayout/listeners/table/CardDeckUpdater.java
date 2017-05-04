@@ -41,10 +41,10 @@ public abstract class CardDeckUpdater<Entity> {
         CardDeckLocation location = getLocation();
         float shadowXOffset = location.getXCardOffset();
         float shadowYOffset = location.getYCardOffset();
-        float shadowZOffset = location.getZCardOffset();
+        float shadowZOffset = (location.getElevationMax() - location.getElevationMin()) / cards.size();
         float x = location.getX() - (cards.size() * shadowXOffset);
         float y = location.getY() - (cards.size() * shadowYOffset);
-        float z = location.getElevation() + (cards.size() * shadowZOffset);
+        float z = location.getElevationMax();
         for (Card<Entity> card : cards) {
             CardInfo<Entity> cardInfo = card.getCardInfo();
 
@@ -70,7 +70,8 @@ public abstract class CardDeckUpdater<Entity> {
 
         private final float x;
         private final float y;
-        private final float elevation;
+        private final float elevationMin;
+        private final float elevationMax;
         private final float xCardOffset;
         private final float yCardOffset;
         private final float zCardOffset;
@@ -79,6 +80,7 @@ public abstract class CardDeckUpdater<Entity> {
             this(x,
                     y,
                     context.getResources().getDimension(R.dimen.cardsLayout_card_elevation_normal),
+                    context.getResources().getDimension(R.dimen.cardsLayout_card_elevation_pressed),
                     context.getResources().getDimension(R.dimen.cardsLayout_shadow_desk_offset),
                     context.getResources().getDimension(R.dimen.cardsLayout_shadow_desk_offset),
                     1);
@@ -86,13 +88,15 @@ public abstract class CardDeckUpdater<Entity> {
 
         public CardDeckLocation(float x,
                                 float y,
-                                float elevation,
+                                float elevationMin,
+                                float elevationMax,
                                 float xCardOffset,
                                 float yCardOffset,
                                 float zCardOffset) {
             this.x = x;
             this.y = y;
-            this.elevation = elevation;
+            this.elevationMin = elevationMin;
+            this.elevationMax = elevationMax;
             this.xCardOffset = xCardOffset;
             this.yCardOffset = yCardOffset;
             this.zCardOffset = zCardOffset;
@@ -106,8 +110,12 @@ public abstract class CardDeckUpdater<Entity> {
             return y;
         }
 
-        float getElevation() {
-            return elevation;
+        float getElevationMin() {
+            return elevationMin;
+        }
+
+        float getElevationMax() {
+            return elevationMax;
         }
 
         float getXCardOffset() {
