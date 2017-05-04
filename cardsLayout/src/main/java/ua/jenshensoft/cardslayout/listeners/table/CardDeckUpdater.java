@@ -84,7 +84,7 @@ public abstract class CardDeckUpdater<Entity> {
                     1);
         }
 
-        CardDeckLocation(float x,
+        public CardDeckLocation(float x,
                                 float y,
                                 float elevation,
                                 float xCardOffset,
