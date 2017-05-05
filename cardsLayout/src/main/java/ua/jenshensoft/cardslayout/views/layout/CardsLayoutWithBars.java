@@ -1,7 +1,9 @@
 package ua.jenshensoft.cardslayout.views.layout;
 
 
+import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.annotation.CheckResult;
@@ -135,10 +137,18 @@ public abstract class CardsLayoutWithBars<
             if (interpolator != null)
                 awesomeAnimation.setInterpolator(interpolator);
             AwesomeAnimation build = awesomeAnimation.build();
+            AnimatorSet animatorSet = build.getAnimatorSet();
             if (animatorListenerAdapter != null) {
-                build.getAnimatorSet().addListener(animatorListenerAdapter);
+                animatorSet.addListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        startedAnimators.remove(animatorSet);
+                    }
+                });
+                animatorSet.addListener(animatorListenerAdapter);
             }
-            build.start();
+            startedAnimators.add(animatorSet);
+            animatorSet.start();
         } else {
             view.setX(coordinates[0]);
             view.setY(coordinates[1]);
@@ -274,7 +284,7 @@ public abstract class CardsLayoutWithBars<
     }
 
     /**
-     * call this if cards layout is empty
+     * call this  method if cards layout is empty
      */
     private void setBarsStartPosition(boolean withAnimation) {
         List<View> views = new ArrayList<>();

@@ -66,6 +66,11 @@ public abstract class CardsLayout<Entity> extends FrameLayout
     protected Interpolator interpolator;
     protected OnCreateAnimatorAction<Entity> defaultAnimatorAction;
     protected ViewMeasureConfig viewMeasureConfig;
+    protected List<Animator> startedAnimators;
+    //listeners
+    protected List<OnCardSwipedListener<Entity>> onCardSwipedListeners;
+    protected List<OnCardPercentageChangeListener<Entity>> onCardPercentageChangeListeners;
+    protected List<OnCardTranslationListener<Entity>> onCardTranslationListeners;
     //property
     @LinearLayoutCompat.OrientationMode
     private int childListOrientation;
@@ -92,13 +97,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout
     private FlagManager gravityFlag;
     @Nullable
     private ColorFilter colorFilter;
-    //listeners
-    private List<OnCardSwipedListener<Entity>> onCardSwipedListeners;
-    private List<OnCardPercentageChangeListener<Entity>> onCardPercentageChangeListeners;
-    private List<OnCardTranslationListener<Entity>> onCardTranslationListeners;
     private boolean animateOnMeasure;
-    @Nullable
-    private Animator animator;
 
     public CardsLayout(Context context) {
         super(context);
@@ -171,7 +170,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        clearAnimator();
+        clearAnimators();
     }
 
     /* public methods */
@@ -538,15 +537,14 @@ public abstract class CardsLayout<Entity> extends FrameLayout
             animatorSet.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    CardsLayout.this.animator = null;
+                    startedAnimators.remove(animation);
                 }
             });
             if (animatorListenerAdapter != null) {
                 animatorSet.addListener(animatorListenerAdapter);
             }
-
-            clearAnimator();
-            CardsLayout.this.animator = animatorSet;
+            clearAnimators();
+            startedAnimators.add(animatorSet);
             animatorSet.start();
         }
     }
@@ -804,6 +802,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         onCardPercentageChangeListeners = new ArrayList<>();
         onCardSwipedListeners = new ArrayList<>();
         onCardTranslationListeners = new ArrayList<>();
+        startedAnimators = new ArrayList<>();
     }
 
     @SuppressWarnings("WrongConstant")
@@ -942,12 +941,14 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         return validatedCards;
     }
 
-    private void clearAnimator() {
-        if (animator != null) {
-            animator.removeAllListeners();
-            animator.cancel();
-            clearAnimation();
+    private void clearAnimators() {
+        if (!startedAnimators.isEmpty()) {
+            for (Animator animator : startedAnimators) {
+                animator.removeAllListeners();
+                animator.cancel();
+            }
         }
+        clearAnimation();
     }
 
     /* inner types */
