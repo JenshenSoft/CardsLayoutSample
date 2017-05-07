@@ -14,13 +14,24 @@ import ua.jenshensoft.cardslayout.views.updater.model.ViewUpdaterParams;
 public class ViewUpdater<P extends ViewUpdaterParams> {
 
     @Nullable
+    private final MeasurePredicate predicate;
+    @Nullable
     private final OnViewParamsUpdate<P> viewParamsUpdate;
     @Nullable
     private P params;
     private boolean measured;
     private List<ViewUpdaterAction> actions;
 
-    public ViewUpdater(@Nullable OnViewParamsUpdate<P> viewParamsUpdate) {
+    public ViewUpdater() {
+        this(null, null);
+    }
+
+    public ViewUpdater(@NonNull OnViewParamsUpdate<P> viewParamsUpdate) {
+        this(null, viewParamsUpdate);
+    }
+
+    public ViewUpdater(@Nullable MeasurePredicate predicate, @Nullable OnViewParamsUpdate<P> viewParamsUpdate) {
+        this.predicate = predicate;
         this.viewParamsUpdate = viewParamsUpdate;
         this.actions = new ArrayList<>();
     }
@@ -73,17 +84,22 @@ public class ViewUpdater<P extends ViewUpdaterParams> {
     }
 
     private void onUpdateViewParams() {
-        if (measured && params != null && viewParamsUpdate != null) {
+        boolean predicate = this.predicate == null || this.predicate.test();
+        if (measured && params != null && viewParamsUpdate != null && predicate) {
             viewParamsUpdate.onUpdateViewParams(this.params);
         }
     }
 
     private void onUpdateViewActions(boolean calledInOnMeasure) {
-        if (measured) {
+        if (measured && (predicate == null || predicate.test())) {
             for (ViewUpdaterAction action : actions) {
                 action.onAction(calledInOnMeasure);
             }
             actions.clear();
         }
+    }
+
+    public interface MeasurePredicate {
+        boolean test();
     }
 }
