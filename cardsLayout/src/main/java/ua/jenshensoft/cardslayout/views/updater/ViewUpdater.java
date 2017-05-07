@@ -42,6 +42,11 @@ public class ViewUpdater<P extends ViewUpdaterParams> {
         onUpdateViewActions(true);
     }
 
+    public void ping() {
+        onUpdateViewParams();
+        onUpdateViewActions(false);
+    }
+
     @Nullable
     public P getParams() {
         return params;
