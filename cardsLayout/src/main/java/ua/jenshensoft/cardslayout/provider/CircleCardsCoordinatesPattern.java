@@ -13,7 +13,9 @@ import ua.jenshensoft.cardslayout.views.layout.Config;
 import static ua.jenshensoft.cardslayout.views.layout.CardsLayout.CircleCenterLocation.BOTTOM;
 import static ua.jenshensoft.cardslayout.views.layout.CardsLayout.CircleCenterLocation.TOP;
 
-public class CardsCoordinatesProvider {
+public class CircleCardsCoordinatesPattern implements CardCoordinatesPattern {
+
+    private static final int SCALE_NUMBER_COUNT_CONSTANT = 6;
 
     private final float radius;
     @CardsLayout.CircleCenterLocation
@@ -27,16 +29,16 @@ public class CardsCoordinatesProvider {
     private final float startAngle;
     private final float endAngle;
 
-    public CardsCoordinatesProvider(@LinearLayoutCompat.OrientationMode int orientation,
-                                    @CardsLayout.CircleCenterLocation int circleCenterLocation,
-                                    int cardsCount,
-                                    float radius,
-                                    float cardWidth,
-                                    float cardHeight,
-                                    float cardsLayoutLength,
-                                    FlagManager flagManager,
-                                    Config xConfig,
-                                    Config yConfig) {
+    public CircleCardsCoordinatesPattern(@LinearLayoutCompat.OrientationMode int orientation,
+                                         @CardsLayout.CircleCenterLocation int circleCenterLocation,
+                                         int cardsCount,
+                                         float radius,
+                                         float cardWidth,
+                                         float cardHeight,
+                                         float cardsLayoutLength,
+                                         FlagManager flagManager,
+                                         Config xConfig,
+                                         Config yConfig) {
         this.orientation = orientation;
         if (orientation == LinearLayoutCompat.HORIZONTAL) {
             if (cardsLayoutLength - cardWidth >= 0) {
@@ -63,12 +65,13 @@ public class CardsCoordinatesProvider {
         final float generalArc = calcArcFromChord(radius, cardsLayoutLength);
         //angles
         final float generalAngle = calcAngleFromArc(generalArc, radius);
-        final float allCardsAngle = round(generalAngle, 6);
-        this.cardSectorAngle = round(allCardsAngle / (cardsCount - 1), 6);
-        this.startAngle = round(90f - (generalAngle / 2f), 6);
-        this.endAngle = round(90f - ((generalAngle / 2f)), 6);
+        final float allCardsAngle = round(generalAngle, SCALE_NUMBER_COUNT_CONSTANT);
+        this.cardSectorAngle = round(allCardsAngle / (cardsCount - 1), SCALE_NUMBER_COUNT_CONSTANT);
+        this.startAngle = round(90f - (generalAngle / 2f), SCALE_NUMBER_COUNT_CONSTANT);
+        this.endAngle = round(90f - ((generalAngle / 2f)), SCALE_NUMBER_COUNT_CONSTANT);
     }
 
+    @Override
     public List<CardCoordinates> getCardsCoordinates() {
         List<CardCoordinates> cardsCoordinates = new ArrayList<>();
         boolean isLeftArc = true;
@@ -107,9 +110,7 @@ public class CardsCoordinatesProvider {
     /* private methods */
 
     private int validateCircleLocation(@CardsLayout.CircleCenterLocation int circleCenterLocation, FlagManager flagManager) {
-        if (flagManager.containsFlag(FlagManager.Gravity.TOP)) {
-            return circleCenterLocation == BOTTOM ? TOP : BOTTOM;
-        } else if (flagManager.containsFlag(FlagManager.Gravity.RIGHT)) {
+        if (flagManager.containsFlag(FlagManager.Gravity.TOP) || flagManager.containsFlag(FlagManager.Gravity.RIGHT)) {
             return circleCenterLocation == BOTTOM ? TOP : BOTTOM;
         }
         return circleCenterLocation;
