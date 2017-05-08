@@ -143,12 +143,17 @@ public abstract class CardsLayout<Entity> extends FrameLayout
             animateOnMeasure = false;
         }
     }
+    /*
 
-    /*@Override
+    @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         // Find out how big everyone wants to be
         measureChildren(widthMeasureSpec, heightMeasureSpec);
+        *//*if (viewMeasureConfig.needUpdateView()) {
+            invalidateCardsPosition(animateOnMeasure);
+            animateOnMeasure = false;
+        }*//*
     }
 
     @Override
@@ -160,15 +165,10 @@ public abstract class CardsLayout<Entity> extends FrameLayout
             CardCoordinates coordinates = startPositions.get(i);
             int childLeft = (int) coordinates.getX();
             int childTop = (int) coordinates.getY();
+            child.setRotation(coordinates.getAngle());
             child.layout(childLeft, childTop, childLeft + child.getMeasuredWidth(), childTop + child.getMeasuredHeight());
         }
-
-        *//*
-        super.onLayout(changed, l, t, r, b);
-        if (viewMeasureConfig.needUpdateView()) {
-            invalidateCardsPosition(animateOnMeasure);
-            animateOnMeasure = false;
-        }*//*
+        Log.e("TIME", String.valueOf(System.currentTimeMillis() - second));
     }*/
 
     @Override
