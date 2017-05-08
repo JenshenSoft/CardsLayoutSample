@@ -7,24 +7,19 @@ import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
-import android.widget.ImageView;
 
 import com.android.internal.util.Predicate;
 
-import ua.jenshensoft.cardslayout.CardInfo;
-import ua.jenshensoft.cardslayout.listeners.card.OnCardSwipedListener;
 import ua.jenshensoft.cardslayout.listeners.table.CardDeckUpdater;
 import ua.jenshensoft.cardslayout.util.DistributionState;
-import ua.jenshensoft.cardslayout.views.GameTableLayout;
 import ua.jenshensoft.cardslayout.views.card.Card;
 import ua.jenshensoft.cardslayout.views.layout.CardsLayout;
+import ua.jenshensoft.cardslayout.views.table.GameTableLayout;
 import ua.jenshensoft.cardslayout.views.updater.model.GameTableParams;
 import ua.jenshensoft.cardslayoutsample.CardsLayoutDefault;
 import ua.jenshensoft.cardslayoutsample.R;
 
 public class GameTable extends GameTableLayout<CardsLayoutDefault.CardInfo, CardsLayout<CardsLayoutDefault.CardInfo>> {
-
-    private ImageView imageView;
 
     public GameTable(Context context) {
         super(context);
@@ -49,25 +44,13 @@ public class GameTable extends GameTableLayout<CardsLayoutDefault.CardInfo, Card
 
     @Override
     public void onUpdateViewParams(GameTableParams params) {
-        int x = getMeasuredWidth() / 2 - imageView.getMeasuredWidth() / 2;
-        int y = getMeasuredHeight() / 2 - imageView.getMeasuredHeight() / 2;
-        imageView.setX(x);
-        imageView.setY(y);
         super.onUpdateViewParams(params);
     }
 
     private void init() {
         inflate(getContext(), R.layout.viewgroup_table, this);
         setDurationOfDistributeAnimation(1000);
-        imageView = (ImageView) findViewById(R.id.imageView);
-        for (final CardsLayout<CardsLayoutDefault.CardInfo> cardsLayout : cardsLayouts) {
-            cardsLayout.addOnCardSwipedListener(new OnCardSwipedListener<CardsLayoutDefault.CardInfo>() {
-                @Override
-                public void onCardSwiped(CardInfo<CardsLayoutDefault.CardInfo> cardInfo) {
-                    cardsLayout.removeCardView(cardInfo.getCardPositionInLayout());
-                }
-            });
-        }
+
         getCurrentPlayerCardsLayout().setColorFilter(new PorterDuffColorFilter(ContextCompat.getColor(getContext(), R.color.colorAccent), PorterDuff.Mode.MULTIPLY));
 
         for (CardsLayout<CardsLayoutDefault.CardInfo> cardsLayout : cardsLayouts) {
@@ -84,7 +67,9 @@ public class GameTable extends GameTableLayout<CardsLayoutDefault.CardInfo, Card
                 return new CardDeckUpdater<CardsLayoutDefault.CardInfo>() {
                     @Override
                     public CardDeckLocation getLocation() {
-                        return new CardDeckLocation(getContext(), imageView.getX(), imageView.getY());
+                        int x = getMeasuredWidth() / 2;
+                        int y = getMeasuredHeight() / 2 ;
+                        return new CardDeckLocation(getContext(), getX(), getY());
                     }
                 };
             }

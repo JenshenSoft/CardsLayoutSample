@@ -1,4 +1,4 @@
-package ua.jenshensoft.cardslayout.provider;
+package ua.jenshensoft.cardslayout.pattern.models;
 
 public class CardCoordinates {
     private final float x;

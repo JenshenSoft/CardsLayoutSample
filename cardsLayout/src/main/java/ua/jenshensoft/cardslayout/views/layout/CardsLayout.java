@@ -20,7 +20,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.animation.Interpolator;
-import android.widget.FrameLayout;
 
 import com.jenshen.awesomeanimation.AwesomeAnimation;
 
@@ -34,14 +33,14 @@ import ua.jenshensoft.cardslayout.R;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardPercentageChangeListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardSwipedListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardTranslationListener;
-import ua.jenshensoft.cardslayout.provider.CardCoordinates;
-import ua.jenshensoft.cardslayout.provider.CardCoordinatesPattern;
-import ua.jenshensoft.cardslayout.provider.CircleCardsCoordinatesPattern;
-import ua.jenshensoft.cardslayout.provider.LineCardsCoordinatesPattern;
+import ua.jenshensoft.cardslayout.pattern.models.CardCoordinates;
+import ua.jenshensoft.cardslayout.pattern.CardCoordinatesPattern;
+import ua.jenshensoft.cardslayout.pattern.CircleCardsCoordinatesPattern;
+import ua.jenshensoft.cardslayout.pattern.LineCardsCoordinatesPattern;
 import ua.jenshensoft.cardslayout.util.DrawableUtils;
 import ua.jenshensoft.cardslayout.util.FlagManager;
 import ua.jenshensoft.cardslayout.util.SwipeGestureManager;
-import ua.jenshensoft.cardslayout.views.ViewMeasureConfig;
+import ua.jenshensoft.cardslayout.views.ViewUpdateConfig;
 import ua.jenshensoft.cardslayout.views.card.Card;
 import ua.jenshensoft.cardslayout.views.card.CardBoxView;
 import ua.jenshensoft.cardslayout.views.card.CardView;
@@ -54,7 +53,7 @@ import static ua.jenshensoft.cardslayout.views.layout.CardsLayout.DistributeCard
 import static ua.jenshensoft.cardslayout.views.layout.CardsLayout.DistributeCardsBy.LINE;
 
 
-public abstract class CardsLayout<Entity> extends FrameLayout
+public abstract class CardsLayout<Entity> extends ViewGroup
         implements
         OnCardTranslationListener<Entity>,
         OnCardSwipedListener<Entity>,
@@ -66,7 +65,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout
     @Nullable
     protected Interpolator interpolator;
     protected OnCreateAnimatorAction<Entity> defaultAnimatorAction;
-    protected ViewMeasureConfig viewMeasureConfig;
+    protected ViewUpdateConfig viewUpdateConfig;
     protected List<Animator> startedAnimators;
     //listeners
     protected List<OnCardSwipedListener<Entity>> onCardSwipedListeners;
@@ -98,7 +97,6 @@ public abstract class CardsLayout<Entity> extends FrameLayout
     private FlagManager gravityFlag;
     @Nullable
     private ColorFilter colorFilter;
-    private boolean animateOnMeasure;
 
     public CardsLayout(Context context) {
         super(context);
@@ -138,38 +136,52 @@ public abstract class CardsLayout<Entity> extends FrameLayout
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        if (viewMeasureConfig.needUpdateView()) {
-            invalidateCardsPosition(animateOnMeasure);
-            animateOnMeasure = false;
+        if (viewUpdateConfig.needUpdateViewOnMeasure()) {
+            // Find out how big everyone wants to be
+            measureChildren(widthMeasureSpec, heightMeasureSpec);
         }
-    }
-    /*
-
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        // Find out how big everyone wants to be
-        measureChildren(widthMeasureSpec, heightMeasureSpec);
-        *//*if (viewMeasureConfig.needUpdateView()) {
-            invalidateCardsPosition(animateOnMeasure);
-            animateOnMeasure = false;
-        }*//*
     }
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        List<CardCoordinates> startPositions = getViewsCoordinatesForStartPosition();
-        List<? extends View> validatedCardViews = getValidatedCardViews();
-        for (int i = 0; i < validatedCardViews.size(); i++) {
-            View child = getChildAt(i);
-            CardCoordinates coordinates = startPositions.get(i);
-            int childLeft = (int) coordinates.getX();
-            int childTop = (int) coordinates.getY();
-            child.setRotation(coordinates.getAngle());
-            child.layout(childLeft, childTop, childLeft + child.getMeasuredWidth(), childTop + child.getMeasuredHeight());
+        if (viewUpdateConfig.needUpdateViewOnLayout(changed)) {
+            List<CardCoordinates> startPositions = getViewsCoordinatesForStartPosition();
+            List<? extends View> validatedCardViews = getValidatedCardViews();
+            for (int i = 0; i < validatedCardViews.size(); i++) {
+                View child = getChildAt(i);
+                onLayoutCard((View & Card<Entity>) child, startPositions.get(i));
+            }
         }
-        Log.e("TIME", String.valueOf(System.currentTimeMillis() - second));
-    }*/
+    }
+
+    /* layout params */
+
+    @Override
+    public ViewGroup.LayoutParams generateLayoutParams(AttributeSet attrs) {
+        return new LayoutParams(getContext(), attrs);
+    }
+
+    @Override
+    protected boolean checkLayoutParams(ViewGroup.LayoutParams p) {
+        return p instanceof LayoutParams;
+    }
+
+    @Override
+    protected ViewGroup.LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {
+        return new LayoutParams(p);
+    }
+
+    @Override
+    protected ViewGroup.LayoutParams generateDefaultLayoutParams() {
+        if (fixedCardMeasure) {
+            if (cardWidth == -1 || cardHeight == -1) {
+                throw new RuntimeException("You need to set \"cardWidth\" and \"cardHeight\" attr if you use the \"fixedCardMeasure\" attr");
+            }
+            return new LayoutParams(cardWidth, cardHeight);
+        } else {
+            return new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        }
+    }
 
     @Override
     public void onViewAdded(View child) {
@@ -200,7 +212,10 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         clearAnimators();
     }
 
-    /* public methods */
+    @Override
+    public boolean shouldDelayChildPressedState() {
+        return false;
+    }
 
     @SuppressWarnings("unchecked")
     public <CV extends View & Card<Entity>> List<CV> getCardViews() {
@@ -210,6 +225,8 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         }
         return cardViews;
     }
+
+    /* public methods */
 
     public List<Card<Entity>> getCards() {
         return cards;
@@ -249,7 +266,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout
                 cardInfo.setCardPositionInLayout(cardPosition - 1);
             }
         }
-        animateOnMeasure = true;
+        invalidateCardsPosition(true);
     }
 
     public void setIsTestMode() {
@@ -262,14 +279,14 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         }
     }
 
-
-    /* invalidate positions */
-
     @CallSuper
     @SuppressWarnings("ConstantConditions")
     public void invalidateCardsPosition() {
         invalidateCardsPosition(false, null, null);
     }
+
+
+    /* invalidate positions */
 
     @CallSuper
     @SuppressWarnings("ConstantConditions")
@@ -299,12 +316,12 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         moveViewsToStartPosition(withAnimation, onCreateAnimatorAction, animatorListenerAdapter);
     }
 
-    
-    /* listeners */
-
     public void addCardTranslationListener(OnCardTranslationListener<Entity> cardTranslationListener) {
         this.onCardTranslationListeners.add(cardTranslationListener);
     }
+
+    
+    /* listeners */
 
     public void addCardPercentageChangeListener(OnCardPercentageChangeListener<Entity> onCardPercentageChangeListener) {
         this.onCardPercentageChangeListeners.add(onCardPercentageChangeListener);
@@ -313,14 +330,14 @@ public abstract class CardsLayout<Entity> extends FrameLayout
     public void addOnCardSwipedListener(OnCardSwipedListener<Entity> onCardSwipedListeners) {
         this.onCardSwipedListeners.add(onCardSwipedListeners);
     }
-    
-    
-    /* property */
 
     @LinearLayoutCompat.OrientationMode
     public int getChildListOrientation() {
         return childListOrientation;
     }
+    
+    
+    /* property */
 
     public void setChildListOrientation(@LinearLayoutCompat.OrientationMode int childListOrientation) {
         this.childListOrientation = childListOrientation;
@@ -415,11 +432,11 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         }
     }
 
-    /* animation property */
-
     public int getDurationOfAnimation() {
         return durationOfAnimation;
     }
+
+    /* animation property */
 
     public void setDurationOfAnimation(int durationOfAnimation) {
         this.durationOfAnimation = durationOfAnimation;
@@ -438,11 +455,11 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         return defaultAnimatorAction;
     }
 
-    /* children size property */
-
     public boolean isFixedCardMeasure() {
         return fixedCardMeasure;
     }
+
+    /* children size property */
 
     public void setFixedCardMeasure(boolean fixedCardMeasure) {
         this.fixedCardMeasure = fixedCardMeasure;
@@ -464,8 +481,6 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         this.cardHeight = cardHeight;
     }
 
-    /* callbacks */
-
     @Override
     public void onCardTranslation(float positionX, float positionY, CardInfo<Entity> cardInfo, boolean isTouched) {
         if (!onCardTranslationListeners.isEmpty()) {
@@ -474,6 +489,8 @@ public abstract class CardsLayout<Entity> extends FrameLayout
             }
         }
     }
+
+    /* callbacks */
 
     @Override
     public void onCardSwiped(CardInfo<Entity> cardInfo) {
@@ -492,8 +509,6 @@ public abstract class CardsLayout<Entity> extends FrameLayout
             }
         }
     }
-
-    /* protected methods */
 
     protected <CV extends View & Card<Entity>> List<CardCoordinates> getViewsCoordinatesForStartPosition() {
         List<CV> cards = getValidatedCardViews();
@@ -535,15 +550,17 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         return coordinatesPattern.getCardsCoordinates();
     }
 
+    /* protected methods */
+
     protected <CV extends View & Card<Entity>> void setViewsCoordinatesToStartPosition() {
         List<CardCoordinates> cardsCoordinates = getViewsCoordinatesForStartPosition();
         List<CV> cards = getValidatedCardViews();
         for (int i = 0; i < cardsCoordinates.size(); i++) {
             final Card<Entity> card = cards.get(i);
             final CardCoordinates cardCoordinates = cardsCoordinates.get(i);
-            setXForCard(card, cardCoordinates.getX());
-            setYForCard(card, cardCoordinates.getY());
-            setRotationForCard(card, cardCoordinates.getAngle());
+            setFirstXForCard(card, cardCoordinates.getX());
+            setFirstYForCard(card, cardCoordinates.getY());
+            setFirstRotationForCard(card, cardCoordinates.getAngle());
         }
     }
 
@@ -755,21 +772,20 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         return heightViews;
     }
 
-    protected void setXForCard(Card<Entity> cardView, float cardPositionX) {
+    protected void setFirstXForCard(Card<Entity> cardView, float cardPositionX) {
         CardInfo<Entity> cardInfo = cardView.getCardInfo();
         cardInfo.setFirstPositionX(Math.round(cardPositionX));
     }
 
-    protected void setYForCard(Card<Entity> cardView, float cardPositionY) {
+    protected void setFirstYForCard(Card<Entity> cardView, float cardPositionY) {
         CardInfo<Entity> cardInfo = cardView.getCardInfo();
         cardInfo.setFirstPositionY(Math.round(cardPositionY));
     }
 
-    protected void setRotationForCard(Card<Entity> cardView, float rotation) {
+    protected void setFirstRotationForCard(Card<Entity> cardView, float rotation) {
         CardInfo<Entity> cardInfo = cardView.getCardInfo();
         cardInfo.setFirstRotation(Math.round(rotation));
     }
-
 
     /* private methods */
 
@@ -794,8 +810,8 @@ public abstract class CardsLayout<Entity> extends FrameLayout
             @Override
             public <C extends View & Card<Entity>> Animator createAnimation(C cardView) {
                 AwesomeAnimation.Builder awesomeAnimation = new AwesomeAnimation.Builder(cardView)
-                        .setX(AwesomeAnimation.CoordinationMode.COORDINATES, cardView.getCardInfo().getCurrentPositionX(), cardView.getCardInfo().getFirstPositionX())
-                        .setY(AwesomeAnimation.CoordinationMode.COORDINATES, cardView.getCardInfo().getCurrentPositionY(), cardView.getCardInfo().getFirstPositionY())
+                        .setX(AwesomeAnimation.CoordinationMode.COORDINATES, cardView.getX(), cardView.getCardInfo().getFirstPositionX())
+                        .setY(AwesomeAnimation.CoordinationMode.COORDINATES, cardView.getY(), cardView.getCardInfo().getFirstPositionY())
                         .setRotation(cardView.getRotation(), cardView.getCardInfo().getFirstRotation())
                         .setDuration(durationOfAnimation);
                 if (interpolator != null)
@@ -803,7 +819,7 @@ public abstract class CardsLayout<Entity> extends FrameLayout
                 return awesomeAnimation.build().getAnimatorSet();
             }
         };
-        viewMeasureConfig = new ViewMeasureConfig(this);
+        viewUpdateConfig = new ViewUpdateConfig(this, false);
         onCardPercentageChangeListeners = new ArrayList<>();
         onCardSwipedListeners = new ArrayList<>();
         onCardTranslationListeners = new ArrayList<>();
@@ -845,9 +861,6 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         }
     }
 
-
-    /* card view methods */
-
     private CardBoxView<Entity> createCardBoxView(View view) {
         CardBoxView<Entity> cardView = new CardBoxView<>(getContext());
         ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -855,6 +868,24 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         cardView.addView(view);
         return cardView;
     }
+
+    private  <CV extends View & Card<Entity>> void onLayoutCard(CV cardView, CardCoordinates coordinates) {
+        int x = Math.round(coordinates.getX());
+        int y = Math.round(coordinates.getY());
+        int angle = Math.round(coordinates.getAngle());
+        cardView.setRotation(angle);
+        cardView.layout(x, y, x + cardView.getMeasuredWidth(), y + cardView.getMeasuredHeight());
+        CardInfo<Entity> cardInfo = cardView.getCardInfo();
+        cardInfo.setFirstPositionX(x);
+        cardInfo.setCurrentPositionX(x);
+        cardInfo.setFirstPositionY(y);
+        cardInfo.setCurrentPositionY(y);
+        cardInfo.setFirstRotation(angle);
+        cardInfo.setCurrentRotation(angle);
+    }
+
+
+    /* card view methods */
 
     private <CV extends View & Card<Entity>> void setUpCard(CV card) {
         if (card.getCardInfo() == null) {
@@ -956,12 +987,12 @@ public abstract class CardsLayout<Entity> extends FrameLayout
         clearAnimation();
     }
 
-    /* inner types */
-
     @FunctionalInterface
     public interface OnCreateAnimatorAction<Entity> {
         <CV extends View & Card<Entity>> Animator createAnimation(CV cardView);
     }
+
+    /* inner types */
 
     @IntDef({TOP, BOTTOM})
     @Retention(RetentionPolicy.SOURCE)
@@ -982,5 +1013,20 @@ public abstract class CardsLayout<Entity> extends FrameLayout
     public @interface CardsDirection {
         int LEFT_TO_RIGHT = 0;
         int RIGHT_TO_LEFT = 1;
+    }
+
+    private static class LayoutParams extends ViewGroup.LayoutParams {
+
+        public LayoutParams(Context c, AttributeSet attrs) {
+            super(c, attrs);
+        }
+
+        public LayoutParams(int width, int height) {
+            super(width, height);
+        }
+
+        public LayoutParams(ViewGroup.LayoutParams source) {
+            super(source);
+        }
     }
 }

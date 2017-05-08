@@ -2,6 +2,7 @@ package ua.jenshensoft.cardslayout.views.card;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.Px;
 import android.support.v4.view.ViewCompat;
@@ -203,7 +204,9 @@ public class CardView<Entity> extends AppCompatImageView implements Card<Entity>
         if (Math.abs(cardElevation - (-1)) < EPSILON) {
             cardElevation = getResources().getDimension(R.dimen.cardsLayout_card_elevation_normal);
         }
-        ViewCompat.setElevation(this, cardElevation);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            setElevation(cardElevation);
+        }
         if (Math.abs(cardElevationPressed - (-1)) < EPSILON) {
             cardElevationPressed = getResources().getDimension(R.dimen.cardsLayout_card_elevation_pressed);
         }

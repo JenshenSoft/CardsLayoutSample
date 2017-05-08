@@ -63,7 +63,6 @@ public interface Card<Entity> {
      */
     void setCardPercentageChangeListener(OnCardPercentageChangeListener<Entity> cardPercentageChangeListener, int mode);
 
-
     void addBlock(int orientationMode);
 
     void removeBlock(int orientationMode);

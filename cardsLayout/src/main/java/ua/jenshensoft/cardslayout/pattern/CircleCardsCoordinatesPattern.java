@@ -1,4 +1,4 @@
-package ua.jenshensoft.cardslayout.provider;
+package ua.jenshensoft.cardslayout.pattern;
 
 import android.support.v7.widget.LinearLayoutCompat;
 import android.util.Log;
@@ -6,6 +6,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
+import ua.jenshensoft.cardslayout.pattern.models.CardCoordinates;
 import ua.jenshensoft.cardslayout.util.FlagManager;
 import ua.jenshensoft.cardslayout.views.layout.CardsLayout;
 import ua.jenshensoft.cardslayout.views.layout.Config;

@@ -1,7 +1,8 @@
-package ua.jenshensoft.cardslayout.views;
+package ua.jenshensoft.cardslayout.views.table;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.ColorFilter;
@@ -9,9 +10,8 @@ import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
-import android.widget.FrameLayout;
+import android.view.ViewGroup;
 
 import com.android.internal.util.Predicate;
 import com.jenshen.awesomeanimation.AwesomeAnimation;
@@ -26,8 +26,11 @@ import ua.jenshensoft.cardslayout.R;
 import ua.jenshensoft.cardslayout.listeners.table.CardDeckUpdater;
 import ua.jenshensoft.cardslayout.listeners.table.OnCardClickListener;
 import ua.jenshensoft.cardslayout.listeners.table.OnDistributedCardsListener;
+import ua.jenshensoft.cardslayout.pattern.CardDeckCoordinatesPattern;
+import ua.jenshensoft.cardslayout.pattern.models.ThreeDCardCoordinates;
 import ua.jenshensoft.cardslayout.util.CardsUtil;
 import ua.jenshensoft.cardslayout.util.DistributionState;
+import ua.jenshensoft.cardslayout.views.ViewUpdateConfig;
 import ua.jenshensoft.cardslayout.views.card.Card;
 import ua.jenshensoft.cardslayout.views.layout.CardsLayout;
 import ua.jenshensoft.cardslayout.views.updater.ViewUpdater;
@@ -37,27 +40,32 @@ import ua.jenshensoft.cardslayout.views.updater.model.GameTableParams;
 public abstract class GameTableLayout<
         Entity,
         Layout extends CardsLayout<Entity>>
-        extends FrameLayout
+        extends ViewGroup
         implements OnViewParamsUpdate<GameTableParams<Entity>> {
 
     //Views
     protected List<Layout> cardsLayouts;
     //updaters
     protected ViewUpdater<GameTableParams<Entity>> viewUpdater;
-    protected ViewMeasureConfig viewMeasureConfig;
+    protected ViewUpdateConfig viewUpdateConfig;
     //attr
     private int durationOfDistributeAnimation = 1000;
     private boolean isEnableSwipe;
     private boolean isEnableTransition;
     private int currentPlayerLayoutId = -1;
+    //card deck attr
     private boolean canAutoDistribute = true;
     private boolean deskOfCardsEnable = true;
+    private float cardDeckCardOffsetX = -1;
+    private float cardDeckCardOffsetY = -1;
+    private float cardDeckElevationMin = -1;
+    private float cardDeckElevationMax = -1;
+
     //listeners
     @Nullable
     private OnCardClickListener<Entity> onCardClickListener;
     @Nullable
     private OnDistributedCardsListener<Entity> onDistributedCardsListener;
-
 
     public GameTableLayout(Context context) {
         super(context);
@@ -112,7 +120,38 @@ public abstract class GameTableLayout<
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        if (viewMeasureConfig.needUpdateView()) {
+        if (viewUpdateConfig.needUpdateViewOnMeasure()) {
+            // Find out how big everyone wants to be
+            measureChildren(widthMeasureSpec, heightMeasureSpec);
+        }
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        if (viewUpdateConfig.needUpdateViewOnLayout(changed)) {
+            for (int i = 0; i < getChildCount(); i++) {
+                View child = getChildAt(i);
+                if (child instanceof CardsLayout) {
+                    child.layout(l, t, r, b);
+                } else {
+                    throw new RuntimeException("Can't support this view " + child.getClass().getSimpleName());
+                }
+            }
+            if (!cardDeckCards.isEmpty()) {
+                @SuppressLint("DrawAllocation")
+                List<ThreeDCardCoordinates> cardsCoordinates = new CardDeckCoordinatesPattern(
+                        cardDeckCards.size(),
+                        cardDeckCardOffsetX,
+                        cardDeckCardOffsetY,
+                        1,
+                        1,
+                        cardDeckElevationMin,
+                        cardDeckElevationMax)
+                        .getCardsCoordinates();
+                for (int i = 0; i < cardDeckCards.size(); i++) {
+                    onLayoutCardInCardDeck((View & Card<Entity>)cardDeckCards.get(i), cardsCoordinates.get(i));
+                }
+            }
             viewUpdater.onViewMeasured();
         }
     }
@@ -182,7 +221,6 @@ public abstract class GameTableLayout<
 
     public void setSwipeValidatorEnabled(final Layout cardsLayout) {
         cardsLayout.addOnCardSwipedListener(cardInfo -> {
-            Log.d("Motion", "Swiped");
             onActionWithCard(cardInfo.getEntity());
             if (!cardsLayout.isEnabled()) {
                 cardsLayout.setEnabled(true);
@@ -192,7 +230,6 @@ public abstract class GameTableLayout<
 
     public void setPercentageValidatorEnabled(final Layout cardsLayout) {
         cardsLayout.addCardPercentageChangeListener((percentageX, percentageY, cardInfo, isTouched) -> {
-            Log.d("Motion", "Percentage percentageX = " + percentageX + ", percentageY = " + percentageY + ", isTouched: " + isTouched);
             if (!isTouched) {
                 if (percentageX >= 100 || percentageY >= 100) {
                     onActionWithCard(cardInfo.getEntity());
@@ -233,6 +270,8 @@ public abstract class GameTableLayout<
         }
     }
 
+    List<Card<Entity>> cardDeckCards = new ArrayList<>();
+
     public void setCardDeckCards(Predicate<Card<Entity>> predicateForCardsOnTheHands, CardDeckUpdater<Entity> cardDeckUpdater) {
         List<Iterator<Card<Entity>>> cardsInDeskForPlayers = new ArrayList<>();
         for (Layout cardsLayout : cardsLayouts) {
@@ -259,7 +298,7 @@ public abstract class GameTableLayout<
             }
         }
         if (!cardsInDeskForPlayers.isEmpty()) {
-            cardDeckUpdater.addCardsToCardDeck(CardsUtil.getCardsForDesk(cardsInDeskForPlayers));
+            cardDeckCards.addAll(CardsUtil.getCardsForDesk(cardsInDeskForPlayers));
         }
     }
 
@@ -389,8 +428,14 @@ public abstract class GameTableLayout<
                 isEnableSwipe = attributes.getBoolean(R.styleable.GameTableLayout_Params_gameTableLayout_cardValidatorSwipe, isEnableSwipe);
                 isEnableTransition = attributes.getBoolean(R.styleable.GameTableLayout_Params_gameTableLayout_cardValidatorTransition, isEnableTransition);
                 currentPlayerLayoutId = attributes.getResourceId(R.styleable.GameTableLayout_Params_gameTableLayout_currentPlayerLayoutId, currentPlayerLayoutId);
+
+                //card deck
                 canAutoDistribute = attributes.getBoolean(R.styleable.GameTableLayout_Params_gameTableLayout_canAutoDistribute, canAutoDistribute);
-                deskOfCardsEnable = attributes.getBoolean(R.styleable.GameTableLayout_Params_gameTableLayout_deskOfCardsEnable, deskOfCardsEnable);
+                deskOfCardsEnable = attributes.getBoolean(R.styleable.GameTableLayout_Params_gameTableLayout_cardDeckEnable, deskOfCardsEnable);
+                cardDeckCardOffsetX = attributes.getDimension(R.styleable.GameTableLayout_Params_gameTableLayout_cardDeck_cardOffset_x, cardDeckCardOffsetX);
+                cardDeckCardOffsetY = attributes.getDimension(R.styleable.GameTableLayout_Params_gameTableLayout_cardDeck_cardOffset_y, cardDeckCardOffsetY);
+                cardDeckElevationMin = attributes.getDimension(R.styleable.GameTableLayout_Params_gameTableLayout_cardDeck_elevation_min, cardDeckElevationMin);
+                cardDeckElevationMax = attributes.getDimension(R.styleable.GameTableLayout_Params_gameTableLayout_cardDeck_elevation_max, cardDeckElevationMax);
             } finally {
                 attributes.recycle();
             }
@@ -400,7 +445,42 @@ public abstract class GameTableLayout<
     private void inflateLayout() {
         cardsLayouts = new ArrayList<>();
         viewUpdater = new ViewUpdater<>(this);
-        viewMeasureConfig = new ViewMeasureConfig(this);
+        viewUpdateConfig = new ViewUpdateConfig(this, false);
+
+        if (cardDeckElevationMin == -1) {
+            cardDeckElevationMin = getResources().getDimension(R.dimen.cardsLayout_card_elevation_normal);
+        }
+
+        if (cardDeckElevationMax == -1) {
+            cardDeckElevationMax = getResources().getDimension(R.dimen.cardsLayout_card_elevation_pressed);
+        }
+
+        if (cardDeckCardOffsetX == -1) {
+            cardDeckCardOffsetX = getResources().getDimension(R.dimen.cardsLayout_shadow_desk_offset);
+        }
+
+        if (cardDeckCardOffsetY == -1) {
+            cardDeckCardOffsetY = getResources().getDimension(R.dimen.cardsLayout_shadow_desk_offset);
+        }
+    }
+
+    private  <CV extends View & Card<Entity>> void onLayoutCardInCardDeck(CV cardView, ThreeDCardCoordinates coordinates) {
+        int x = Math.round(coordinates.getX());
+        int y = Math.round(coordinates.getY());
+        float z = coordinates.getZ();
+        int angle = Math.round(coordinates.getAngle());
+        cardView.setRotation(angle);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            cardView.setElevation(z);
+        }
+        cardView.layout(x, y, x + cardView.getMeasuredWidth(), y + cardView.getMeasuredHeight());
+        CardInfo<Entity> cardInfo = cardView.getCardInfo();
+        cardInfo.setFirstPositionX(x);
+        cardInfo.setCurrentPositionX(x);
+        cardInfo.setFirstPositionY(y);
+        cardInfo.setCurrentPositionY(y);
+        cardInfo.setFirstRotation(angle);
+        cardInfo.setCurrentRotation(angle);
     }
 
     private void onActionWithCard(Entity entity) {

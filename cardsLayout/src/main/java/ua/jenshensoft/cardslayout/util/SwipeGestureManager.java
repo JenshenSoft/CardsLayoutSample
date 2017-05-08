@@ -2,8 +2,7 @@ package ua.jenshensoft.cardslayout.util;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.support.v4.view.ViewCompat;
-import android.util.Log;
+import android.os.Build;
 import android.util.Property;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -68,7 +67,9 @@ public class SwipeGestureManager<Entity> implements View.OnTouchListener {
                     .setDuration(200)
                     .build();
             awesomeAnimation.start();
-            ViewCompat.setElevation(view, ((Card<Entity>) view).getPressedElevation());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                view.setElevation(((Card<Entity>) view).getPressedElevation());
+            }
         } else if (event.getActionMasked() == MotionEvent.ACTION_UP) {
             AwesomeAnimation awesomeAnimation = new AwesomeAnimation.Builder(view)
                     .setSizeX(AwesomeAnimation.SizeMode.SCALE, 1f)
@@ -76,7 +77,9 @@ public class SwipeGestureManager<Entity> implements View.OnTouchListener {
                     .setDuration(200)
                     .build();
             awesomeAnimation.start();
-            ViewCompat.setElevation(view, ((Card<Entity>) view).getNormalElevation());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                view.setElevation(((Card<Entity>) view).getNormalElevation());
+            }
         }
 
         boolean status;
@@ -221,7 +224,6 @@ public class SwipeGestureManager<Entity> implements View.OnTouchListener {
                 return false;
             }
         }
-        Log.d("Motion", String.valueOf(event.getActionMasked()));
         return true;
     }
 
