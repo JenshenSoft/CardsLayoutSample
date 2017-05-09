@@ -473,7 +473,7 @@ public abstract class GameTableLayout<
             TypedArray attributesTable = getContext().obtainStyledAttributes(attrs, R.styleable.GameTableLayout_Params);
             TypedArray attributes = getContext().obtainStyledAttributes(attrs, R.styleable.CardDeckView_Params);
             try {
-                durationOfDistributeAnimation = attributesTable.getInteger(ua.jenshensoft.cardslayout.R.styleable.GameTableLayout_Params_gameTableLayout_duration_distributeAnimation, durationOfDistributeAnimation);
+                durationOfDistributeAnimation = attributesTable.getInteger(R.styleable.GameTableLayout_Params_gameTableLayout_duration_distributeAnimation, durationOfDistributeAnimation);
                 isEnableSwipe = attributesTable.getBoolean(R.styleable.GameTableLayout_Params_gameTableLayout_cardValidatorSwipe, isEnableSwipe);
                 isEnableTransition = attributesTable.getBoolean(R.styleable.GameTableLayout_Params_gameTableLayout_cardValidatorTransition, isEnableTransition);
                 currentPlayerLayoutId = attributesTable.getResourceId(R.styleable.GameTableLayout_Params_gameTableLayout_currentPlayerLayoutId, currentPlayerLayoutId);
@@ -481,7 +481,7 @@ public abstract class GameTableLayout<
                 //card deck
                 canAutoDistribute = attributesTable.getBoolean(R.styleable.GameTableLayout_Params_gameTableLayout_canAutoDistribute, canAutoDistribute);
                 deskOfCardsEnable = attributesTable.getBoolean(R.styleable.GameTableLayout_Params_gameTableLayout_cardDeckEnable, deskOfCardsEnable);
-                cardDeckGravity = new FlagManager(attributes.getInt(R.styleable.GameTableLayout_Params_gameTableLayout_cardDeckGravity, FlagManager.Gravity.CENTER));
+                cardDeckGravity = new FlagManager(attributesTable.getInt(R.styleable.GameTableLayout_Params_gameTableLayout_cardDeckGravity, FlagManager.Gravity.CENTER));
 
                 cardDeckCardOffsetX = attributes.getDimension(R.styleable.CardDeckView_Params_cardDeck_cardDeck_cardOffset_x, cardDeckCardOffsetX);
                 cardDeckCardOffsetY = attributes.getDimension(R.styleable.CardDeckView_Params_cardDeck_cardDeck_cardOffset_y, cardDeckCardOffsetY);

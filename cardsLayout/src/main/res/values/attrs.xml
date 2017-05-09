@@ -110,8 +110,6 @@
     </declare-styleable>
 
     <declare-styleable name="CardDeckView_Params" tools:ignore="ResourceName">
-        <attr name="cardDeck_canAutoDistribute" format="boolean" />
-        <attr name="cardDeck_cardDeckEnable" format="boolean" />
         <attr name="cardDeck_offsetLeft" format="dimension" />
         <attr name="cardDeck_offsetTop" format="dimension" />
         <attr name="cardDeck_offsetRight" format="dimension" />

@@ -10,7 +10,5 @@
     <ua.jenshensoft.cardslayoutsample.views.GameTable
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:gameTableLayout_cardValidatorSwipe="true"
-        app:gameTableLayout_cardValidatorTransition="true"
-        app:gameTableLayout_currentPlayerLayoutId="@+id/cardsLayout0" />
+        style="@style/Widget.TableLayout" />
 </FrameLayout>
