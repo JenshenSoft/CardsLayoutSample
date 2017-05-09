@@ -10,7 +10,6 @@ import android.util.AttributeSet;
 
 import com.android.internal.util.Predicate;
 
-import ua.jenshensoft.cardslayout.listeners.table.CardDeckUpdater;
 import ua.jenshensoft.cardslayout.util.DistributionState;
 import ua.jenshensoft.cardslayout.views.card.Card;
 import ua.jenshensoft.cardslayout.views.layout.CardsLayout;
@@ -62,18 +61,6 @@ public class GameTable extends GameTableLayout<CardsLayoutDefault.CardInfo, Card
         }
 
         updateDistributionState(new DistributionState<CardsLayoutDefault.CardInfo>(false) {
-            @Override
-            protected CardDeckUpdater<CardsLayoutDefault.CardInfo> provideDeskOfCardsUpdater() {
-                return new CardDeckUpdater<CardsLayoutDefault.CardInfo>() {
-                    @Override
-                    public CardDeckLocation getLocation() {
-                        int x = getMeasuredWidth() / 2;
-                        int y = getMeasuredHeight() / 2 ;
-                        return new CardDeckLocation(getContext(), getX(), getY());
-                    }
-                };
-            }
-
             @Override
             public Predicate<Card<CardsLayoutDefault.CardInfo>> getCardsPredicateBeforeDistribution() {
                 return new Predicate<Card<CardsLayoutDefault.CardInfo>>() {

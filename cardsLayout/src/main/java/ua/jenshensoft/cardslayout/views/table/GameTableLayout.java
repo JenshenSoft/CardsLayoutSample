@@ -216,7 +216,6 @@ public abstract class GameTableLayout<
     public void onUpdateViewParams(GameTableParams<Entity> params, boolean calledInOnMeasure) {
         if (hasDistributionState()) {
             DistributionState<Entity> distributionState = params.getDistributionState();
-            distributionState.getDeskOfCardsUpdater().updatePosition();
             if (!distributionState.isCardsAlreadyDistributed() && canAutoDistribute) {
                 startDistributeCards();
             }
@@ -438,10 +437,7 @@ public abstract class GameTableLayout<
                 card.setElevation(card.getNormalElevation());
             }
         }
-        if (hasDistributionState()) {
-            DistributionState<Entity> distributionState = viewUpdater.getParams().getDistributionState();
-            distributionState.getDeskOfCardsUpdater().removeCardsFromDesk(cards);
-        }
+        cardDeckCards.removeAll(cards);
         if (GameTableLayout.this.onDistributedCardsListener != null) {
             GameTableLayout.this.onDistributedCardsListener.onEndDistributeCardWave(cards);
         }
