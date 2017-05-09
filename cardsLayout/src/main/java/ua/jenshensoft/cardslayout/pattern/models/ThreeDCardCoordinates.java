@@ -6,6 +6,7 @@ public class ThreeDCardCoordinates extends CardCoordinates {
 
     public ThreeDCardCoordinates(float x, float y, float z, float angle) {
         super(x, y, angle);
+        this.z = z;
     }
 
     public float getZ() {

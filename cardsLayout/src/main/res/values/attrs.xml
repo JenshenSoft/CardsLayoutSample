@@ -98,9 +98,27 @@
         <!-- card deck -->
         <attr name="gameTableLayout_canAutoDistribute" format="boolean" />
         <attr name="gameTableLayout_cardDeckEnable" format="boolean" />
-        <attr name="gameTableLayout_cardDeck_cardOffset_x" format="boolean" />
-        <attr name="gameTableLayout_cardDeck_cardOffset_y" format="boolean" />
-        <attr name="gameTableLayout_cardDeck_elevation_min" format="boolean" />
-        <attr name="gameTableLayout_cardDeck_elevation_max" format="boolean" />
+        <attr name="gameTableLayout_cardDeckGravity">
+            <flag name="right" value="1" />
+            <flag name="left" value="2" />
+            <flag name="top" value="4" />
+            <flag name="bottom" value="8" />
+            <flag name="center" value="16" />
+            <flag name="center_horizontal" value="32" />
+            <flag name="center_vertical" value="64" />
+        </attr>
+    </declare-styleable>
+
+    <declare-styleable name="CardDeckView_Params" tools:ignore="ResourceName">
+        <attr name="cardDeck_canAutoDistribute" format="boolean" />
+        <attr name="cardDeck_cardDeckEnable" format="boolean" />
+        <attr name="cardDeck_offsetLeft" format="dimension" />
+        <attr name="cardDeck_offsetTop" format="dimension" />
+        <attr name="cardDeck_offsetRight" format="dimension" />
+        <attr name="cardDeck_offsetBottom" format="dimension" />
+        <attr name="cardDeck_cardDeck_cardOffset_x" format="dimension" />
+        <attr name="cardDeck_cardDeck_cardOffset_y" format="dimension" />
+        <attr name="cardDeck_cardDeck_elevation_min" format="dimension" />
+        <attr name="cardDeck_cardDeck_elevation_max" format="dimension" />
     </declare-styleable>
 </resources>

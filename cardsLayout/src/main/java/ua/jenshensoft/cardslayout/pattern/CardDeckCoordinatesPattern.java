@@ -1,5 +1,7 @@
 package ua.jenshensoft.cardslayout.pattern;
 
+import android.os.Build;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +26,6 @@ public class CardDeckCoordinatesPattern implements CardCoordinatesPattern<ThreeD
                                       float elevationMin,
                                       float elevationMax) {
         this.cardsCount = cardsCount;
-
         this.cardOffsetX = cardOffsetX;
         this.cardOffsetY = cardOffsetY;
         this.cardDeckX = cardDeckX;
@@ -39,15 +40,30 @@ public class CardDeckCoordinatesPattern implements CardCoordinatesPattern<ThreeD
         float shadowXOffset = cardOffsetX;
         float shadowYOffset = cardOffsetY;
         float shadowZOffset = (elevationMax - elevationMin) / cardsCount;
-        float x = cardDeckX - (cardsCount * shadowXOffset);
-        float y = cardDeckY - (cardsCount * shadowYOffset);
+        float x;
+        float y;
+        //because of elevation (android 21 > has support of Z 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            x = cardDeckX - (cardsCount * shadowXOffset);
+            y = cardDeckY - (cardsCount * shadowYOffset);
+        } else {
+            x = cardDeckX + (cardsCount * shadowXOffset);
+            y = cardDeckY + (cardsCount * shadowYOffset);
+        }
+
         float z = elevationMax;
 
         for (int i = 0; i < cardsCount; i++) {
-            cardCoordinates.add(new ThreeDCardCoordinates(Math.round(x), Math.round(y), Math.round(z), 0));
-            x += shadowXOffset;
-            y += shadowYOffset;
-            z -= shadowZOffset;
+            cardCoordinates.add(new ThreeDCardCoordinates(x, y, z, 0));
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                x += shadowXOffset;
+                y += shadowYOffset;
+                z -= shadowZOffset;
+            } else {
+                x -= shadowXOffset;
+                y -= shadowYOffset;
+            }
         }
         return cardCoordinates;
     }

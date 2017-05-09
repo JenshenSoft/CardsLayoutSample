@@ -38,12 +38,12 @@ public class ViewUpdater<P extends ViewUpdaterParams> {
 
     public void onViewMeasured() {
         measured = true;
-        onUpdateViewParams();
+        onUpdateViewParams(true);
         onUpdateViewActions(true);
     }
 
     public void ping() {
-        onUpdateViewParams();
+        onUpdateViewParams(false);
         onUpdateViewActions(false);
     }
 
@@ -70,7 +70,7 @@ public class ViewUpdater<P extends ViewUpdaterParams> {
     public void setParams(@NonNull P params, boolean update) {
         this.params = params;
         if (update) {
-            onUpdateViewParams();
+            onUpdateViewParams(false);
         }
     }
 
@@ -88,10 +88,10 @@ public class ViewUpdater<P extends ViewUpdaterParams> {
         return measured;
     }
 
-    private void onUpdateViewParams() {
+    private void onUpdateViewParams(boolean calledInOnMeasure) {
         boolean predicate = this.predicate == null || this.predicate.test();
         if (measured && params != null && viewParamsUpdate != null && predicate) {
-            viewParamsUpdate.onUpdateViewParams(this.params);
+            viewParamsUpdate.onUpdateViewParams(this.params, calledInOnMeasure);
         }
     }
 

@@ -5,10 +5,10 @@ import android.content.res.TypedArray;
 import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.Px;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.View;
 
 import ua.jenshensoft.cardslayout.CardInfo;
 import ua.jenshensoft.cardslayout.R;
@@ -110,6 +110,21 @@ public class CardView<Entity> extends AppCompatImageView implements Card<Entity>
     @Override
     public void setElevation(@Px float elevation) {
         super.setElevation(elevation);
+    }
+
+    @Override
+    public void setFirstX(float cardPositionX) {
+        cardInfo.setFirstPositionX(Math.round(cardPositionX));
+    }
+
+    @Override
+    public  void setFirstY(float cardPositionY) {
+        cardInfo.setFirstPositionY(Math.round(cardPositionY));
+    }
+
+    @Override
+    public  void setFirstRotation(float rotation) {
+        cardInfo.setFirstRotation(Math.round(rotation));
     }
 
     /* attr */

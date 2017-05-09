@@ -111,6 +111,21 @@ public class CardBoxView<Entity> extends FrameLayout implements Card<Entity> {
         super.setElevation(elevation);
     }
 
+    @Override
+    public void setFirstX(float cardPositionX) {
+        cardInfo.setFirstPositionX(Math.round(cardPositionX));
+    }
+
+    @Override
+    public  void setFirstY(float cardPositionY) {
+        cardInfo.setFirstPositionY(Math.round(cardPositionY));
+    }
+
+    @Override
+    public  void setFirstRotation(float rotation) {
+        cardInfo.setFirstRotation(Math.round(rotation));
+    }
+
     /* attr */
 
     @Override

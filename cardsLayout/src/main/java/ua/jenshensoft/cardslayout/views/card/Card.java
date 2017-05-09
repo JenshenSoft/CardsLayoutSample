@@ -43,7 +43,19 @@ public interface Card<Entity> {
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     float getElevation();
 
+    int getMeasuredWidth();
+
+    int getMeasuredHeight();
+
+    void setEnabled(boolean enable);
+
     /* attr */
+
+    void setFirstX(float cardPositionX);
+
+    void setFirstY(float cardPositionY);
+
+    void setFirstRotation(float rotation);
 
     float getNormalElevation();
 

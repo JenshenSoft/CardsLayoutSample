@@ -43,8 +43,8 @@ public class GameTable extends GameTableLayout<CardsLayoutDefault.CardInfo, Card
     }
 
     @Override
-    public void onUpdateViewParams(GameTableParams params) {
-        super.onUpdateViewParams(params);
+    public void onUpdateViewParams(GameTableParams params, boolean calledInOnMeasure) {
+        super.onUpdateViewParams(params, calledInOnMeasure);
     }
 
     private void init() {
@@ -89,7 +89,7 @@ public class GameTable extends GameTableLayout<CardsLayoutDefault.CardInfo, Card
                 return new Predicate<Card<CardsLayoutDefault.CardInfo>>() {
                     @Override
                     public boolean apply(Card<CardsLayoutDefault.CardInfo> cardInfoCard) {
-                        return cardInfoCard.getCardInfo().getEntity().getNumber() >= 2 && cardInfoCard.getCardInfo().getEntity().getNumber() < 6;
+                        return cardInfoCard.getCardInfo().getEntity().getNumber() >= 2 && cardInfoCard.getCardInfo().getEntity().getNumber() < 9;
                     }
                 };
             }

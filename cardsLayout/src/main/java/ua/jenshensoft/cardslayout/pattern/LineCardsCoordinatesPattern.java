@@ -18,21 +18,15 @@ public class LineCardsCoordinatesPattern<Entity, CV extends View & Card<Entity>>
     private final List<CV> cards;
     private final Config xConfig;
     private final Config yConfig;
-    private final GetSizeAction getWidthSizeAction;
-    private final GetSizeAction getHeightSizeAction;
 
     public LineCardsCoordinatesPattern(@LinearLayoutCompat.OrientationMode int orientation,
                                        List<CV> cards,
                                        Config xConfig,
-                                       Config yConfig,
-                                       GetSizeAction getWidthSizeAction,
-                                       GetSizeAction getHeightSizeAction) {
+                                       Config yConfig) {
         this.orientation = orientation;
         this.cards = cards;
         this.xConfig = xConfig;
         this.yConfig = yConfig;
-        this.getWidthSizeAction = getWidthSizeAction;
-        this.getHeightSizeAction = getHeightSizeAction;
     }
 
     @Override
@@ -45,16 +39,12 @@ public class LineCardsCoordinatesPattern<Entity, CV extends View & Card<Entity>>
         for (View card : cards) {
             cardCoordinates.add(new CardCoordinates(x, y, 0));
             if (orientation == LinearLayout.HORIZONTAL) {
-                x += getWidthSizeAction.getSize(card) - distanceBetweenViewsX;
+                x += card.getMeasuredWidth() - distanceBetweenViewsX;
             }
             if (orientation == LinearLayout.VERTICAL) {
-                y += getHeightSizeAction.getSize(card) - distanceBetweenViewsY;
+                y += card.getMeasuredHeight()  - distanceBetweenViewsY;
             }
         }
         return cardCoordinates;
-    }
-
-    public interface GetSizeAction {
-        int getSize(View view);
     }
 }

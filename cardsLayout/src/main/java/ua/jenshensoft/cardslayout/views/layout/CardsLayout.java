@@ -84,6 +84,7 @@ public abstract class CardsLayout<Entity> extends ViewGroup
     private int childList_width;
     private int childList_circleRadius;
     private int durationOfAnimation;
+    private FlagManager gravityFlag;
     //distribution
     @DistributeCardsBy
     private int childList_distributeCardsBy;
@@ -94,7 +95,6 @@ public abstract class CardsLayout<Entity> extends ViewGroup
     private int cardWidth;
     private int cardHeight;
     private List<Card<Entity>> cards;
-    private FlagManager gravityFlag;
     @Nullable
     private ColorFilter colorFilter;
 
@@ -455,14 +455,14 @@ public abstract class CardsLayout<Entity> extends ViewGroup
         return defaultAnimatorAction;
     }
 
-    public boolean isFixedCardMeasure() {
-        return fixedCardMeasure;
-    }
-
     /* children size property */
 
     public void setFixedCardMeasure(boolean fixedCardMeasure) {
         this.fixedCardMeasure = fixedCardMeasure;
+    }
+
+    public boolean isFixedCardMeasure() {
+        return fixedCardMeasure;
     }
 
     public int getCardWidth() {
@@ -520,9 +520,7 @@ public abstract class CardsLayout<Entity> extends ViewGroup
                     childListOrientation,
                     cards,
                     xConfig,
-                    yConfig,
-                    this::getChildWidth,
-                    this::getChildHeight);
+                    yConfig);
         } else if (childList_distributeCardsBy == CIRCLE) {
             if (childList_circleRadius == EMPTY) {
                 throw new RuntimeException("You need to set radius");
@@ -558,9 +556,9 @@ public abstract class CardsLayout<Entity> extends ViewGroup
         for (int i = 0; i < cardsCoordinates.size(); i++) {
             final Card<Entity> card = cards.get(i);
             final CardCoordinates cardCoordinates = cardsCoordinates.get(i);
-            setFirstXForCard(card, cardCoordinates.getX());
-            setFirstYForCard(card, cardCoordinates.getY());
-            setFirstRotationForCard(card, cardCoordinates.getAngle());
+            card.setFirstX(cardCoordinates.getX());
+            card.setFirstY(cardCoordinates.getY());
+            card.setFirstRotation(cardCoordinates.getAngle());
         }
     }
 
@@ -705,7 +703,7 @@ public abstract class CardsLayout<Entity> extends ViewGroup
         if (views.isEmpty())
             return width;
         for (T view : views) {
-            float currentWidth = getChildWidth(view);
+            float currentWidth = view.getMeasuredWidth();
             if (currentWidth > width) {
                 width = currentWidth;
             }
@@ -718,34 +716,12 @@ public abstract class CardsLayout<Entity> extends ViewGroup
         if (views.isEmpty())
             return height;
         for (T view : views) {
-            float currentHeight = getChildHeight(view);
+            float currentHeight = view.getMeasuredHeight();
             if (currentHeight > height) {
                 height = currentHeight;
             }
         }
         return height;
-    }
-
-    protected int getChildWidth(View view) {
-        if (fixedCardMeasure) {
-            if (cardWidth == -1) {
-                throw new RuntimeException("You should set the \"child width\" attr");
-            }
-            return cardWidth;
-        } else {
-            return view.getMeasuredWidth();
-        }
-    }
-
-    protected int getChildHeight(View view) {
-        if (fixedCardMeasure) {
-            if (cardHeight == -1) {
-                throw new RuntimeException("You should set the \"child height\" attr");
-            }
-            return cardHeight;
-        } else {
-            return view.getMeasuredHeight();
-        }
     }
 
     protected <T extends View> float getWidthOfViews(@NonNull List<T> views, float offset) {
@@ -754,7 +730,7 @@ public abstract class CardsLayout<Entity> extends ViewGroup
             if (shouldPassView(view)) {
                 continue;
             }
-            widthOfViews += getChildWidth(view) - offset;
+            widthOfViews += view.getMeasuredWidth() - offset;
         }
         widthOfViews += offset;
         return widthOfViews;
@@ -766,25 +742,10 @@ public abstract class CardsLayout<Entity> extends ViewGroup
             if (shouldPassView(view)) {
                 continue;
             }
-            heightViews += getChildHeight(view) - offset;
+            heightViews += view.getMeasuredHeight() - offset;
         }
         heightViews += offset;
         return heightViews;
-    }
-
-    protected void setFirstXForCard(Card<Entity> cardView, float cardPositionX) {
-        CardInfo<Entity> cardInfo = cardView.getCardInfo();
-        cardInfo.setFirstPositionX(Math.round(cardPositionX));
-    }
-
-    protected void setFirstYForCard(Card<Entity> cardView, float cardPositionY) {
-        CardInfo<Entity> cardInfo = cardView.getCardInfo();
-        cardInfo.setFirstPositionY(Math.round(cardPositionY));
-    }
-
-    protected void setFirstRotationForCard(Card<Entity> cardView, float rotation) {
-        CardInfo<Entity> cardInfo = cardView.getCardInfo();
-        cardInfo.setFirstRotation(Math.round(rotation));
     }
 
     /* private methods */
@@ -832,7 +793,7 @@ public abstract class CardsLayout<Entity> extends ViewGroup
             TypedArray attributes = context.obtainStyledAttributes(attributeSet, R.styleable.CardsLayout_Params);
             try {
                 cardsLayout_cardsDirection = attributes.getInt(R.styleable.CardsLayout_Params_cardsLayout_cardsDirection, cardsLayout_cardsDirection);
-                gravityFlag = new FlagManager(attributes.getInt(R.styleable.CardsLayout_Params_cardsLayout_cardsGravity, FlagManager.Gravity.CENTER));
+                gravityFlag = new FlagManager(attributes.getInt(R.styleable.CardsLayout_Params_cardsLayout_cardsGravity, FlagManager.Gravity.BOTTOM));
                 childListOrientation = attributes.getInt(R.styleable.CardsLayout_Params_cardsLayout_childList_orientation, childListOrientation);
                 durationOfAnimation = attributes.getInt(R.styleable.CardsLayout_Params_cardsLayout_animationDuration, durationOfAnimation);
                 childListPaddingLeft = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_Params_cardsLayout_childList_paddingLeft, childListPaddingLeft);
@@ -863,7 +824,7 @@ public abstract class CardsLayout<Entity> extends ViewGroup
 
     private CardBoxView<Entity> createCardBoxView(View view) {
         CardBoxView<Entity> cardView = new CardBoxView<>(getContext());
-        ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        ViewGroup.LayoutParams layoutParams = generateDefaultLayoutParams();
         cardView.setLayoutParams(layoutParams);
         cardView.addView(view);
         return cardView;
