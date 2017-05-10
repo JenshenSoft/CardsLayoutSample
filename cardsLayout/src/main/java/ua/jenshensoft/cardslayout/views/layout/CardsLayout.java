@@ -158,7 +158,7 @@ public abstract class CardsLayout<Entity> extends ViewGroup
 
     @Override
     public ViewGroup.LayoutParams generateLayoutParams(AttributeSet attrs) {
-        return new LayoutParams(getContext(), attrs);
+        return LayoutParams.generateLayoutParams(fixedCardMeasure, cardWidth, cardHeight, getContext(), attrs);
     }
 
     @Override
@@ -168,19 +168,12 @@ public abstract class CardsLayout<Entity> extends ViewGroup
 
     @Override
     protected ViewGroup.LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {
-        return new LayoutParams(p);
+        return LayoutParams.generateLayoutParams(fixedCardMeasure, cardWidth, cardHeight, p);
     }
 
     @Override
     protected ViewGroup.LayoutParams generateDefaultLayoutParams() {
-        if (fixedCardMeasure) {
-            if (cardWidth == -1 || cardHeight == -1) {
-                throw new RuntimeException("You need to set \"cardWidth\" and \"cardHeight\" attr if you use the \"fixedCardMeasure\" attr");
-            }
-            return new LayoutParams(cardWidth, cardHeight);
-        } else {
-            return new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        }
+        return LayoutParams.generateLayoutParams(fixedCardMeasure, cardWidth, cardHeight);
     }
 
     @Override
@@ -988,6 +981,39 @@ public abstract class CardsLayout<Entity> extends ViewGroup
 
         public LayoutParams(ViewGroup.LayoutParams source) {
             super(source);
+        }
+
+        public static LayoutParams generateLayoutParams(boolean fixedCardMeasure, int cardWidth, int  cardHeight, Context context, AttributeSet attrs) {
+            if (fixedCardMeasure) {
+                if (cardWidth == -1 || cardHeight == -1) {
+                    throw new RuntimeException("You need to set \"cardWidth\" and \"cardHeight\" attr if you use the \"fixedCardMeasure\" attr");
+                }
+                return new LayoutParams(cardWidth, cardHeight);
+            } else {
+                return new LayoutParams(context, attrs);
+            }
+        }
+
+        public static LayoutParams generateLayoutParams(boolean fixedCardMeasure, int cardWidth, int  cardHeight, ViewGroup.LayoutParams source) {
+            if (fixedCardMeasure) {
+                if (cardWidth == -1 || cardHeight == -1) {
+                    throw new RuntimeException("You need to set \"cardWidth\" and \"cardHeight\" attr if you use the \"fixedCardMeasure\" attr");
+                }
+                return new LayoutParams(cardWidth, cardHeight);
+            } else {
+                return new LayoutParams(source);
+            }
+        }
+
+        public static LayoutParams generateLayoutParams(boolean fixedCardMeasure, int cardWidth, int  cardHeight) {
+            if (fixedCardMeasure) {
+                if (cardWidth == -1 || cardHeight == -1) {
+                    throw new RuntimeException("You need to set \"cardWidth\" and \"cardHeight\" attr if you use the \"fixedCardMeasure\" attr");
+                }
+                return new LayoutParams(cardWidth, cardHeight);
+            } else {
+                return new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+            }
         }
     }
 }

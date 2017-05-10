@@ -24,7 +24,7 @@
         <item name="gameTableLayout_cardValidatorSwipe">true</item>
         <item name="gameTableLayout_currentPlayerLayoutId">@+id/cardsLayout0</item>
         <!--card deck-->
-        <item name="gameTableLayout_canAutoDistribute">false</item>
+        <item name="gameTableLayout_canAutoDistribute">true</item>
         <item name="gameTableLayout_cardDeckEnable">true</item>
         <item name="gameTableLayout_cardDeckGravity">center</item>
         <item name="cardDeck_cardDeck_cardOffset_x">@dimen/cardsLayout_shadow_desk_offset</item>

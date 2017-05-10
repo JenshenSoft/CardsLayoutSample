@@ -19,9 +19,11 @@ import com.jenshen.awesomeanimation.AwesomeAnimation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import ua.jenshensoft.cardslayout.R;
+import ua.jenshensoft.cardslayout.pattern.models.CardCoordinates;
 import ua.jenshensoft.cardslayout.util.FlagManager;
 import ua.jenshensoft.cardslayout.views.card.Card;
 
@@ -98,34 +100,58 @@ public abstract class CardsLayoutWithBars<
     }
 
     @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        super.onLayout(changed, l, t, r, b);
+        Iterator<CardCoordinates> cardCoordinates = getCoordinatesForBars().iterator();
+        if (firstBarView != null) {
+            CardCoordinates coordinates = cardCoordinates.next();
+            int x = Math.round(coordinates.getX());
+            int y = Math.round(coordinates.getY());
+            firstBarView.layout(
+                    x,
+                    y,
+                    x + firstBarView.getMeasuredWidth(),
+                    y + firstBarView.getMeasuredHeight());
+        }
+        if (secondBarView != null) {
+            CardCoordinates coordinates = cardCoordinates.next();
+            int x = Math.round(coordinates.getX());
+            int y = Math.round(coordinates.getY());
+            secondBarView.layout(
+                    x,
+                    y,
+                    x + secondBarView.getMeasuredWidth(),
+                    y + secondBarView.getMeasuredHeight());
+        }
+    }
+
+    @Override
     protected <CV extends View & Card<Entity>> void moveViewsToStartPosition(boolean withAnimation,
                                                                              @Nullable OnCreateAnimatorAction<Entity> animationCreateAction,
                                                                              @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
         super.moveViewsToStartPosition(withAnimation, animationCreateAction, animatorListenerAdapter);
-        moveBarsToCurrentPosition(withAnimation);
+        Iterator<CardCoordinates> cardCoordinates = getCoordinatesForBars().iterator();
+        if (firstBarView != null) {
+            CardCoordinates coordinates = cardCoordinates.next();
+            int x = Math.round(coordinates.getX());
+            int y = Math.round(coordinates.getY());
+            moveFirstBarToPosition(new int[] {x, y}, withAnimation, null);
+        }
+        if (secondBarView != null) {
+            CardCoordinates coordinates = cardCoordinates.next();
+            int x = Math.round(coordinates.getX());
+            int y = Math.round(coordinates.getY());
+            moveSecondBarToPosition(new int[] {x, y}, withAnimation, null);
+        }
     }
 
     /* protected methods */
 
-    protected <T extends View> void setPositionsForViews(Config xConfig, Config yConfig, List<T> views, boolean withAnimation) {
-        int[] coordinates = new int[2];
-        for (T view : views) {
-            coordinates[0] = (int) xConfig.getStartCoordinates();
-            coordinates[1] = (int) yConfig.getStartCoordinates();
-            moveViewToPosition(view, coordinates, withAnimation, null);
-            if (getChildListOrientation() == LinearLayoutCompat.HORIZONTAL)
-                xConfig.setStartCoordinates(xConfig.getStartCoordinates() + view.getMeasuredWidth() - xConfig.getDistanceBetweenViews());
-
-            if (getChildListOrientation() == LinearLayoutCompat.VERTICAL)
-                yConfig.setStartCoordinates(yConfig.getStartCoordinates() + view.getMeasuredWidth() - yConfig.getDistanceBetweenViews());
-        }
-    }
-
-    protected void moveUserBarToPosition(int[] coordinatesForUserInfo, boolean withAnimation, @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
+    protected void moveFirstBarToPosition(int[] coordinatesForUserInfo, boolean withAnimation, @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
         moveViewToPosition(firstBarView, coordinatesForUserInfo, withAnimation, animatorListenerAdapter);
     }
 
-    protected void moveGameInfoBarToPosition(int[] coordinatesForGameInfoBar, boolean withAnimation, @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
+    protected void moveSecondBarToPosition(int[] coordinatesForGameInfoBar, boolean withAnimation, @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
         moveViewToPosition(secondBarView, coordinatesForGameInfoBar, withAnimation, animatorListenerAdapter);
     }
 
@@ -154,6 +180,21 @@ public abstract class CardsLayoutWithBars<
             view.setX(coordinates[0]);
             view.setY(coordinates[1]);
         }
+    }
+
+    protected <T extends View> List<CardCoordinates> getCoordinatesForViews(Config xConfig, Config yConfig, List<T> views) {
+        List<CardCoordinates> cardCoordinates = new ArrayList<>();
+        for (T view : views) {
+            int x = (int) xConfig.getStartCoordinates();
+            int y = (int) yConfig.getStartCoordinates();
+            cardCoordinates.add(new CardCoordinates(x, y, 0));
+            if (getChildListOrientation() == LinearLayoutCompat.HORIZONTAL)
+                xConfig.setStartCoordinates(xConfig.getStartCoordinates() + view.getMeasuredWidth() - xConfig.getDistanceBetweenViews());
+
+            if (getChildListOrientation() == LinearLayoutCompat.VERTICAL)
+                yConfig.setStartCoordinates(yConfig.getStartCoordinates() + view.getMeasuredWidth() - yConfig.getDistanceBetweenViews());
+        }
+        return cardCoordinates;
     }
 
 
@@ -194,7 +235,7 @@ public abstract class CardsLayoutWithBars<
         }
     }
 
-    private void moveBarsToCurrentPosition(boolean withAnimation) {
+    private List<CardCoordinates> getCoordinatesForBars() {
         List<Card<Entity>> cardViews = getCards();
 
         List<Card<Entity>> visibleCardViews = new ArrayList<>();
@@ -204,32 +245,32 @@ public abstract class CardsLayoutWithBars<
             }
         }
         if (visibleCardViews.isEmpty()) {
-            setBarsStartPosition(withAnimation);
-            return;
+            return getBarsStartPosition();
         }
 
-        FlagManager userBarAnchorGravity = this.firstBarAnchorGravity;
-        FlagManager gameInfoBarAnchorGravity = this.secondBarAnchorGravity;
+        FlagManager firstBarAnchorGravity = this.firstBarAnchorGravity;
+        FlagManager secondBarAnchorGravity = this.secondBarAnchorGravity;
 
         if (distributeBarsByWidth) {
-            userBarAnchorGravity = validateAnchorGravityByWidthDistribution(firstBarAnchorPosition);
-            gameInfoBarAnchorGravity = validateAnchorGravityByWidthDistribution(secondBarAnchorPosition);
+            firstBarAnchorGravity = validateAnchorGravityByWidthDistribution(firstBarAnchorPosition);
+            secondBarAnchorGravity = validateAnchorGravityByWidthDistribution(secondBarAnchorPosition);
         }
 
         if (distributeBarsByHeight) {
-            userBarAnchorGravity = validateAnchorGravityByHeightDistribution(firstBarAnchorPosition);
-            gameInfoBarAnchorGravity = validateAnchorGravityByHeightDistribution(secondBarAnchorPosition);
+            firstBarAnchorGravity = validateAnchorGravityByHeightDistribution(firstBarAnchorPosition);
+            secondBarAnchorGravity = validateAnchorGravityByHeightDistribution(secondBarAnchorPosition);
         }
-
+        List<CardCoordinates> cardCoordinates = new ArrayList<>();
         if (firstBarView != null) {
-            final int[] coordinatesForUserInfo = getBarCoordinates(userBarAnchorGravity, getAnchorViewInfo(firstBarAnchorPosition), firstBarView);
-            moveUserBarToPosition(coordinatesForUserInfo, withAnimation, null);
+            final int[] coordinatesForUserInfo = getBarCoordinates(firstBarAnchorGravity, getAnchorViewInfo(firstBarAnchorPosition), firstBarView);
+            cardCoordinates.add(new CardCoordinates(coordinatesForUserInfo[0], coordinatesForUserInfo[1], 0));
         }
 
         if (secondBarView != null) {
-            int[] coordinatesForGameInfoBar = getBarCoordinates(gameInfoBarAnchorGravity, getAnchorViewInfo(secondBarAnchorPosition), secondBarView);
-            moveGameInfoBarToPosition(coordinatesForGameInfoBar, withAnimation, null);
+            int[] coordinatesForGameInfoBar = getBarCoordinates(secondBarAnchorGravity, getAnchorViewInfo(secondBarAnchorPosition), secondBarView);
+            cardCoordinates.add(new CardCoordinates(coordinatesForGameInfoBar[0], coordinatesForGameInfoBar[1], 0));
         }
+        return cardCoordinates;
     }
 
     private <CV extends View & Card<Entity>> AnchorViewInfo getAnchorViewInfo(@AnchorPosition int position) {
@@ -287,7 +328,7 @@ public abstract class CardsLayoutWithBars<
     /**
      * call this  method if cards layout is empty
      */
-    private void setBarsStartPosition(boolean withAnimation) {
+    private List<CardCoordinates> getBarsStartPosition() {
         List<View> views = new ArrayList<>();
         if (firstBarView != null) {
             views.add(firstBarView);
@@ -308,12 +349,13 @@ public abstract class CardsLayoutWithBars<
 
         Config xConfig = getXConfiguration(views);
         Config yConfig = getYConfiguration(views);
-        setPositionsForViews(xConfig, yConfig, views, withAnimation);
 
+        List<CardCoordinates> positionsForBars = getCoordinatesForViews(xConfig, yConfig, views);
         setChildListPaddingTop(childListPaddingTop);
         setChildListPaddingBottom(childListPaddingBottom);
         setChildListPaddingLeft(childListPaddingLeft);
         setChildListPaddingRight(childListPaddingRight);
+        return positionsForBars;
     }
 
     private int[] getBarCoordinates(FlagManager flagManager, AnchorViewInfo anchorViewInfo, View view) {
