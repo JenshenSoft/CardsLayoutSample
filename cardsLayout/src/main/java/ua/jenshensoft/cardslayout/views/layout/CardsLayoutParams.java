@@ -17,7 +17,7 @@ public class CardsLayoutParams extends ViewGroup.LayoutParams {
         TypedArray arr = context.obtainStyledAttributes(attrs, R.styleable.CardsLayout_Params);
         try {
             widthForCalculation = arr.getDimensionPixelSize(R.styleable.CardsLayout_Params_cardsLayout_widthForCalculation, -1);
-            heightForCalculation = arr.getDimensionPixelSize(R.styleable.CardsLayout_Params_cardsLayout_widthForCalculation, -1);
+            heightForCalculation = arr.getDimensionPixelSize(R.styleable.CardsLayout_Params_cardsLayout_heightForCalculation, -1);
         } finally {
             arr.recycle();
         }

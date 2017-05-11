@@ -131,10 +131,8 @@ public abstract class GameTableLayout<
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        if (viewUpdateConfig.needUpdateViewOnMeasure()) {
-            // Find out how big everyone wants to be
-            measureChildren(widthMeasureSpec, heightMeasureSpec);
-        }
+        // Find out how big everyone wants to be
+        measureChildren(widthMeasureSpec, heightMeasureSpec);
     }
 
     @Override

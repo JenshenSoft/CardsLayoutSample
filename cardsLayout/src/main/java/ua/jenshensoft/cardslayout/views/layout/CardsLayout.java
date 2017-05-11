@@ -133,10 +133,7 @@ public abstract class CardsLayout<Entity> extends ViewGroup
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        if (viewUpdateConfig.needUpdateViewOnMeasure()) {
-            // Find out how big everyone wants to be
-            measureChildren(widthMeasureSpec, heightMeasureSpec);
-        }
+        measureChildren(widthMeasureSpec, heightMeasureSpec);
     }
 
     @Override
