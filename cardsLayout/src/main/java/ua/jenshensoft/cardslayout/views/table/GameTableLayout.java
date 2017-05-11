@@ -38,6 +38,7 @@ import ua.jenshensoft.cardslayout.views.updater.ViewUpdater;
 import ua.jenshensoft.cardslayout.views.updater.callback.OnViewParamsUpdate;
 import ua.jenshensoft.cardslayout.views.updater.model.GameTableParams;
 
+@SuppressWarnings("unused")
 public abstract class GameTableLayout<
         Entity,
         Layout extends CardsLayout<Entity>>
@@ -107,6 +108,7 @@ public abstract class GameTableLayout<
         inflateLayout();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void onViewAdded(View child) {
         super.onViewAdded(child);

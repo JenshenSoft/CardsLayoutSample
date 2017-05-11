@@ -53,6 +53,7 @@ import static ua.jenshensoft.cardslayout.views.layout.CardsLayout.DistributeCard
 import static ua.jenshensoft.cardslayout.views.layout.CardsLayout.DistributeCardsBy.LINE;
 
 
+@SuppressWarnings("unused")
 public abstract class CardsLayout<Entity> extends ViewGroup
         implements
         OnCardTranslationListener<Entity>,
@@ -473,6 +474,7 @@ public abstract class CardsLayout<Entity> extends ViewGroup
         }
     }
 
+    @SuppressWarnings("unchecked")
     protected <CV extends View & Card<Entity>> List<CardCoordinates> getViewsCoordinatesForStartPosition() {
         List<CV> cards = getValidatedCardViews();
         final Config xConfig = getXConfiguration(cards);
@@ -499,8 +501,8 @@ public abstract class CardsLayout<Entity> extends ViewGroup
                     childList_circleCenterLocation,
                     getCardViewsCount(cards),
                     childList_circleRadius,
-                    getChildrenWidth(cards),
-                    getChildrenHeight(cards),
+                    getMaxChildWidth(cards),
+                    getMaxChildHeight(cards),
                     cardsLayoutLength,
                     gravityFlag,
                     xConfig,
@@ -567,40 +569,27 @@ public abstract class CardsLayout<Entity> extends ViewGroup
 
     protected <T extends View> Config getXConfiguration(List<T> views) {
         float rootWidth = getRootWidth();
-        float widthOfViews = getWidthOfViews(views, 0);
+        float widthOfViews = getWidthOfChildren(views, 0);
         float difference = widthOfViews - rootWidth;
         float distanceBetweenViews = getDistanceBetweenViews(difference, views);
 
         if (difference > 0) {
-            widthOfViews = getWidthOfViews(views, distanceBetweenViews);
+            widthOfViews = getWidthOfChildren(views, distanceBetweenViews);
         }
-        float startXPositionFromList = getStartXPositionForList(getChildrenWidth(views), widthOfViews, rootWidth);
-        return new Config(startXPositionFromList, distanceBetweenViews, widthOfViews);
-    }
-
-    protected <T extends View> Config getXConfiguration(List<T> views) {
-        float rootWidth = getRootWidth();
-        float widthOfViews = getWidthOfViews(views, 0);
-        float difference = widthOfViews - rootWidth;
-        float distanceBetweenViews = getDistanceBetweenViews(difference, views);
-
-        if (difference > 0) {
-            widthOfViews = getWidthOfViews(views, distanceBetweenViews);
-        }
-        float startXPositionFromList = getStartXPositionForList(getChildrenWidth(views), widthOfViews, rootWidth);
+        float startXPositionFromList = getStartXPositionForList(getMaxChildWidth(views), widthOfViews, rootWidth);
         return new Config(startXPositionFromList, distanceBetweenViews, widthOfViews);
     }
 
     protected <T extends View> Config getYConfiguration(List<T> views) {
         float rootHeight = getRootHeight();
-        float heightOfViews = getHeightOfViews(views, 0);
+        float heightOfViews = getHeightOfChildren(views, 0);
         float difference = heightOfViews - rootHeight;
         float distanceBetweenViews = getDistanceBetweenViews(difference, views);
 
         if (difference > 0) {
-            heightOfViews = getHeightOfViews(views, distanceBetweenViews);
+            heightOfViews = getHeightOfChildren(views, distanceBetweenViews);
         }
-        float startYPositionFromList = getStartYPositionForList(getChildrenHeight(views), heightOfViews, rootHeight);
+        float startYPositionFromList = getStartYPositionForList(getMaxChildHeight(views), heightOfViews, rootHeight);
         return new Config(startYPositionFromList, distanceBetweenViews, heightOfViews);
     }
 
@@ -612,12 +601,12 @@ public abstract class CardsLayout<Entity> extends ViewGroup
         }
     }
 
-    protected float getRootWidth() {
+    protected int getRootWidth() {
         int widthLayout = childList_width == EMPTY ? getMeasuredWidth() : childList_width;
         return widthLayout - getChildListPaddingRight() - getChildListPaddingLeft();
     }
 
-    protected float getRootHeight() {
+    protected int getRootHeight() {
         int heightLayout = childList_height == EMPTY ? getMeasuredHeight() : childList_height;
         return heightLayout - getChildListPaddingBottom() - getChildListPaddingTop();
     }
@@ -674,12 +663,12 @@ public abstract class CardsLayout<Entity> extends ViewGroup
         return cardPositionY;
     }
 
-    protected <T extends View> float getChildrenWidth(@NonNull List<T> views) {
-        float width = 0;
+    protected <T extends View> int getMaxChildWidth(@NonNull List<T> views) {
+        int width = 0;
         if (views.isEmpty())
             return width;
         for (T view : views) {
-            float currentWidth = view.getMeasuredWidth();
+            int currentWidth = getChildWidth(view);
             if (currentWidth > width) {
                 width = currentWidth;
             }
@@ -687,12 +676,12 @@ public abstract class CardsLayout<Entity> extends ViewGroup
         return width;
     }
 
-    protected <T extends View> float getChildrenHeight(@NonNull List<T> views) {
-        float height = 0;
+    protected <T extends View> int getMaxChildHeight(@NonNull List<T> views) {
+        int height = 0;
         if (views.isEmpty())
             return height;
         for (T view : views) {
-            float currentHeight = view.getMeasuredHeight();
+            int currentHeight = getChildHeight(view);
             if (currentHeight > height) {
                 height = currentHeight;
             }
@@ -700,28 +689,44 @@ public abstract class CardsLayout<Entity> extends ViewGroup
         return height;
     }
 
-    protected float getWidthOfViews(@NonNull List<Card<Entity>> views, float offset) {
+    protected <T extends View> float getWidthOfChildren(@NonNull List<T> views, float offset) {
         float widthOfViews = 0;
-        for (Card<Entity> card : views) {
-            if (shouldPassCard(card)) {
+        for (T view : views) {
+            if (shouldPassView(view)) {
                 continue;
             }
-            widthOfViews += card.getCardWidth() - offset;
+            widthOfViews += getChildWidth(view) - offset;
         }
         widthOfViews += offset;
         return widthOfViews;
     }
 
-    protected float getHeightOfViews(@NonNull List<Card<Entity>> views, float offset) {
+    protected <T extends View> float getHeightOfChildren(@NonNull List<T> views, float offset) {
         float heightViews = 0;
-        for (Card<Entity> card : views) {
-            if (shouldPassCard(card)) {
+        for (T view : views) {
+            if (shouldPassView(view)) {
                 continue;
             }
-            heightViews += card.getCardHeight() - offset;
+            heightViews += getChildHeight(view) - offset;
         }
         heightViews += offset;
         return heightViews;
+    }
+
+    protected  <T extends View> int getChildWidth(T view) {
+        if (Card.class.isInstance(view)) {
+            return Card.class.cast(view).getCardWidth();
+        } else  {
+            return view.getMeasuredWidth();
+        }
+    }
+
+    protected  <T extends View> int getChildHeight(T view) {
+        if (Card.class.isInstance(view)) {
+            return Card.class.cast(view).getCardHeight();
+        } else  {
+            return view.getMeasuredHeight();
+        }
     }
 
     /* private methods */

@@ -12,7 +12,7 @@
         android:layout_height="match_parent"
         app:cardsLayout_childList_orientation="vertical"
         app:cardsLayout_childList_distributeCardsBy="circle"
-        app:cardsLayout_childList_circleRadius="200dp"
+        app:cardsLayout_childList_circleRadius="50dp"
         app:cardsLayout_childList_circleCenterLocation="bottom"
         app:cardsLayout_childList_height="200dp"
         app:cardsLayout_cardsGravity="right|center_vertical">

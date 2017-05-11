@@ -137,13 +137,13 @@ public abstract class CardsLayoutWithBars<
             CardCoordinates coordinates = cardCoordinates.next();
             int x = Math.round(coordinates.getX());
             int y = Math.round(coordinates.getY());
-            moveFirstBarToPosition(new int[] {x, y}, withAnimation, null);
+            moveFirstBarToPosition(new int[]{x, y}, withAnimation, null);
         }
         if (secondBarView != null) {
             CardCoordinates coordinates = cardCoordinates.next();
             int x = Math.round(coordinates.getX());
             int y = Math.round(coordinates.getY());
-            moveSecondBarToPosition(new int[] {x, y}, withAnimation, null);
+            moveSecondBarToPosition(new int[]{x, y}, withAnimation, null);
         }
     }
 
@@ -293,15 +293,15 @@ public abstract class CardsLayoutWithBars<
                 cardView = visibleCardViews.iterator().next();
                 firstPositionX = cardView.getCardInfo().getFirstPositionX();
                 firstPositionY = cardView.getCardInfo().getFirstPositionY();
-                cardsLayoutWidth = cardView.getMeasuredWidth();
-                cardsLayoutHeight = cardView.getMeasuredHeight();
+                cardsLayoutWidth = getChildWidth(cardView);
+                cardsLayoutHeight = getChildHeight(cardView);
                 break;
             case VIEW_POSITION_END:
                 cardView = visibleCardViews.get(visibleCardViews.size() - 1);
                 firstPositionX = cardView.getCardInfo().getFirstPositionX();
                 firstPositionY = cardView.getCardInfo().getFirstPositionY();
-                cardsLayoutWidth = cardView.getMeasuredWidth();
-                cardsLayoutHeight = cardView.getMeasuredHeight();
+                cardsLayoutWidth = getChildWidth(cardView);
+                cardsLayoutHeight = getChildHeight(cardView);
                 break;
             case VIEW_POSITION_CENTER:
                 if (visibleCardViews.size() == 1) {
@@ -318,8 +318,8 @@ public abstract class CardsLayoutWithBars<
                     firstPositionX = cardView.getCardInfo().getFirstPositionX();
                     firstPositionY = cardView.getCardInfo().getFirstPositionY();
                 }
-                cardsLayoutWidth = (int) getChildrenWidth(visibleCardViews);
-                cardsLayoutHeight = (int) getChildrenHeight(visibleCardViews);
+                cardsLayoutWidth = getMaxChildWidth(visibleCardViews);
+                cardsLayoutHeight = getMaxChildHeight(visibleCardViews);
                 break;
             default:
                 throw new RuntimeException("Unsupported position");
@@ -399,7 +399,7 @@ public abstract class CardsLayoutWithBars<
     @CheckResult
     private boolean canDistributeByWidth() {
         float rootWidth = getRootWidth();
-        float widthOfViews = getWidthOfViews(getCards(), 0);
+        float widthOfViews = getWidthOfChildren(getCardViews(), 0);
         float difference = rootWidth - widthOfViews;
 
         int additionalViewsWidth = 0;
@@ -415,7 +415,7 @@ public abstract class CardsLayoutWithBars<
     @CheckResult
     private boolean canDistributeByHeight() {
         float rootHeight = getRootHeight();
-        float heightOfViews = getHeightOfViews(getCards(), 0);
+        float heightOfViews = getHeightOfChildren(getCardViews(), 0);
         float difference = rootHeight - heightOfViews;
 
         int additionalViewsHeight = 0;
