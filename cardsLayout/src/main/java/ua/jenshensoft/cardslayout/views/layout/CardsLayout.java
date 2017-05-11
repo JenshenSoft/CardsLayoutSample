@@ -90,10 +90,6 @@ public abstract class CardsLayout<Entity> extends ViewGroup
     private int childList_distributeCardsBy;
     @CircleCenterLocation
     private int childList_circleCenterLocation;
-    //card size
-    private boolean fixedCardMeasure;
-    private int cardWidth;
-    private int cardHeight;
     private List<Card<Entity>> cards;
     @Nullable
     private ColorFilter colorFilter;
@@ -158,7 +154,7 @@ public abstract class CardsLayout<Entity> extends ViewGroup
 
     @Override
     public ViewGroup.LayoutParams generateLayoutParams(AttributeSet attrs) {
-        return LayoutParams.generateLayoutParams(fixedCardMeasure, cardWidth, cardHeight, getContext(), attrs);
+        return new LayoutParams(getContext(), attrs);
     }
 
     @Override
@@ -168,12 +164,12 @@ public abstract class CardsLayout<Entity> extends ViewGroup
 
     @Override
     protected ViewGroup.LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {
-        return LayoutParams.generateLayoutParams(fixedCardMeasure, cardWidth, cardHeight, p);
+        return new LayoutParams(p);
     }
 
     @Override
     protected ViewGroup.LayoutParams generateDefaultLayoutParams() {
-        return LayoutParams.generateLayoutParams(fixedCardMeasure, cardWidth, cardHeight);
+        return new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
     }
 
     @Override
@@ -446,32 +442,6 @@ public abstract class CardsLayout<Entity> extends ViewGroup
 
     public OnCreateAnimatorAction<Entity> getDefaultCreateAnimatorAction() {
         return defaultAnimatorAction;
-    }
-
-    /* children size property */
-
-    public void setFixedCardMeasure(boolean fixedCardMeasure) {
-        this.fixedCardMeasure = fixedCardMeasure;
-    }
-
-    public boolean isFixedCardMeasure() {
-        return fixedCardMeasure;
-    }
-
-    public int getCardWidth() {
-        return cardWidth;
-    }
-
-    public void setCardWidth(int cardWidth) {
-        this.cardWidth = cardWidth;
-    }
-
-    public int getCardHeight() {
-        return cardHeight;
-    }
-
-    public void setCardHeight(int cardHeight) {
-        this.cardHeight = cardHeight;
     }
 
     @Override
@@ -804,11 +774,6 @@ public abstract class CardsLayout<Entity> extends ViewGroup
                 childList_distributeCardsBy = attributes.getInt(R.styleable.CardsLayout_Params_cardsLayout_childList_distributeCardsBy, childList_distributeCardsBy);
                 childList_circleRadius = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_Params_cardsLayout_childList_circleRadius, childList_circleRadius);
                 childList_circleCenterLocation = attributes.getInt(R.styleable.CardsLayout_Params_cardsLayout_childList_circleCenterLocation, childList_circleCenterLocation);
-
-                //card measure
-                fixedCardMeasure = attributes.getBoolean(R.styleable.CardsLayout_Params_cardsLayout_fixedCardMeasure, false);
-                cardWidth = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_Params_cardsLayout_cardWidth, -1);
-                cardHeight = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_Params_cardsLayout_cardHeight, -1);
             } finally {
                 attributes.recycle();
             }
@@ -971,6 +936,9 @@ public abstract class CardsLayout<Entity> extends ViewGroup
 
     private static class LayoutParams extends ViewGroup.LayoutParams {
 
+        private int widthForCalculation;
+        private int heightForCalculation;
+
         public LayoutParams(Context c, AttributeSet attrs) {
             super(c, attrs);
         }
@@ -983,37 +951,12 @@ public abstract class CardsLayout<Entity> extends ViewGroup
             super(source);
         }
 
-        public static LayoutParams generateLayoutParams(boolean fixedCardMeasure, int cardWidth, int  cardHeight, Context context, AttributeSet attrs) {
-            if (fixedCardMeasure) {
-                if (cardWidth == -1 || cardHeight == -1) {
-                    throw new RuntimeException("You need to set \"cardWidth\" and \"cardHeight\" attr if you use the \"fixedCardMeasure\" attr");
-                }
-                return new LayoutParams(cardWidth, cardHeight);
-            } else {
-                return new LayoutParams(context, attrs);
-            }
+        public int getWidthForCalculation() {
+            return widthForCalculation;
         }
 
-        public static LayoutParams generateLayoutParams(boolean fixedCardMeasure, int cardWidth, int  cardHeight, ViewGroup.LayoutParams source) {
-            if (fixedCardMeasure) {
-                if (cardWidth == -1 || cardHeight == -1) {
-                    throw new RuntimeException("You need to set \"cardWidth\" and \"cardHeight\" attr if you use the \"fixedCardMeasure\" attr");
-                }
-                return new LayoutParams(cardWidth, cardHeight);
-            } else {
-                return new LayoutParams(source);
-            }
-        }
-
-        public static LayoutParams generateLayoutParams(boolean fixedCardMeasure, int cardWidth, int  cardHeight) {
-            if (fixedCardMeasure) {
-                if (cardWidth == -1 || cardHeight == -1) {
-                    throw new RuntimeException("You need to set \"cardWidth\" and \"cardHeight\" attr if you use the \"fixedCardMeasure\" attr");
-                }
-                return new LayoutParams(cardWidth, cardHeight);
-            } else {
-                return new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-            }
+        public int getHeightForCalculation() {
+            return heightForCalculation;
         }
     }
 }
