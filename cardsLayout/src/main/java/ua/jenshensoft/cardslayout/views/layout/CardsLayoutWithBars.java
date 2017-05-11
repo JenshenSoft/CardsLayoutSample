@@ -203,21 +203,21 @@ public abstract class CardsLayoutWithBars<
     @SuppressWarnings({"unchecked", "WrongConstant"})
     private void inflateAttributesWithAdditional(AttributeSet attrs) {
         if (attrs != null) {
-            TypedArray attributes = getContext().obtainStyledAttributes(attrs, R.styleable.CardsLayoutAV_Params);
+            TypedArray attributes = getContext().obtainStyledAttributes(attrs, R.styleable.CardsLayoutAV);
             try {
-                firstBarAnchorGravity = new FlagManager(attributes.getInt(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params_cardsLayoutAV_firstBar_anchorGravity, FlagManager.Gravity.LEFT | FlagManager.Gravity.CENTER_VERTICAL));
-                secondBarAnchorGravity = new FlagManager(attributes.getInt(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params_cardsLayoutAV_secondBar_anchorGravity, FlagManager.Gravity.RIGHT | FlagManager.Gravity.CENTER_VERTICAL));
-                firstBarAnchorPosition = attributes.getInt(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params_cardsLayoutAV_firstBar_anchorPosition, VIEW_POSITION_START);
-                secondBarAnchorPosition = attributes.getInt(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params_cardsLayoutAV_secondBar_anchorPosition, VIEW_POSITION_END);
-                distributeBarsByWidth = attributes.getBoolean(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params_cardsLayoutAV_distributeBars_byWidth, false);
-                distributeBarsByHeight = attributes.getBoolean(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params_cardsLayoutAV_distributeBars_byHeight, false);
-                barsMargin = attributes.getDimensionPixelOffset(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params_cardsLayoutAV_barsMargin, 0);
+                firstBarAnchorGravity = new FlagManager(attributes.getInt(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_cardsLayoutAV_firstBar_anchorGravity, FlagManager.Gravity.LEFT | FlagManager.Gravity.CENTER_VERTICAL));
+                secondBarAnchorGravity = new FlagManager(attributes.getInt(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_cardsLayoutAV_secondBar_anchorGravity, FlagManager.Gravity.RIGHT | FlagManager.Gravity.CENTER_VERTICAL));
+                firstBarAnchorPosition = attributes.getInt(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_cardsLayoutAV_firstBar_anchorPosition, VIEW_POSITION_START);
+                secondBarAnchorPosition = attributes.getInt(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_cardsLayoutAV_secondBar_anchorPosition, VIEW_POSITION_END);
+                distributeBarsByWidth = attributes.getBoolean(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_cardsLayoutAV_distributeBars_byWidth, false);
+                distributeBarsByHeight = attributes.getBoolean(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_cardsLayoutAV_distributeBars_byHeight, false);
+                barsMargin = attributes.getDimensionPixelOffset(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_cardsLayoutAV_barsMargin, 0);
                 try {
-                    String userBarClassName = attributes.getString(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params_cardsLayoutAV_firstBarViewClass);
+                    String userBarClassName = attributes.getString(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_cardsLayoutAV_firstBarViewClass);
                     if (userBarClassName != null) {
                         this.firstBarClassName = (Class<FirstBarView>) Class.forName(userBarClassName);
                     }
-                    String gamInfoBarClassName = attributes.getString(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_Params_cardsLayoutAV_secondBarViewClass);
+                    String gamInfoBarClassName = attributes.getString(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_cardsLayoutAV_secondBarViewClass);
                     if (gamInfoBarClassName != null) {
                         this.secondBarClassName = (Class<SecondBarView>) Class.forName(gamInfoBarClassName);
                     }

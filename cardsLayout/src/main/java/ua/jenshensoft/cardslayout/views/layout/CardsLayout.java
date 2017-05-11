@@ -33,10 +33,10 @@ import ua.jenshensoft.cardslayout.R;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardPercentageChangeListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardSwipedListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardTranslationListener;
-import ua.jenshensoft.cardslayout.pattern.models.CardCoordinates;
 import ua.jenshensoft.cardslayout.pattern.CardCoordinatesPattern;
 import ua.jenshensoft.cardslayout.pattern.CircleCardsCoordinatesPattern;
 import ua.jenshensoft.cardslayout.pattern.LineCardsCoordinatesPattern;
+import ua.jenshensoft.cardslayout.pattern.models.CardCoordinates;
 import ua.jenshensoft.cardslayout.util.DrawableUtils;
 import ua.jenshensoft.cardslayout.util.FlagManager;
 import ua.jenshensoft.cardslayout.util.SwipeGestureManager;
@@ -169,7 +169,7 @@ public abstract class CardsLayout<Entity> extends ViewGroup
 
     @Override
     protected ViewGroup.LayoutParams generateDefaultLayoutParams() {
-        return new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+        return new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
     }
 
     @Override
@@ -753,27 +753,27 @@ public abstract class CardsLayout<Entity> extends ViewGroup
     @SuppressWarnings("WrongConstant")
     private void inflateAttributes(Context context, @Nullable AttributeSet attributeSet) {
         if (attributeSet != null) {
-            TypedArray attributes = context.obtainStyledAttributes(attributeSet, R.styleable.CardsLayout_Params);
+            TypedArray attributes = context.obtainStyledAttributes(attributeSet, R.styleable.CardsLayout);
             try {
-                cardsLayout_cardsDirection = attributes.getInt(R.styleable.CardsLayout_Params_cardsLayout_cardsDirection, cardsLayout_cardsDirection);
-                gravityFlag = new FlagManager(attributes.getInt(R.styleable.CardsLayout_Params_cardsLayout_cardsGravity, FlagManager.Gravity.BOTTOM));
-                childListOrientation = attributes.getInt(R.styleable.CardsLayout_Params_cardsLayout_childList_orientation, childListOrientation);
-                durationOfAnimation = attributes.getInt(R.styleable.CardsLayout_Params_cardsLayout_animationDuration, durationOfAnimation);
-                childListPaddingLeft = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_Params_cardsLayout_childList_paddingLeft, childListPaddingLeft);
-                childListPaddingRight = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_Params_cardsLayout_childList_paddingRight, childListPaddingRight);
-                childListPaddingTop = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_Params_cardsLayout_childList_paddingTop, childListPaddingTop);
-                childListPaddingBottom = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_Params_cardsLayout_childList_paddingBottom, childListPaddingBottom);
-                childList_height = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_Params_cardsLayout_childList_height, childList_height);
-                childList_width = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_Params_cardsLayout_childList_width, childList_width);
-                final int color = attributes.getColor(R.styleable.CardsLayout_Params_cardsLayout_tintColor, -1);
+                cardsLayout_cardsDirection = attributes.getInt(R.styleable.CardsLayout_cardsLayout_cardsDirection, cardsLayout_cardsDirection);
+                gravityFlag = new FlagManager(attributes.getInt(R.styleable.CardsLayout_cardsLayout_cardsGravity, FlagManager.Gravity.BOTTOM));
+                childListOrientation = attributes.getInt(R.styleable.CardsLayout_cardsLayout_childList_orientation, childListOrientation);
+                durationOfAnimation = attributes.getInt(R.styleable.CardsLayout_cardsLayout_animationDuration, durationOfAnimation);
+                childListPaddingLeft = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_cardsLayout_childList_paddingLeft, childListPaddingLeft);
+                childListPaddingRight = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_cardsLayout_childList_paddingRight, childListPaddingRight);
+                childListPaddingTop = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_cardsLayout_childList_paddingTop, childListPaddingTop);
+                childListPaddingBottom = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_cardsLayout_childList_paddingBottom, childListPaddingBottom);
+                childList_height = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_cardsLayout_childList_height, childList_height);
+                childList_width = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_cardsLayout_childList_width, childList_width);
+                final int color = attributes.getColor(R.styleable.CardsLayout_cardsLayout_tintColor, -1);
                 if (color != -1) {
                     colorFilter = new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY);
                 }
 
                 //distribution
-                childList_distributeCardsBy = attributes.getInt(R.styleable.CardsLayout_Params_cardsLayout_childList_distributeCardsBy, childList_distributeCardsBy);
-                childList_circleRadius = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_Params_cardsLayout_childList_circleRadius, childList_circleRadius);
-                childList_circleCenterLocation = attributes.getInt(R.styleable.CardsLayout_Params_cardsLayout_childList_circleCenterLocation, childList_circleCenterLocation);
+                childList_distributeCardsBy = attributes.getInt(R.styleable.CardsLayout_cardsLayout_childList_distributeCardsBy, childList_distributeCardsBy);
+                childList_circleRadius = attributes.getDimensionPixelOffset(R.styleable.CardsLayout_cardsLayout_childList_circleRadius, childList_circleRadius);
+                childList_circleCenterLocation = attributes.getInt(R.styleable.CardsLayout_cardsLayout_childList_circleCenterLocation, childList_circleCenterLocation);
             } finally {
                 attributes.recycle();
             }
@@ -788,7 +788,7 @@ public abstract class CardsLayout<Entity> extends ViewGroup
         return cardView;
     }
 
-    private  <CV extends View & Card<Entity>> void onLayoutCard(CV cardView, CardCoordinates coordinates) {
+    private <CV extends View & Card<Entity>> void onLayoutCard(CV cardView, CardCoordinates coordinates) {
         int x = Math.round(coordinates.getX());
         int y = Math.round(coordinates.getY());
         int angle = Math.round(coordinates.getAngle());
@@ -934,13 +934,20 @@ public abstract class CardsLayout<Entity> extends ViewGroup
         int RIGHT_TO_LEFT = 1;
     }
 
-    private static class LayoutParams extends ViewGroup.LayoutParams {
+    public static class LayoutParams extends ViewGroup.LayoutParams {
 
-        private int widthForCalculation;
-        private int heightForCalculation;
+        private int widthForCalculation = -1;
+        private int heightForCalculation = -1;
 
-        public LayoutParams(Context c, AttributeSet attrs) {
-            super(c, attrs);
+        public LayoutParams(Context context, AttributeSet attrs) {
+            super(context, attrs);
+            TypedArray arr = context.obtainStyledAttributes(attrs, R.styleable.CardsLayout_Params);
+            try {
+                widthForCalculation = arr.getDimensionPixelSize(R.styleable.CardsLayout_Params_cardsLayout_widthForCalculation, -1);
+                heightForCalculation = arr.getDimensionPixelSize(R.styleable.CardsLayout_Params_cardsLayout_widthForCalculation, -1);
+            } finally {
+                arr.recycle();
+            }
         }
 
         public LayoutParams(int width, int height) {

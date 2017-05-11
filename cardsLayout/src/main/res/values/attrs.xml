@@ -14,7 +14,7 @@
         <attr name="card_scrollAndClickable" format="boolean" />
     </declare-styleable>
 
-    <declare-styleable name="CardsLayout_Params">
+    <declare-styleable name="CardsLayout">
         <attr name="cardsLayout_cardsDirection" format="enum">
             <enum name="leftToRight" value="0" />
             <enum name="rightToLeft" value="1" />
@@ -49,12 +49,14 @@
             <enum name="top" value="0" />
             <enum name="bottom" value="1" />
         </attr>
-        <attr name="cardsLayout_fixedCardMeasure" format="boolean" />
-        <attr name="cardsLayout_cardWidth" format="dimension" />
-        <attr name="cardsLayout_cardHeight" format="dimension" />
     </declare-styleable>
 
-    <declare-styleable name="CardsLayoutAV_Params" tools:ignore="ResourceName">
+    <declare-styleable name="CardsLayout_Params">
+        <attr name="cardsLayout_widthForCalculation" format="dimension" />
+        <attr name="cardsLayout_heightForCalculation" format="dimension" />
+    </declare-styleable>
+
+    <declare-styleable name="CardsLayoutAV" tools:ignore="ResourceName">
         <attr name="cardsLayoutAV_firstBar_anchorPosition" format="enum">
             <enum name="start" value="0" />
             <enum name="end" value="1" />
@@ -89,7 +91,7 @@
         <attr name="cardsLayoutAV_secondBarViewClass" format="string" />
     </declare-styleable>
 
-    <declare-styleable name="GameTableLayout_Params" tools:ignore="ResourceName">
+    <declare-styleable name="GameTableLayout" tools:ignore="ResourceName">
         <attr name="gameTableLayout_deskOfCardsIcon" format="reference" />
         <attr name="gameTableLayout_currentPlayerLayoutId" format="integer" />
         <attr name="gameTableLayout_cardValidatorSwipe" format="boolean" />
@@ -109,7 +111,7 @@
         </attr>
     </declare-styleable>
 
-    <declare-styleable name="CardDeckView_Params" tools:ignore="ResourceName">
+    <declare-styleable name="CardDeckView" tools:ignore="ResourceName">
         <attr name="cardDeck_offsetLeft" format="dimension" />
         <attr name="cardDeck_offsetTop" format="dimension" />
         <attr name="cardDeck_offsetRight" format="dimension" />

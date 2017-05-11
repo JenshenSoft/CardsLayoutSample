@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.Px;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import ua.jenshensoft.cardslayout.CardInfo;
@@ -15,6 +16,7 @@ import ua.jenshensoft.cardslayout.listeners.card.OnCardPercentageChangeListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardSwipedListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardTranslationListener;
 import ua.jenshensoft.cardslayout.util.SwipeGestureManager;
+import ua.jenshensoft.cardslayout.views.layout.CardsLayout;
 
 import static ua.jenshensoft.cardslayout.util.SwipeGestureManager.EPSILON;
 
@@ -124,6 +126,32 @@ public class CardBoxView<Entity> extends FrameLayout implements Card<Entity> {
     @Override
     public  void setFirstRotation(float rotation) {
         cardInfo.setFirstRotation(Math.round(rotation));
+    }
+
+    @Override
+    public int getCardWidth() {
+        ViewGroup.LayoutParams layoutParams = getLayoutParams();
+        if (layoutParams != null && layoutParams instanceof CardsLayout.LayoutParams) {
+            CardsLayout.LayoutParams params = (CardsLayout.LayoutParams) layoutParams;
+            int widthForCalculation = params.getWidthForCalculation();
+            if (widthForCalculation != -1) {
+                return widthForCalculation;
+            }
+        }
+        return getMeasuredWidth();
+    }
+
+    @Override
+    public int getCardHeight() {
+        ViewGroup.LayoutParams layoutParams = getLayoutParams();
+        if (layoutParams != null && layoutParams instanceof CardsLayout.LayoutParams) {
+            CardsLayout.LayoutParams params = (CardsLayout.LayoutParams) layoutParams;
+            int heightForCalculation = params.getHeightForCalculation();
+            if (heightForCalculation != -1) {
+                return heightForCalculation;
+            }
+        }
+        return getMeasuredHeight();
     }
 
     /* attr */

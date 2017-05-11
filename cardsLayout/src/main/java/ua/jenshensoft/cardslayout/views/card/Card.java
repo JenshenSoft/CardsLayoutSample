@@ -43,9 +43,9 @@ public interface Card<Entity> {
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     float getElevation();
 
-    int getMeasuredWidth();
+    int getCardWidth();
 
-    int getMeasuredHeight();
+    int getCardHeight();
 
     void setEnabled(boolean enable);
 

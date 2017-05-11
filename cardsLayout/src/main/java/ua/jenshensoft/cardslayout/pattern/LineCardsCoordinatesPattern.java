@@ -36,13 +36,13 @@ public class LineCardsCoordinatesPattern<Entity, CV extends View & Card<Entity>>
         float distanceBetweenViewsY = yConfig.getDistanceBetweenViews();
         float x = xConfig.getStartCoordinates();
         float y = yConfig.getStartCoordinates();
-        for (View card : cards) {
+        for (CV card : cards) {
             cardCoordinates.add(new CardCoordinates(x, y, 0));
             if (orientation == LinearLayout.HORIZONTAL) {
-                x += card.getMeasuredWidth() - distanceBetweenViewsX;
+                x += card.getCardWidth() - distanceBetweenViewsX;
             }
             if (orientation == LinearLayout.VERTICAL) {
-                y += card.getMeasuredHeight()  - distanceBetweenViewsY;
+                y += card.getCardHeight()  - distanceBetweenViewsY;
             }
         }
         return cardCoordinates;

@@ -8,7 +8,7 @@ import android.support.annotation.Px;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.view.View;
+import android.view.ViewGroup;
 
 import ua.jenshensoft.cardslayout.CardInfo;
 import ua.jenshensoft.cardslayout.R;
@@ -16,6 +16,7 @@ import ua.jenshensoft.cardslayout.listeners.card.OnCardPercentageChangeListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardSwipedListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardTranslationListener;
 import ua.jenshensoft.cardslayout.util.SwipeGestureManager;
+import ua.jenshensoft.cardslayout.views.layout.CardsLayout;
 
 import static ua.jenshensoft.cardslayout.util.SwipeGestureManager.EPSILON;
 
@@ -118,13 +119,39 @@ public class CardView<Entity> extends AppCompatImageView implements Card<Entity>
     }
 
     @Override
-    public  void setFirstY(float cardPositionY) {
+    public void setFirstY(float cardPositionY) {
         cardInfo.setFirstPositionY(Math.round(cardPositionY));
     }
 
     @Override
-    public  void setFirstRotation(float rotation) {
+    public void setFirstRotation(float rotation) {
         cardInfo.setFirstRotation(Math.round(rotation));
+    }
+
+    @Override
+    public int getCardWidth() {
+        ViewGroup.LayoutParams layoutParams = getLayoutParams();
+        if (layoutParams != null && layoutParams instanceof CardsLayout.LayoutParams) {
+            CardsLayout.LayoutParams params = (CardsLayout.LayoutParams) layoutParams;
+            int widthForCalculation = params.getWidthForCalculation();
+            if (widthForCalculation != -1) {
+                return widthForCalculation;
+            }
+        }
+        return getMeasuredWidth();
+    }
+
+    @Override
+    public int getCardHeight() {
+        ViewGroup.LayoutParams layoutParams = getLayoutParams();
+        if (layoutParams != null && layoutParams instanceof CardsLayout.LayoutParams) {
+            CardsLayout.LayoutParams params = (CardsLayout.LayoutParams) layoutParams;
+            int heightForCalculation = params.getHeightForCalculation();
+            if (heightForCalculation != -1) {
+                return heightForCalculation;
+            }
+        }
+        return getMeasuredHeight();
     }
 
     /* attr */

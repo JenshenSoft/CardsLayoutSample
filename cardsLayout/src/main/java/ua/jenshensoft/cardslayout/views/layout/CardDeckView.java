@@ -5,7 +5,6 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
-import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -110,8 +109,8 @@ public abstract class CardDeckView<Entity> extends ViewGroup {
             for (int i = 0; i < validatedCardViews.size(); i++) {
                 Card<Entity> card = validatedCardViews.get(i);
                 ThreeDCardCoordinates cardCoordinates = cardsCoordinates.get(i);
-                float childRight = cardCoordinates.getX() + card.getMeasuredWidth();
-                float childBottom = cardCoordinates.getY() + card.getMeasuredHeight();
+                float childRight = cardCoordinates.getX() + card.getCardWidth();
+                float childBottom = cardCoordinates.getY() + card.getCardHeight();
                 maxWidth = Math.max(maxWidth, Math.round(childRight));
                 maxHeight = Math.max(maxHeight, Math.round(childBottom));
             }
@@ -154,17 +153,17 @@ public abstract class CardDeckView<Entity> extends ViewGroup {
 
     private void inflateAttributes(Context context, AttributeSet attrs) {
         if (attrs != null) {
-            TypedArray attributes = context.obtainStyledAttributes(attrs, R.styleable.CardDeckView_Params);
+            TypedArray attributes = context.obtainStyledAttributes(attrs, R.styleable.CardDeckView);
             try {
-                cardDeckCardOffsetX = attributes.getDimension(R.styleable.CardDeckView_Params_cardDeck_cardDeck_cardOffset_x, cardDeckCardOffsetX);
-                cardDeckCardOffsetY = attributes.getDimension(R.styleable.CardDeckView_Params_cardDeck_cardDeck_cardOffset_y, cardDeckCardOffsetY);
-                cardDeckElevationMin = attributes.getDimension(R.styleable.CardDeckView_Params_cardDeck_cardDeck_elevation_min, cardDeckElevationMin);
-                cardDeckElevationMax = attributes.getDimension(R.styleable.CardDeckView_Params_cardDeck_cardDeck_elevation_max, cardDeckElevationMax);
+                cardDeckCardOffsetX = attributes.getDimension(R.styleable.CardDeckView_cardDeck_cardDeck_cardOffset_x, cardDeckCardOffsetX);
+                cardDeckCardOffsetY = attributes.getDimension(R.styleable.CardDeckView_cardDeck_cardDeck_cardOffset_y, cardDeckCardOffsetY);
+                cardDeckElevationMin = attributes.getDimension(R.styleable.CardDeckView_cardDeck_cardDeck_elevation_min, cardDeckElevationMin);
+                cardDeckElevationMax = attributes.getDimension(R.styleable.CardDeckView_cardDeck_cardDeck_elevation_max, cardDeckElevationMax);
 
-                offsetLeft = attributes.getDimension(R.styleable.CardDeckView_Params_cardDeck_offsetLeft, offsetLeft);
-                offsetRight = attributes.getDimension(R.styleable.CardDeckView_Params_cardDeck_offsetRight, offsetRight);
-                offsetTop = attributes.getDimension(R.styleable.CardDeckView_Params_cardDeck_offsetTop, offsetTop);
-                offsetBottom = attributes.getDimension(R.styleable.CardDeckView_Params_cardDeck_offsetBottom, offsetBottom);
+                offsetLeft = attributes.getDimension(R.styleable.CardDeckView_cardDeck_offsetLeft, offsetLeft);
+                offsetRight = attributes.getDimension(R.styleable.CardDeckView_cardDeck_offsetRight, offsetRight);
+                offsetTop = attributes.getDimension(R.styleable.CardDeckView_cardDeck_offsetTop, offsetTop);
+                offsetBottom = attributes.getDimension(R.styleable.CardDeckView_cardDeck_offsetBottom, offsetBottom);
             } finally {
                 attributes.recycle();
             }

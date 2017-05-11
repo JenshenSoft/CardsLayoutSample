@@ -163,8 +163,8 @@ public abstract class GameTableLayout<
                     int widthOfCardDeck = 0;
                     int heightOfCardDeck = 0;
                     for (Card<Entity> deckCard : cardDeckCards) {
-                        widthOfCardDeck += deckCard.getMeasuredWidth();
-                        heightOfCardDeck += deckCard.getMeasuredHeight();
+                        widthOfCardDeck += deckCard.getCardWidth();
+                        heightOfCardDeck += deckCard.getCardHeight();
                     }
                     widthOfCardDeck /= cardDeckCards.size();
                     heightOfCardDeck /= cardDeckCards.size();
@@ -470,23 +470,23 @@ public abstract class GameTableLayout<
     @SuppressWarnings({"unchecked"})
     private void initLayout(AttributeSet attrs) {
         if (attrs != null) {
-            TypedArray attributesTable = getContext().obtainStyledAttributes(attrs, R.styleable.GameTableLayout_Params);
-            TypedArray attributes = getContext().obtainStyledAttributes(attrs, R.styleable.CardDeckView_Params);
+            TypedArray attributesTable = getContext().obtainStyledAttributes(attrs, R.styleable.GameTableLayout);
+            TypedArray attributes = getContext().obtainStyledAttributes(attrs, R.styleable.CardDeckView);
             try {
-                durationOfDistributeAnimation = attributesTable.getInteger(R.styleable.GameTableLayout_Params_gameTableLayout_duration_distributeAnimation, durationOfDistributeAnimation);
-                isEnableSwipe = attributesTable.getBoolean(R.styleable.GameTableLayout_Params_gameTableLayout_cardValidatorSwipe, isEnableSwipe);
-                isEnableTransition = attributesTable.getBoolean(R.styleable.GameTableLayout_Params_gameTableLayout_cardValidatorTransition, isEnableTransition);
-                currentPlayerLayoutId = attributesTable.getResourceId(R.styleable.GameTableLayout_Params_gameTableLayout_currentPlayerLayoutId, currentPlayerLayoutId);
+                durationOfDistributeAnimation = attributesTable.getInteger(R.styleable.GameTableLayout_gameTableLayout_duration_distributeAnimation, durationOfDistributeAnimation);
+                isEnableSwipe = attributesTable.getBoolean(R.styleable.GameTableLayout_gameTableLayout_cardValidatorSwipe, isEnableSwipe);
+                isEnableTransition = attributesTable.getBoolean(R.styleable.GameTableLayout_gameTableLayout_cardValidatorTransition, isEnableTransition);
+                currentPlayerLayoutId = attributesTable.getResourceId(R.styleable.GameTableLayout_gameTableLayout_currentPlayerLayoutId, currentPlayerLayoutId);
 
                 //card deck
-                canAutoDistribute = attributesTable.getBoolean(R.styleable.GameTableLayout_Params_gameTableLayout_canAutoDistribute, canAutoDistribute);
-                deskOfCardsEnable = attributesTable.getBoolean(R.styleable.GameTableLayout_Params_gameTableLayout_cardDeckEnable, deskOfCardsEnable);
-                cardDeckGravity = new FlagManager(attributesTable.getInt(R.styleable.GameTableLayout_Params_gameTableLayout_cardDeckGravity, FlagManager.Gravity.CENTER));
+                canAutoDistribute = attributesTable.getBoolean(R.styleable.GameTableLayout_gameTableLayout_canAutoDistribute, canAutoDistribute);
+                deskOfCardsEnable = attributesTable.getBoolean(R.styleable.GameTableLayout_gameTableLayout_cardDeckEnable, deskOfCardsEnable);
+                cardDeckGravity = new FlagManager(attributesTable.getInt(R.styleable.GameTableLayout_gameTableLayout_cardDeckGravity, FlagManager.Gravity.CENTER));
 
-                cardDeckCardOffsetX = attributes.getDimension(R.styleable.CardDeckView_Params_cardDeck_cardDeck_cardOffset_x, cardDeckCardOffsetX);
-                cardDeckCardOffsetY = attributes.getDimension(R.styleable.CardDeckView_Params_cardDeck_cardDeck_cardOffset_y, cardDeckCardOffsetY);
-                cardDeckElevationMin = attributes.getDimension(R.styleable.CardDeckView_Params_cardDeck_cardDeck_elevation_min, cardDeckElevationMin);
-                cardDeckElevationMax = attributes.getDimension(R.styleable.CardDeckView_Params_cardDeck_cardDeck_elevation_max, cardDeckElevationMax);
+                cardDeckCardOffsetX = attributes.getDimension(R.styleable.CardDeckView_cardDeck_cardDeck_cardOffset_x, cardDeckCardOffsetX);
+                cardDeckCardOffsetY = attributes.getDimension(R.styleable.CardDeckView_cardDeck_cardDeck_cardOffset_y, cardDeckCardOffsetY);
+                cardDeckElevationMin = attributes.getDimension(R.styleable.CardDeckView_cardDeck_cardDeck_elevation_min, cardDeckElevationMin);
+                cardDeckElevationMax = attributes.getDimension(R.styleable.CardDeckView_cardDeck_cardDeck_elevation_max, cardDeckElevationMax);
             } finally {
                 attributesTable.recycle();
                 attributes.recycle();
