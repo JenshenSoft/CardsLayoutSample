@@ -1,4 +1,4 @@
-package ua.jenshensoft.cardslayout.views.layout;
+package ua.jenshensoft.cardslayout.views.layout.bars;
 
 
 import android.animation.Animator;
@@ -26,10 +26,12 @@ import ua.jenshensoft.cardslayout.R;
 import ua.jenshensoft.cardslayout.pattern.models.CardCoordinates;
 import ua.jenshensoft.cardslayout.util.FlagManager;
 import ua.jenshensoft.cardslayout.views.card.Card;
+import ua.jenshensoft.cardslayout.views.layout.CardsLayout;
+import ua.jenshensoft.cardslayout.views.layout.Config;
 
-import static ua.jenshensoft.cardslayout.views.layout.CardsLayoutWithBars.AnchorPosition.VIEW_POSITION_CENTER;
-import static ua.jenshensoft.cardslayout.views.layout.CardsLayoutWithBars.AnchorPosition.VIEW_POSITION_END;
-import static ua.jenshensoft.cardslayout.views.layout.CardsLayoutWithBars.AnchorPosition.VIEW_POSITION_START;
+import static ua.jenshensoft.cardslayout.views.layout.bars.CardsLayoutWithBars.AnchorPosition.VIEW_POSITION_CENTER;
+import static ua.jenshensoft.cardslayout.views.layout.bars.CardsLayoutWithBars.AnchorPosition.VIEW_POSITION_END;
+import static ua.jenshensoft.cardslayout.views.layout.bars.CardsLayoutWithBars.AnchorPosition.VIEW_POSITION_START;
 
 public abstract class CardsLayoutWithBars<
         Entity,
@@ -397,7 +399,7 @@ public abstract class CardsLayoutWithBars<
     @CheckResult
     private boolean canDistributeByWidth() {
         float rootWidth = getRootWidth();
-        float widthOfViews = getWidthOfViews(getCardViews(), 0);
+        float widthOfViews = getWidthOfViews(getCards(), 0);
         float difference = rootWidth - widthOfViews;
 
         int additionalViewsWidth = 0;
@@ -413,7 +415,7 @@ public abstract class CardsLayoutWithBars<
     @CheckResult
     private boolean canDistributeByHeight() {
         float rootHeight = getRootHeight();
-        float heightOfViews = getHeightOfViews(getCardViews(), 0);
+        float heightOfViews = getHeightOfViews(getCards(), 0);
         float difference = rootHeight - heightOfViews;
 
         int additionalViewsHeight = 0;
@@ -487,35 +489,5 @@ public abstract class CardsLayoutWithBars<
         int VIEW_POSITION_START = 0;
         int VIEW_POSITION_END = 1;
         int VIEW_POSITION_CENTER = 2;
-    }
-
-    private static class AnchorViewInfo {
-        private int firstPositionX;
-        private int firstPositionY;
-        private int cardsLayoutWidth;
-        private int cardsLayoutHeight;
-
-        private AnchorViewInfo(int firstPositionX, int firstPositionY, int cardsLayoutWidth, int cardsLayoutHeight) {
-            this.firstPositionX = firstPositionX;
-            this.firstPositionY = firstPositionY;
-            this.cardsLayoutWidth = cardsLayoutWidth;
-            this.cardsLayoutHeight = cardsLayoutHeight;
-        }
-
-        int getFirstPositionX() {
-            return firstPositionX;
-        }
-
-        int getFirstPositionY() {
-            return firstPositionY;
-        }
-
-        int getCardsLayoutWidth() {
-            return cardsLayoutWidth;
-        }
-
-        int getCardsLayoutHeight() {
-            return cardsLayoutHeight;
-        }
     }
 }

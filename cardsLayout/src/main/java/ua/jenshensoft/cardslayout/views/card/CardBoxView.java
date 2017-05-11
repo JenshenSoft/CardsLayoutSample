@@ -17,6 +17,7 @@ import ua.jenshensoft.cardslayout.listeners.card.OnCardSwipedListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardTranslationListener;
 import ua.jenshensoft.cardslayout.util.SwipeGestureManager;
 import ua.jenshensoft.cardslayout.views.layout.CardsLayout;
+import ua.jenshensoft.cardslayout.views.layout.CardsLayoutParams;
 
 import static ua.jenshensoft.cardslayout.util.SwipeGestureManager.EPSILON;
 
@@ -131,8 +132,8 @@ public class CardBoxView<Entity> extends FrameLayout implements Card<Entity> {
     @Override
     public int getCardWidth() {
         ViewGroup.LayoutParams layoutParams = getLayoutParams();
-        if (layoutParams != null && layoutParams instanceof CardsLayout.LayoutParams) {
-            CardsLayout.LayoutParams params = (CardsLayout.LayoutParams) layoutParams;
+        if (layoutParams != null && layoutParams instanceof CardsLayoutParams) {
+            CardsLayoutParams params = (CardsLayoutParams) layoutParams;
             int widthForCalculation = params.getWidthForCalculation();
             if (widthForCalculation != -1) {
                 return widthForCalculation;
@@ -144,8 +145,8 @@ public class CardBoxView<Entity> extends FrameLayout implements Card<Entity> {
     @Override
     public int getCardHeight() {
         ViewGroup.LayoutParams layoutParams = getLayoutParams();
-        if (layoutParams != null && layoutParams instanceof CardsLayout.LayoutParams) {
-            CardsLayout.LayoutParams params = (CardsLayout.LayoutParams) layoutParams;
+        if (layoutParams != null && layoutParams instanceof CardsLayoutParams) {
+            CardsLayoutParams params = (CardsLayoutParams) layoutParams;
             int heightForCalculation = params.getHeightForCalculation();
             if (heightForCalculation != -1) {
                 return heightForCalculation;

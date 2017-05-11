@@ -154,22 +154,22 @@ public abstract class CardsLayout<Entity> extends ViewGroup
 
     @Override
     public ViewGroup.LayoutParams generateLayoutParams(AttributeSet attrs) {
-        return new LayoutParams(getContext(), attrs);
+        return new CardsLayoutParams(getContext(), attrs);
     }
 
     @Override
     protected boolean checkLayoutParams(ViewGroup.LayoutParams p) {
-        return p instanceof LayoutParams;
+        return p instanceof CardsLayoutParams;
     }
 
     @Override
     protected ViewGroup.LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {
-        return new LayoutParams(p);
+        return new CardsLayoutParams(p);
     }
 
     @Override
     protected ViewGroup.LayoutParams generateDefaultLayoutParams() {
-        return new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        return new CardsLayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
     }
 
     @Override
@@ -578,6 +578,19 @@ public abstract class CardsLayout<Entity> extends ViewGroup
         return new Config(startXPositionFromList, distanceBetweenViews, widthOfViews);
     }
 
+    protected <T extends View> Config getXConfiguration(List<T> views) {
+        float rootWidth = getRootWidth();
+        float widthOfViews = getWidthOfViews(views, 0);
+        float difference = widthOfViews - rootWidth;
+        float distanceBetweenViews = getDistanceBetweenViews(difference, views);
+
+        if (difference > 0) {
+            widthOfViews = getWidthOfViews(views, distanceBetweenViews);
+        }
+        float startXPositionFromList = getStartXPositionForList(getChildrenWidth(views), widthOfViews, rootWidth);
+        return new Config(startXPositionFromList, distanceBetweenViews, widthOfViews);
+    }
+
     protected <T extends View> Config getYConfiguration(List<T> views) {
         float rootHeight = getRootHeight();
         float heightOfViews = getHeightOfViews(views, 0);
@@ -687,25 +700,25 @@ public abstract class CardsLayout<Entity> extends ViewGroup
         return height;
     }
 
-    protected <T extends View> float getWidthOfViews(@NonNull List<T> views, float offset) {
+    protected float getWidthOfViews(@NonNull List<Card<Entity>> views, float offset) {
         float widthOfViews = 0;
-        for (T view : views) {
-            if (shouldPassView(view)) {
+        for (Card<Entity> card : views) {
+            if (shouldPassCard(card)) {
                 continue;
             }
-            widthOfViews += view.getMeasuredWidth() - offset;
+            widthOfViews += card.getCardWidth() - offset;
         }
         widthOfViews += offset;
         return widthOfViews;
     }
 
-    protected <T extends View> float getHeightOfViews(@NonNull List<T> views, float offset) {
+    protected float getHeightOfViews(@NonNull List<Card<Entity>> views, float offset) {
         float heightViews = 0;
-        for (T view : views) {
-            if (shouldPassView(view)) {
+        for (Card<Entity> card : views) {
+            if (shouldPassCard(card)) {
                 continue;
             }
-            heightViews += view.getMeasuredHeight() - offset;
+            heightViews += card.getCardHeight() - offset;
         }
         heightViews += offset;
         return heightViews;
@@ -932,38 +945,5 @@ public abstract class CardsLayout<Entity> extends ViewGroup
     public @interface CardsDirection {
         int LEFT_TO_RIGHT = 0;
         int RIGHT_TO_LEFT = 1;
-    }
-
-    public static class LayoutParams extends ViewGroup.LayoutParams {
-
-        private int widthForCalculation = -1;
-        private int heightForCalculation = -1;
-
-        public LayoutParams(Context context, AttributeSet attrs) {
-            super(context, attrs);
-            TypedArray arr = context.obtainStyledAttributes(attrs, R.styleable.CardsLayout_Params);
-            try {
-                widthForCalculation = arr.getDimensionPixelSize(R.styleable.CardsLayout_Params_cardsLayout_widthForCalculation, -1);
-                heightForCalculation = arr.getDimensionPixelSize(R.styleable.CardsLayout_Params_cardsLayout_widthForCalculation, -1);
-            } finally {
-                arr.recycle();
-            }
-        }
-
-        public LayoutParams(int width, int height) {
-            super(width, height);
-        }
-
-        public LayoutParams(ViewGroup.LayoutParams source) {
-            super(source);
-        }
-
-        public int getWidthForCalculation() {
-            return widthForCalculation;
-        }
-
-        public int getHeightForCalculation() {
-            return heightForCalculation;
-        }
     }
 }
