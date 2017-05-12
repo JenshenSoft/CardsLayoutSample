@@ -25,6 +25,8 @@ class TableDistributedCardsListener<Entity> implements OnDistributedCardsListene
     public void onDistributedCards() {
         nonDistributedLayoutsCount--;
         distributedLayoutsCount++;
+        onCheckIsStartCardWave();
+        onCheckIsEndCardWave();
         if (distributedLayoutsCount == countOfLayouts) {
             distributedCardsListener.onDistributedCards();
         }
@@ -33,15 +35,23 @@ class TableDistributedCardsListener<Entity> implements OnDistributedCardsListene
     @Override
     public void onStartDistributedCardWave(List<Card<Entity>> cards) {
         startDistributedCardViews.addAll(cards);
+        onCheckIsStartCardWave();
+    }
+
+    @Override
+    public void onEndDistributeCardWave(List<Card<Entity>> cards) {
+        endDistributedCardViews.addAll(cards);
+        onCheckIsEndCardWave();
+    }
+
+    private void onCheckIsStartCardWave() {
         if (startDistributedCardViews.size() == nonDistributedLayoutsCount) {
             distributedCardsListener.onStartDistributedCardWave(startDistributedCardViews);
             startDistributedCardViews.clear();
         }
     }
 
-    @Override
-    public void onEndDistributeCardWave(List<Card<Entity>> cards) {
-        endDistributedCardViews.addAll(cards);
+    private void onCheckIsEndCardWave() {
         if (endDistributedCardViews.size() == nonDistributedLayoutsCount) {
             distributedCardsListener.onEndDistributeCardWave(endDistributedCardViews);
             endDistributedCardViews.clear();

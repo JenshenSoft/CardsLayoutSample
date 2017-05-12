@@ -48,6 +48,7 @@ public class ViewUpdateConfig {
             }
             lastWidth = measuredWidth;
             lastHeight = measuredHeight;
+            lastVisibility = visibility;
             return !isEqual;
         }
     }

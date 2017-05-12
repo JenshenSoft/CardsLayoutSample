@@ -144,11 +144,13 @@ public abstract class CardsLayout<Entity> extends ViewGroup
             animateInViewUpdate = false;
             return;
         }
-        List<CardCoordinates> startPositions = getViewsCoordinatesForStartPosition();
-        List<? extends View> validatedCardViews = getValidatedCardViews();
-        for (int i = 0; i < validatedCardViews.size(); i++) {
-            View child = getChildAt(i);
-            onLayoutCard((View & Card<Entity>) child, startPositions.get(i));
+        if (viewUpdateConfig.needUpdateViewOnLayout(changed)) {
+            List<CardCoordinates> startPositions = getViewsCoordinatesForStartPosition();
+            List<? extends View> validatedCardViews = getValidatedCardViews();
+            for (int i = 0; i < validatedCardViews.size(); i++) {
+                View child = getChildAt(i);
+                onLayoutCard((View & Card<Entity>) child, startPositions.get(i));
+            }
         }
     }
 

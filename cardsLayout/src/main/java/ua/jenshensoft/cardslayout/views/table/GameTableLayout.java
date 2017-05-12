@@ -74,6 +74,7 @@ public abstract class GameTableLayout<
     private OnCardClickListener<Entity> onCardClickListener;
     @Nullable
     private OnDistributedCardsListener<Entity> onDistributedCardsListener;
+    private boolean onDistributeAnimation;
 
     public GameTableLayout(Context context) {
         super(context);
@@ -201,23 +202,22 @@ public abstract class GameTableLayout<
         viewUpdater.onViewMeasured();
     }
 
-
     /* view updater */
-
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        clearAnimators();
-    }
 
     @Override
     public void onUpdateViewParams(GameTableParams<Entity> params, boolean calledInOnMeasure) {
         if (hasDistributionState()) {
             DistributionState<Entity> distributionState = params.getDistributionState();
-            if (!distributionState.isCardsAlreadyDistributed() && canAutoDistribute) {
+            if (!onDistributeAnimation && !distributionState.isCardsAlreadyDistributed() && canAutoDistribute) {
                 startDistributeCards();
             }
         }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        clearAnimators();
     }
 
     @Override
@@ -358,38 +358,41 @@ public abstract class GameTableLayout<
         clearAnimators();
         viewUpdater.addAction(
                 calledInOnMeasure ->
-                        postDelayed(() ->
-                                startDistributeCards(viewUpdater.getParams().getDistributionState().getCardsPredicateForDistribution()), 500));
+                        postOnAnimation(() ->
+                                startDistributeCards(viewUpdater.getParams().getDistributionState().getCardsPredicateForDistribution())));
     }
 
     public void startDistributeCards(Predicate<Card<Entity>> predicate) {
+        onDistributeAnimation = true;
         setEnabled(false, null);//disable cards without filters
+        TableDistributedCardsListener<Entity> distributedCardsListener = new TableDistributedCardsListener<>(cardsLayouts.size(), new OnDistributedCardsListener<Entity>() {
+            @Override
+            public void onDistributedCards() {
+                GameTableLayout.this.onDistributedCards();
+            }
+
+            @Override
+            public void onStartDistributedCardWave(List<Card<Entity>> cards) {
+                GameTableLayout.this.onStartDistributedCardWave(cards);
+            }
+
+            @Override
+            public void onEndDistributeCardWave(List<Card<Entity>> cards) {
+                GameTableLayout.this.onEndDistributeCardWave(cards);
+            }
+        });
         for (Layout cardsLayout : cardsLayouts) {
             distributeCardForPlayer(
                     cardsLayout,
                     predicate,
-                    new TableDistributedCardsListener<>(cardsLayouts.size(), new OnDistributedCardsListener<Entity>() {
-                        @Override
-                        public void onDistributedCards() {
-                            GameTableLayout.this.onDistributedCards();
-                        }
-
-                        @Override
-                        public void onStartDistributedCardWave(List<Card<Entity>> cards) {
-                            GameTableLayout.this.onStartDistributedCardWave(cards);
-                        }
-
-                        @Override
-                        public void onEndDistributeCardWave(List<Card<Entity>> cards) {
-                            GameTableLayout.this.onEndDistributeCardWave(cards);
-                        }
-                    }));
+                    distributedCardsListener);
         }
     }
 
     @SuppressWarnings("ConstantConditions")
     protected void onDistributedCards() {
         setEnabled(true);
+        onDistributeAnimation = false;
         if (hasDistributionState()) {
             DistributionState<Entity> distributionState = viewUpdater.getParams().getDistributionState();
             distributionState.setCardsAlreadyDistributed(true);

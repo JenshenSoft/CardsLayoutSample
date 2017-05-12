@@ -10,6 +10,8 @@ import android.util.AttributeSet;
 
 import com.android.internal.util.Predicate;
 
+import java.util.List;
+
 import ua.jenshensoft.cardslayout.util.DistributionState;
 import ua.jenshensoft.cardslayout.views.card.Card;
 import ua.jenshensoft.cardslayout.views.layout.CardsLayout;
@@ -44,6 +46,21 @@ public class GameTable extends GameTableLayout<CardsLayoutDefault.CardInfo, Card
     @Override
     public void onUpdateViewParams(GameTableParams params, boolean calledInOnMeasure) {
         super.onUpdateViewParams(params, calledInOnMeasure);
+    }
+
+    @Override
+    protected void onStartDistributedCardWave(List<Card<CardsLayoutDefault.CardInfo>> cards) {
+        /*Bitmap bitmap = BitmapUtils.rotateBitmap(getContext(), R.drawable.ic_card1, 90);
+        for (Card<CardsLayoutDefault.CardInfo> card : cards) {
+            if (card instanceof CardView) {
+                CardView cardView = (CardView) card;
+                cardView.setImageBitmap(bitmap);
+            } else if (card instanceof CardBoxView) {
+                CardBoxView cardView = (CardBoxView) card;
+                ((ImageView)cardView.getChildAt(0)).setImageBitmap(bitmap);
+            }
+        }*/
+        super.onStartDistributedCardWave(cards);
     }
 
     private void init() {
