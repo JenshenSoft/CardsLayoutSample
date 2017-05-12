@@ -94,6 +94,7 @@ public abstract class CardsLayout<Entity> extends ViewGroup
     private List<Card<Entity>> cards;
     @Nullable
     private ColorFilter colorFilter;
+    private boolean animateInViewUpdate;
 
     public CardsLayout(Context context) {
         super(context);
@@ -138,13 +139,16 @@ public abstract class CardsLayout<Entity> extends ViewGroup
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        if (viewUpdateConfig.needUpdateViewOnLayout(changed)) {
-            List<CardCoordinates> startPositions = getViewsCoordinatesForStartPosition();
-            List<? extends View> validatedCardViews = getValidatedCardViews();
-            for (int i = 0; i < validatedCardViews.size(); i++) {
-                View child = getChildAt(i);
-                onLayoutCard((View & Card<Entity>) child, startPositions.get(i));
-            }
+        if (animateInViewUpdate) {
+            invalidateCardsPosition(true);
+            animateInViewUpdate = false;
+            return;
+        }
+        List<CardCoordinates> startPositions = getViewsCoordinatesForStartPosition();
+        List<? extends View> validatedCardViews = getValidatedCardViews();
+        for (int i = 0; i < validatedCardViews.size(); i++) {
+            View child = getChildAt(i);
+            onLayoutCard((View & Card<Entity>) child, startPositions.get(i));
         }
     }
 
@@ -253,7 +257,7 @@ public abstract class CardsLayout<Entity> extends ViewGroup
                 cardInfo.setCardPositionInLayout(cardPosition - 1);
             }
         }
-        invalidateCardsPosition(true);
+        animateInViewUpdate = true;
     }
 
     public void setIsTestMode() {
@@ -299,7 +303,7 @@ public abstract class CardsLayout<Entity> extends ViewGroup
     public void invalidateCardsPosition(boolean withAnimation,
                                         @Nullable OnCreateAnimatorAction<Entity> onCreateAnimatorAction,
                                         @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
-        setViewsCoordinatesToStartPosition();
+        setViewsCoordinatesToStartPosition(getViewsCoordinatesForStartPosition());
         moveViewsToStartPosition(withAnimation, onCreateAnimatorAction, animatorListenerAdapter);
     }
 
@@ -512,8 +516,7 @@ public abstract class CardsLayout<Entity> extends ViewGroup
 
     /* protected methods */
 
-    protected <CV extends View & Card<Entity>> void setViewsCoordinatesToStartPosition() {
-        List<CardCoordinates> cardsCoordinates = getViewsCoordinatesForStartPosition();
+    protected <CV extends View & Card<Entity>> void setViewsCoordinatesToStartPosition(List<CardCoordinates> cardsCoordinates) {
         List<CV> cards = getValidatedCardViews();
         for (int i = 0; i < cardsCoordinates.size(); i++) {
             final Card<Entity> card = cards.get(i);
@@ -710,18 +713,18 @@ public abstract class CardsLayout<Entity> extends ViewGroup
         return heightViews;
     }
 
-    protected  <T extends View> int getChildWidth(T view) {
+    protected <T extends View> int getChildWidth(T view) {
         if (Card.class.isInstance(view)) {
             return Card.class.cast(view).getCardWidth();
-        } else  {
+        } else {
             return view.getMeasuredWidth();
         }
     }
 
-    protected  <T extends View> int getChildHeight(T view) {
+    protected <T extends View> int getChildHeight(T view) {
         if (Card.class.isInstance(view)) {
             return Card.class.cast(view).getCardHeight();
-        } else  {
+        } else {
             return view.getMeasuredHeight();
         }
     }
@@ -758,7 +761,7 @@ public abstract class CardsLayout<Entity> extends ViewGroup
                 return awesomeAnimation.build().getAnimatorSet();
             }
         };
-        viewUpdateConfig = new ViewUpdateConfig(this, false);
+        viewUpdateConfig = new ViewUpdateConfig(this);
         onCardPercentageChangeListeners = new ArrayList<>();
         onCardSwipedListeners = new ArrayList<>();
         onCardTranslationListeners = new ArrayList<>();

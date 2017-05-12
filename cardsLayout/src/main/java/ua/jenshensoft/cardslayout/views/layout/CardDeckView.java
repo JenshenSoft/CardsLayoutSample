@@ -173,7 +173,7 @@ public abstract class CardDeckView<Entity> extends ViewGroup {
     private void init() {
         cards = new ArrayList<>();
         viewUpdater = new ViewUpdater<>();
-        viewUpdateConfig = new ViewUpdateConfig(this, true);
+        viewUpdateConfig = new ViewUpdateConfig(this);
 
         if (Math.abs(cardDeckElevationMin - (-1)) < EPSILON) {
             cardDeckElevationMin = getResources().getDimension(R.dimen.cardsLayout_card_elevation_normal);

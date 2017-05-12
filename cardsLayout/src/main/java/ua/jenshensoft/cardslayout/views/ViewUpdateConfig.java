@@ -6,25 +6,23 @@ import android.view.ViewGroup;
 public class ViewUpdateConfig {
 
     private final View view;
-    private final boolean validateCardCount;
     private Config onMeasure;
     private Config onLayout;
 
-    public ViewUpdateConfig(View view, boolean validateCardCount) {
+    public ViewUpdateConfig(View view) {
         this.view = view;
-        this.validateCardCount = validateCardCount;
         this.onMeasure = new Config();
         this.onLayout = new Config();
     }
 
     public boolean needUpdateViewOnMeasure() {
-        boolean validateCardCount = this.validateCardCount && view instanceof ViewGroup;
-        return onMeasure.needUpdate(view.getMeasuredWidth(), view.getMeasuredHeight(), validateCardCount ? ((ViewGroup) view).getChildCount() : -1);
+        boolean validateCardCount = view instanceof ViewGroup;
+        return onMeasure.needUpdate(view.getMeasuredWidth(), view.getMeasuredHeight(), validateCardCount ? ((ViewGroup) view).getChildCount() : -1, view.getVisibility());
     }
 
     public boolean needUpdateViewOnLayout(boolean changed) {
-        boolean validateCardCount = this.validateCardCount && view instanceof ViewGroup;
-        boolean needUpdate = onLayout.needUpdate(view.getMeasuredWidth(), view.getMeasuredHeight(), validateCardCount ? ((ViewGroup) view).getChildCount() : -1);
+        boolean validateCardCount = view instanceof ViewGroup;
+        boolean needUpdate = onLayout.needUpdate(view.getMeasuredWidth(), view.getMeasuredHeight(), validateCardCount ? ((ViewGroup) view).getChildCount() : -1, view.getVisibility());
         return changed || needUpdate;
     }
 
@@ -33,15 +31,17 @@ public class ViewUpdateConfig {
         private int lastWidth;
         private int lastHeight;
         private int childCount;
+        private int lastVisibility;
 
         Config() {
             this.lastWidth = -1;
             this.lastHeight = -1;
             this.childCount = -1;
+            this.lastVisibility = -1;
         }
 
-        boolean needUpdate(int measuredWidth, int measuredHeight, int childCount) {
-            boolean isEqual = measuredHeight == lastHeight && measuredWidth == lastWidth;
+        boolean needUpdate(int measuredWidth, int measuredHeight, int childCount, int visibility) {
+            boolean isEqual = measuredHeight == lastHeight && measuredWidth == lastWidth && visibility == lastVisibility;
             if (childCount != -1) {
                 isEqual = isEqual && this.childCount == childCount;
                 this.childCount = childCount;
