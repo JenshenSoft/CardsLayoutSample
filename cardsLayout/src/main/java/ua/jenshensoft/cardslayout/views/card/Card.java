@@ -9,8 +9,9 @@ import ua.jenshensoft.cardslayout.CardInfo;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardPercentageChangeListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardSwipedListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardTranslationListener;
+import ua.jenshensoft.cardslayout.views.ValidateViewBlocker;
 
-public interface Card<Entity> {
+public interface Card<Entity> extends ValidateViewBlocker {
 
     int START_TO_CURRENT = 1;
     int LAST_TO_CURRENT = 2;

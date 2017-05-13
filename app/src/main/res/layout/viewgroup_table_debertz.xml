@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="ua.jenshensoft.cardslayoutsample.MainActivity">
+
+    <ua.jenshensoft.cardslayoutsample.views.debertz.DebertzCardsLayout
+        style="@style/Widget.CardsLayout.OtherPlayer.Vertical"
+        android:id="@+id/cardsOnTheHand_layout_1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:cardsLayoutAV_firstBar_anchorGravity="right|center_vertical"
+        app:cardsLayout_cardsGravity="left|center_vertical"
+        app:cardsLayout_childList_paddingLeft="@dimen/childList_offsetFromScreen_otherPlayer">
+        <!--app:debertzCardsLayout_childRotation="90"-->
+
+        <include layout="@layout/partial_card_vertical" />
+
+        <include layout="@layout/partial_card_vertical" />
+
+        <include layout="@layout/partial_card_vertical" />
+
+        <include layout="@layout/partial_card_vertical" />
+
+        <include layout="@layout/partial_card_vertical" />
+
+        <include layout="@layout/partial_card_vertical" />
+
+        <include layout="@layout/partial_card_vertical" />
+
+        <include layout="@layout/partial_card_vertical" />
+
+        <ua.jenshensoft.cardslayoutsample.views.debertz.FirstBarView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </ua.jenshensoft.cardslayoutsample.views.debertz.DebertzCardsLayout>
+
+    <ua.jenshensoft.cardslayoutsample.views.debertz.DebertzCardsLayout
+        android:id="@+id/cardsOnTheHand_layout_2"
+        style="@style/Widget.CardsLayout.OtherPlayer.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:cardsLayoutAV_firstBar_anchorGravity="bottom|center_horizontal"
+        app:cardsLayout_cardsDirection="leftToRight"
+        app:cardsLayout_cardsGravity="top|center_horizontal"
+        app:cardsLayout_childList_paddingTop="@dimen/childList_offsetFromScreen_otherPlayer">
+
+        <include layout="@layout/partial_card_horizontal" />
+
+        <include layout="@layout/partial_card_horizontal" />
+
+        <include layout="@layout/partial_card_horizontal" />
+
+        <include layout="@layout/partial_card_horizontal" />
+
+        <include layout="@layout/partial_card_horizontal" />
+
+        <include layout="@layout/partial_card_horizontal" />
+
+        <include layout="@layout/partial_card_horizontal" />
+
+        <include layout="@layout/partial_card_horizontal" />
+
+        <ua.jenshensoft.cardslayoutsample.views.debertz.FirstBarView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </ua.jenshensoft.cardslayoutsample.views.debertz.DebertzCardsLayout>
+
+    <ua.jenshensoft.cardslayoutsample.views.debertz.DebertzCardsLayout
+        android:id="@+id/cardsOnTheHand_layout_3"
+        style="@style/Widget.CardsLayout.OtherPlayer.Vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:cardsLayoutAV_firstBar_anchorGravity="left|center_vertical"
+        app:cardsLayout_cardsDirection="leftToRight"
+        app:cardsLayout_cardsGravity="right|center_vertical"
+        app:cardsLayout_childList_paddingRight="@dimen/childList_offsetFromScreen_otherPlayer">
+        <!--app:debertzCardsLayout_childRotation="90"-->
+
+        <include layout="@layout/partial_card_vertical" />
+
+        <include layout="@layout/partial_card_vertical" />
+
+        <include layout="@layout/partial_card_vertical" />
+
+        <include layout="@layout/partial_card_vertical" />
+
+        <include layout="@layout/partial_card_vertical" />
+
+        <include layout="@layout/partial_card_vertical" />
+
+        <include layout="@layout/partial_card_vertical" />
+
+        <include layout="@layout/partial_card_vertical" />
+
+        <ua.jenshensoft.cardslayoutsample.views.debertz.FirstBarView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </ua.jenshensoft.cardslayoutsample.views.debertz.DebertzCardsLayout>
+
+    <ua.jenshensoft.cardslayoutsample.views.debertz.DebertzCardsLayout
+        android:id="@+id/cardsOnTheHand_layout_0"
+        style="@style/Widget.CardsLayout.CurrentPlayer.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:cardsLayout_cardsGravity="bottom|center_horizontal"
+        app:cardsLayout_childList_paddingBottom="@dimen/childList_offsetFromScreen_currentPlayer"
+        app:cardsLayout_tintColor="@color/colorAccent">
+
+        <include layout="@layout/partial_card_horizontal" />
+
+        <include layout="@layout/partial_card_horizontal" />
+
+        <include layout="@layout/partial_card_horizontal" />
+
+        <include layout="@layout/partial_card_horizontal" />
+
+        <include layout="@layout/partial_card_horizontal" />
+
+        <include layout="@layout/partial_card_horizontal" />
+
+        <include layout="@layout/partial_card_horizontal" />
+
+        <include layout="@layout/partial_card_horizontal" />
+
+        <ua.jenshensoft.cardslayoutsample.views.debertz.FirstBarView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </ua.jenshensoft.cardslayoutsample.views.debertz.DebertzCardsLayout>
+
+</merge>

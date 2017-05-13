@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">CardsLayoutSample</string>
     <string name="action_settings">Settings</string>
+
+
+    <string name="userInfoBarClass">ua.jenshensoft.cardslayoutsample.views.debertz.FirstBarView</string>
+    <string name="gameInfoBarClass">ua.jenshensoft.cardslayoutsample.views.debertz.SecondBarView</string>
 </resources>

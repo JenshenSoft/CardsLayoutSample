@@ -1,38 +1,39 @@
-package ua.jenshensoft.cardslayoutsample;
+package ua.jenshensoft.cardslayoutsample.views.debertz;
 
 import android.content.Context;
 import android.util.AttributeSet;
 
 import ua.jenshensoft.cardslayout.listeners.card.OnCardSwipedListener;
-import ua.jenshensoft.cardslayout.views.layout.CardsLayout;
+import ua.jenshensoft.cardslayout.views.layout.bars.CardsLayoutWithBars;
+import ua.jenshensoft.cardslayoutsample.views.CardInfoModel;
 
-public class CardsLayoutDefaultWithBars extends CardsLayout<CardsLayoutDefaultWithBars.CardInfo> {
+public class DebertzCardsLayout extends CardsLayoutWithBars<CardInfoModel, FirstBarView, SecondBarView> {
 
-    public CardsLayoutDefaultWithBars(Context context) {
+    public DebertzCardsLayout(Context context) {
         super(context);
         initLayout();
     }
 
-    public CardsLayoutDefaultWithBars(Context context, AttributeSet attrs) {
+    public DebertzCardsLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
         initLayout();
     }
 
-    public CardsLayoutDefaultWithBars(Context context, AttributeSet attrs, int defStyleAttr) {
+    public DebertzCardsLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initLayout();
     }
 
-    public CardsLayoutDefaultWithBars(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public DebertzCardsLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         initLayout();
     }
 
 
     private void initLayout() {
-        addOnCardSwipedListener(new OnCardSwipedListener<CardInfo>() {
+        addOnCardSwipedListener(new OnCardSwipedListener<CardInfoModel>() {
             @Override
-            public void onCardSwiped(ua.jenshensoft.cardslayout.CardInfo<CardInfo> cardInfo) {
+            public void onCardSwiped(ua.jenshensoft.cardslayout.CardInfo<CardInfoModel> cardInfo) {
                 removeCardView(cardInfo.getCardPositionInLayout());
             }
         });

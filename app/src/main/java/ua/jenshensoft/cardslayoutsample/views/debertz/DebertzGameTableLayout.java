@@ -1,12 +1,11 @@
-package ua.jenshensoft.cardslayoutsample.views;
+package ua.jenshensoft.cardslayoutsample.views.debertz;
 
 import android.content.Context;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
-import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
+import android.widget.ImageView;
 
 import com.android.internal.util.Predicate;
 
@@ -14,30 +13,34 @@ import java.util.List;
 
 import ua.jenshensoft.cardslayout.util.DistributionState;
 import ua.jenshensoft.cardslayout.views.card.Card;
+import ua.jenshensoft.cardslayout.views.card.CardBoxView;
+import ua.jenshensoft.cardslayout.views.card.CardView;
 import ua.jenshensoft.cardslayout.views.layout.CardsLayout;
 import ua.jenshensoft.cardslayout.views.table.GameTableLayout;
 import ua.jenshensoft.cardslayout.views.updater.model.GameTableParams;
+import ua.jenshensoft.cardslayoutsample.BitmapUtils;
 import ua.jenshensoft.cardslayoutsample.R;
+import ua.jenshensoft.cardslayoutsample.views.CardInfoModel;
 
-public class GameTable extends GameTableLayout<CardInfoModel, CardsLayout<CardInfoModel>> {
+public class DebertzGameTableLayout extends GameTableLayout<CardInfoModel, CardsLayout<CardInfoModel>> {
 
-    public GameTable(Context context) {
+    public DebertzGameTableLayout(Context context) {
         super(context);
         init();
     }
 
-    public GameTable(Context context, AttributeSet attrs) {
+    public DebertzGameTableLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public GameTable(Context context, AttributeSet attrs, int defStyleAttr) {
+    public DebertzGameTableLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public GameTable(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public DebertzGameTableLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init();
     }
@@ -49,29 +52,21 @@ public class GameTable extends GameTableLayout<CardInfoModel, CardsLayout<CardIn
 
     @Override
     protected void onStartDistributedCardWave(List<Card<CardInfoModel>> cards) {
-        /*Bitmap bitmap = BitmapUtils.rotateBitmap(getContext(), R.drawable.ic_card1, 90);
-        for (Card<CardsLayoutDefault.CardInfoModel> card : cards) {
-            if (card instanceof CardView) {
-                CardView cardView = (CardView) card;
-                cardView.setImageBitmap(bitmap);
-            } else if (card instanceof CardBoxView) {
-                CardBoxView cardView = (CardBoxView) card;
-                ((ImageView)cardView.getChildAt(0)).setImageBitmap(bitmap);
-            }
-        }*/
+        for (Card<CardInfoModel> card : cards) {
+            setIcon(card, BitmapUtils.rotateBitmap(getContext(), getCardResId(card.getCardInfo().getEntity().getNumber()), 90));
+        }
         super.onStartDistributedCardWave(cards);
     }
 
     private void init() {
-        inflate(getContext(), R.layout.viewgroup_table, this);
+        inflate(getContext(), R.layout.viewgroup_table_debertz, this);
         setDurationOfDistributeAnimation(1000);
-
-        getCurrentPlayerCardsLayout().setColorFilter(new PorterDuffColorFilter(ContextCompat.getColor(getContext(), R.color.colorAccent), PorterDuff.Mode.MULTIPLY));
 
         for (CardsLayout<CardInfoModel> cardsLayout : cardsLayouts) {
             int i = 0;
             for (Card<CardInfoModel> card : cardsLayout.getCards()) {
                 card.getCardInfo().setEntity(new CardInfoModel(i));
+                setIcon(card, BitmapUtils.rotateBitmap(getContext(), getCardResId(card.getCardInfo().getEntity().getNumber()), 0));
                 i++;
             }
         }
@@ -97,5 +92,37 @@ public class GameTable extends GameTableLayout<CardInfoModel, CardsLayout<CardIn
                 };
             }
         });
+    }
+
+    private void setIcon(Card<CardInfoModel> card, Bitmap bitmap) {
+        if (card instanceof CardView) {
+            CardView cardView = (CardView) card;
+            cardView.setImageBitmap(bitmap);
+        } else if (card instanceof CardBoxView) {
+            CardBoxView cardView = (CardBoxView) card;
+            ((ImageView) cardView.getChildAt(0)).setImageBitmap(bitmap);
+        }
+    }
+
+    private int getCardResId(int number) {
+        switch (number) {
+            case 0:
+                return R.drawable.ic_card0;
+            case 1:
+                return R.drawable.ic_card1;
+            case 2:
+                return R.drawable.ic_card2;
+            case 3:
+                return R.drawable.ic_card3;
+            case 4:
+                return R.drawable.ic_card4;
+            case 5:
+                return R.drawable.ic_card5;
+            case 6:
+                return R.drawable.ic_card6;
+            case 7:
+                return R.drawable.ic_card7;
+        }
+        throw new RuntimeException("Can't support card number");
     }
 }

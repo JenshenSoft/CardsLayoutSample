@@ -28,6 +28,7 @@ public class CardView<Entity> extends AppCompatImageView implements Card<Entity>
     private SwipeGestureManager<Entity> swipeManager;
     private CardInfo<Entity> cardInfo;
     private boolean scrollAndClickable = true;
+    private boolean canInvalidateView = true;
     private float cardElevation = -1;
     private float cardElevationPressed = -1;
 
@@ -221,6 +222,16 @@ public class CardView<Entity> extends AppCompatImageView implements Card<Entity>
     @Override
     public void setScrollAndClickableState(boolean scrollAndClickable) {
         this.scrollAndClickable = scrollAndClickable;
+    }
+
+    @Override
+    public boolean isCanInvalidateView() {
+        return canInvalidateView;
+    }
+
+    @Override
+    public void setCanInvalidateView(boolean canInvalidateView) {
+        this.canInvalidateView = canInvalidateView;
     }
 
 

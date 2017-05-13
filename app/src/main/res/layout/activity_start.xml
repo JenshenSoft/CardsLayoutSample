@@ -17,4 +17,10 @@
         android:layout_height="wrap_content"
         android:text="Game layout" />
 
+    <Button
+        android:id="@+id/debrtzLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Debertz layout" />
+
 </LinearLayout>

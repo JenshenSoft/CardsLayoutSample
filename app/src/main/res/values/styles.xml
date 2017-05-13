@@ -18,19 +18,77 @@
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
     <style name="Widget" />
+    <!-- Card -->
+    <style name="Widget.Card">
+        <item name="card_elevation">@dimen/card_elevation_normal</item>
+        <item name="card_elevation_pressed">@dimen/card_elevation_pressed</item>
+    </style>
+
+    <style name="Widget.Card.Vertical">
+        <!-- cards layout params -->
+        <item name="cardsLayout_widthForCalculation">@dimen/card_width</item>
+        <item name="cardsLayout_heightForCalculation">@dimen/card_height</item>
+    </style>
+
+    <style name="Widget.Card.Horizontal">
+        <!-- cards layout params -->
+        <item name="cardsLayout_widthForCalculation">@dimen/card_height</item>
+        <item name="cardsLayout_heightForCalculation">@dimen/card_width</item>
+    </style>
+
+    <!-- CardsLayout -->
+    <style name="Widget.CardsLayout">
+        <item name="cardsLayoutAV_firstBarViewClass">@string/userInfoBarClass</item>
+    </style>
+
+    <style name="Widget.CardsLayout.CurrentPlayer">
+        <item name="cardsLayout_childList_distributeCardsBy">line</item>
+        <item name="cardsLayoutAV_barsMargin">@dimen/offset_small1</item>
+        <item name="cardsLayoutAV_distributeBars_byWidth">true</item>
+        <item name="cardsLayoutAV_secondBarViewClass">@string/gameInfoBarClass</item>
+        <!--bars-->
+        <item name="cardsLayoutAV_secondBar_anchorGravity">top|center_horizontal</item>
+        <item name="cardsLayoutAV_secondBar_anchorPosition">end</item>
+        <item name="cardsLayoutAV_firstBar_anchorGravity">top|center_horizontal</item>
+        <item name="cardsLayoutAV_firstBar_anchorPosition">start</item>
+    </style>
+
+    <style name="Widget.CardsLayout.OtherPlayer">
+        <!-- circle -->
+        <item name="cardsLayout_childList_distributeCardsBy">circle</item>
+        <item name="cardsLayout_childList_circleCenterLocation">bottom</item>
+        <item name="cardsLayout_childList_circleRadius">200dp</item>
+        <item name="cardsLayoutAV_firstBar_anchorPosition">center</item>
+        <item name="cardsLayoutAV_barsMargin">@dimen/childList_otherPlayersBarMargin</item>
+    </style>
+
+    <style name="Widget.CardsLayout.CurrentPlayer.Horizontal">
+        <item name="cardsLayout_childList_orientation">horizontal</item>
+    </style>
+
+    <style name="Widget.CardsLayout.OtherPlayer.Horizontal">
+        <item name="cardsLayout_childList_width">@dimen/childList_length</item>
+        <item name="cardsLayout_childList_orientation">horizontal</item>
+    </style>
+
+    <style name="Widget.CardsLayout.OtherPlayer.Vertical">
+        <item name="cardsLayout_childList_height">@dimen/childList_length</item>
+        <item name="cardsLayout_childList_orientation">vertical</item>
+
+    </style>
 
     <style name="Widget.TableLayout">
         <item name="gameTableLayout_cardValidatorTransition">true</item>
         <item name="gameTableLayout_cardValidatorSwipe">true</item>
-        <item name="gameTableLayout_currentPlayerLayoutId">@+id/cardsLayout0</item>
-        <!--card deck-->
+        <item name="gameTableLayout_currentPlayerLayoutId">@+id/cardsOnTheHand_layout_0</item>
+        <!--carddeck-->
         <item name="gameTableLayout_canAutoDistribute">true</item>
         <item name="gameTableLayout_cardDeckEnable">true</item>
         <item name="gameTableLayout_cardDeckGravity">center</item>
         <item name="cardDeck_cardDeck_cardOffset_x">@dimen/cardsLayout_shadow_desk_offset</item>
         <item name="cardDeck_cardDeck_cardOffset_y">@dimen/cardsLayout_shadow_desk_offset</item>
-        <item name="cardDeck_cardDeck_elevation_min">@dimen/cardsLayout_card_elevation_normal</item>
-        <item name="cardDeck_cardDeck_elevation_max">@dimen/cardsLayout_card_elevation_pressed</item>
+        <item name="cardDeck_cardDeck_elevation_min">@dimen/cardDeck_elevationMin</item>
+        <item name="cardDeck_cardDeck_elevation_max">@dimen/cardDeck_elevationMax</item>
         <!--<item name="layout_behavior">@string/tableLayoutBehavior</item>-->
     </style>
 

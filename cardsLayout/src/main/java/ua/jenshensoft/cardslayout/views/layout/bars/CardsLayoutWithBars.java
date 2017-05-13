@@ -25,6 +25,7 @@ import java.util.List;
 import ua.jenshensoft.cardslayout.R;
 import ua.jenshensoft.cardslayout.pattern.models.CardCoordinates;
 import ua.jenshensoft.cardslayout.util.FlagManager;
+import ua.jenshensoft.cardslayout.views.ValidateViewBlocker;
 import ua.jenshensoft.cardslayout.views.card.Card;
 import ua.jenshensoft.cardslayout.views.layout.CardsLayout;
 import ua.jenshensoft.cardslayout.views.layout.Config;
@@ -35,8 +36,8 @@ import static ua.jenshensoft.cardslayout.views.layout.bars.CardsLayoutWithBars.A
 
 public abstract class CardsLayoutWithBars<
         Entity,
-        FirstBarView extends View,
-        SecondBarView extends View>
+        FirstBarView extends View & ValidateViewBlocker,
+        SecondBarView extends View & ValidateViewBlocker>
         extends CardsLayout<Entity> {
 
     //additional views
@@ -102,10 +103,10 @@ public abstract class CardsLayoutWithBars<
     }
 
     @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        super.onLayout(changed, l, t, r, b);
+    protected <CV extends View & Card<Entity>> void onLayoutCards() {
+        super.onLayoutCards();
         Iterator<CardCoordinates> cardCoordinates = getCoordinatesForBars().iterator();
-        if (firstBarView != null) {
+        if (firstBarView != null && firstBarView.isCanInvalidateView() && cardCoordinates.hasNext()) {
             CardCoordinates coordinates = cardCoordinates.next();
             int x = Math.round(coordinates.getX());
             int y = Math.round(coordinates.getY());
@@ -115,7 +116,7 @@ public abstract class CardsLayoutWithBars<
                     x + firstBarView.getMeasuredWidth(),
                     y + firstBarView.getMeasuredHeight());
         }
-        if (secondBarView != null) {
+        if (secondBarView != null && secondBarView.isCanInvalidateView() && cardCoordinates.hasNext()) {
             CardCoordinates coordinates = cardCoordinates.next();
             int x = Math.round(coordinates.getX());
             int y = Math.round(coordinates.getY());
@@ -157,7 +158,7 @@ public abstract class CardsLayoutWithBars<
         moveViewToPosition(secondBarView, coordinatesForGameInfoBar, withAnimation, animatorListenerAdapter);
     }
 
-    protected void moveViewToPosition(View view, int[] coordinates, boolean isAnimated, @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
+    protected <V extends View & ValidateViewBlocker> void moveViewToPosition(V view, int[] coordinates, boolean isAnimated, @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
         if (isAnimated) {
             AwesomeAnimation.Builder awesomeAnimation = new AwesomeAnimation.Builder(view)
                     .setX(AwesomeAnimation.CoordinationMode.COORDINATES, view.getX(), coordinates[0])
@@ -167,13 +168,19 @@ public abstract class CardsLayoutWithBars<
                 awesomeAnimation.setInterpolator(interpolator);
             AwesomeAnimation build = awesomeAnimation.build();
             AnimatorSet animatorSet = build.getAnimatorSet();
+            animatorSet.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    view.setCanInvalidateView(false);
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    startedAnimators.remove(animation);
+                    view.setCanInvalidateView(true);
+                }
+            });
             if (animatorListenerAdapter != null) {
-                animatorSet.addListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        startedAnimators.remove(animatorSet);
-                    }
-                });
                 animatorSet.addListener(animatorListenerAdapter);
             }
             startedAnimators.add(animatorSet);

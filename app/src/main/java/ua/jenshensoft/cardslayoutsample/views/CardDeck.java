@@ -4,10 +4,9 @@ import android.content.Context;
 import android.util.AttributeSet;
 
 import ua.jenshensoft.cardslayout.views.layout.CardDeckView;
-import ua.jenshensoft.cardslayoutsample.CardsLayoutDefault;
 
 
-public class CardDeck extends CardDeckView<CardsLayoutDefault.CardInfo> {
+public class CardDeck extends CardDeckView<CardInfoModel> {
 
     public CardDeck(Context context) {
         super(context);

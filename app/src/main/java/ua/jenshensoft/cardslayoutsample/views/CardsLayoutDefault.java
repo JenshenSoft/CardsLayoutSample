@@ -1,4 +1,4 @@
-package ua.jenshensoft.cardslayoutsample;
+package ua.jenshensoft.cardslayoutsample.views;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -6,7 +6,7 @@ import android.util.AttributeSet;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardSwipedListener;
 import ua.jenshensoft.cardslayout.views.layout.CardsLayout;
 
-public class CardsLayoutDefault extends CardsLayout<CardsLayoutDefault.CardInfo> {
+public class CardsLayoutDefault extends CardsLayout<CardInfoModel> {
 
     public CardsLayoutDefault(Context context) {
         super(context);
@@ -30,25 +30,11 @@ public class CardsLayoutDefault extends CardsLayout<CardsLayoutDefault.CardInfo>
 
 
     private void initLayout() {
-        addOnCardSwipedListener(new OnCardSwipedListener<CardInfo>() {
+        addOnCardSwipedListener(new OnCardSwipedListener<CardInfoModel>() {
             @Override
-            public void onCardSwiped(ua.jenshensoft.cardslayout.CardInfo<CardInfo> cardInfo) {
+            public void onCardSwiped(ua.jenshensoft.cardslayout.CardInfo<CardInfoModel> cardInfo) {
                 removeCardView(cardInfo.getCardPositionInLayout());
             }
         });
-    }
-
-
-    public static class CardInfo {
-
-        private final int number;
-
-        public CardInfo(int number) {
-            this.number = number;
-        }
-
-        public int getNumber() {
-            return number;
-        }
     }
 }

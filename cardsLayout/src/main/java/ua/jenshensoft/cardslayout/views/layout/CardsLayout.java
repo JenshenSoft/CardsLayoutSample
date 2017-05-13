@@ -142,15 +142,8 @@ public abstract class CardsLayout<Entity> extends ViewGroup
         if (animateInViewUpdate) {
             invalidateCardsPosition(true);
             animateInViewUpdate = false;
-            return;
-        }
-        if (viewUpdateConfig.needUpdateViewOnLayout(changed)) {
-            List<CardCoordinates> startPositions = getViewsCoordinatesForStartPosition();
-            List<? extends View> validatedCardViews = getValidatedCardViews();
-            for (int i = 0; i < validatedCardViews.size(); i++) {
-                View child = getChildAt(i);
-                onLayoutCard((View & Card<Entity>) child, startPositions.get(i));
-            }
+        } else {
+            onLayoutCards();
         }
     }
 
@@ -518,6 +511,19 @@ public abstract class CardsLayout<Entity> extends ViewGroup
 
     /* protected methods */
 
+    @SuppressWarnings("unchecked")
+    protected <CV extends View & Card<Entity>> void onLayoutCards() {
+        List<CardCoordinates> startPositions = getViewsCoordinatesForStartPosition();
+        List<CV> validatedCardViews = getValidatedCardViews();
+        for (int i = 0; i < validatedCardViews.size(); i++) {
+            CV child = (CV) getChildAt(i);
+            if (child.isCanInvalidateView()) {
+                CardCoordinates coordinates = startPositions.get(i);
+                onLayoutCard(child, coordinates);
+            }
+        }
+    }
+
     protected <CV extends View & Card<Entity>> void setViewsCoordinatesToStartPosition(List<CardCoordinates> cardsCoordinates) {
         List<CV> cards = getValidatedCardViews();
         for (int i = 0; i < cardsCoordinates.size(); i++) {
@@ -556,8 +562,18 @@ public abstract class CardsLayout<Entity> extends ViewGroup
             animatorSet.playTogether(animators);
             animatorSet.addListener(new AnimatorListenerAdapter() {
                 @Override
+                public void onAnimationStart(Animator animation) {
+                    for (CV card : cards) {
+                        card.setCanInvalidateView(false);
+                    }
+                }
+
+                @Override
                 public void onAnimationEnd(Animator animation) {
                     startedAnimators.remove(animation);
+                    for (CV card : cards) {
+                        card.setCanInvalidateView(true);
+                    }
                 }
             });
             if (animatorListenerAdapter != null) {

@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.ColorFilter;
 import android.os.Build;
+import android.support.annotation.CallSuper;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
@@ -138,13 +139,18 @@ public abstract class GameTableLayout<
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        onUpdateLayout(false);
+    }
+
+    @CallSuper
+    protected void onUpdateLayout(boolean withAnimation) {
         float cardDeckX = -1;
         float cardDeckY = -1;
-
         for (int i = 0; i < getChildCount(); i++) {
             View child = getChildAt(i);
             if (child instanceof CardsLayout) {
-                child.layout(l, t, r, b);
+                CardsLayout layout = (CardsLayout) child;
+                child.layout(0, 0, layout.getMeasuredWidth(), layout.getMeasuredHeight());
             } else if (child instanceof CardDeckView) {
                 CardDeckView cardDeckView = (CardDeckView) child;
                 cardDeckX = getXPositionForCardDeck(cardDeckView.getMeasuredWidth(), getMeasuredWidth());
@@ -357,9 +363,13 @@ public abstract class GameTableLayout<
         }
         clearAnimators();
         viewUpdater.addAction(
-                calledInOnMeasure ->
-                        postOnAnimation(() ->
-                                startDistributeCards(viewUpdater.getParams().getDistributionState().getCardsPredicateForDistribution())));
+                calledInOnMeasure -> {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        postOnAnimation(() -> startDistributeCards(viewUpdater.getParams().getDistributionState().getCardsPredicateForDistribution()));
+                    } else {
+                        postDelayed(() -> startDistributeCards(viewUpdater.getParams().getDistributionState().getCardsPredicateForDistribution()), 300);
+                    }
+                });
     }
 
     public void startDistributeCards(Predicate<Card<Entity>> predicate) {
