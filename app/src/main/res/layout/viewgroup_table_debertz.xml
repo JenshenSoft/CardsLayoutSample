@@ -16,21 +16,21 @@
         app:cardsLayout_childList_paddingLeft="@dimen/childList_offsetFromScreen_otherPlayer">
         <!--app:debertzCardsLayout_childRotation="90"-->
 
-        <include layout="@layout/partial_card_vertical" />
+        <include layout="@layout/partial_card_horizontal" />
 
-        <include layout="@layout/partial_card_vertical" />
+        <include layout="@layout/partial_card_horizontal" />
 
-        <include layout="@layout/partial_card_vertical" />
+        <include layout="@layout/partial_card_horizontal" />
 
-        <include layout="@layout/partial_card_vertical" />
+        <include layout="@layout/partial_card_horizontal" />
 
-        <include layout="@layout/partial_card_vertical" />
+        <include layout="@layout/partial_card_horizontal" />
 
-        <include layout="@layout/partial_card_vertical" />
+        <include layout="@layout/partial_card_horizontal" />
 
-        <include layout="@layout/partial_card_vertical" />
+        <include layout="@layout/partial_card_horizontal" />
 
-        <include layout="@layout/partial_card_vertical" />
+        <include layout="@layout/partial_card_horizontal" />
 
         <ua.jenshensoft.cardslayoutsample.views.debertz.FirstBarView
             android:layout_width="wrap_content"
@@ -47,21 +47,21 @@
         app:cardsLayout_cardsGravity="top|center_horizontal"
         app:cardsLayout_childList_paddingTop="@dimen/childList_offsetFromScreen_otherPlayer">
 
-        <include layout="@layout/partial_card_horizontal" />
+        <include layout="@layout/partial_card_vertical" />
 
-        <include layout="@layout/partial_card_horizontal" />
+        <include layout="@layout/partial_card_vertical" />
 
-        <include layout="@layout/partial_card_horizontal" />
+        <include layout="@layout/partial_card_vertical" />
 
-        <include layout="@layout/partial_card_horizontal" />
+        <include layout="@layout/partial_card_vertical" />
 
-        <include layout="@layout/partial_card_horizontal" />
+        <include layout="@layout/partial_card_vertical" />
 
-        <include layout="@layout/partial_card_horizontal" />
+        <include layout="@layout/partial_card_vertical" />
 
-        <include layout="@layout/partial_card_horizontal" />
+        <include layout="@layout/partial_card_vertical" />
 
-        <include layout="@layout/partial_card_horizontal" />
+        <include layout="@layout/partial_card_vertical" />
 
         <ua.jenshensoft.cardslayoutsample.views.debertz.FirstBarView
             android:layout_width="wrap_content"
@@ -79,21 +79,21 @@
         app:cardsLayout_childList_paddingRight="@dimen/childList_offsetFromScreen_otherPlayer">
         <!--app:debertzCardsLayout_childRotation="90"-->
 
-        <include layout="@layout/partial_card_vertical" />
+        <include layout="@layout/partial_card_horizontal" />
 
-        <include layout="@layout/partial_card_vertical" />
+        <include layout="@layout/partial_card_horizontal" />
 
-        <include layout="@layout/partial_card_vertical" />
+        <include layout="@layout/partial_card_horizontal" />
 
-        <include layout="@layout/partial_card_vertical" />
+        <include layout="@layout/partial_card_horizontal" />
 
-        <include layout="@layout/partial_card_vertical" />
+        <include layout="@layout/partial_card_horizontal" />
 
-        <include layout="@layout/partial_card_vertical" />
+        <include layout="@layout/partial_card_horizontal" />
 
-        <include layout="@layout/partial_card_vertical" />
+        <include layout="@layout/partial_card_horizontal" />
 
-        <include layout="@layout/partial_card_vertical" />
+        <include layout="@layout/partial_card_horizontal" />
 
         <ua.jenshensoft.cardslayoutsample.views.debertz.FirstBarView
             android:layout_width="wrap_content"
@@ -106,24 +106,23 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:cardsLayout_cardsGravity="bottom|center_horizontal"
-        app:cardsLayout_childList_paddingBottom="@dimen/childList_offsetFromScreen_currentPlayer"
         app:cardsLayout_tintColor="@color/colorAccent">
 
-        <include layout="@layout/partial_card_horizontal" />
+        <include layout="@layout/partial_card_vertical" />
 
-        <include layout="@layout/partial_card_horizontal" />
+        <include layout="@layout/partial_card_vertical" />
 
-        <include layout="@layout/partial_card_horizontal" />
+        <include layout="@layout/partial_card_vertical" />
 
-        <include layout="@layout/partial_card_horizontal" />
+        <include layout="@layout/partial_card_vertical" />
 
-        <include layout="@layout/partial_card_horizontal" />
+        <include layout="@layout/partial_card_vertical" />
 
-        <include layout="@layout/partial_card_horizontal" />
+        <include layout="@layout/partial_card_vertical" />
 
-        <include layout="@layout/partial_card_horizontal" />
+        <include layout="@layout/partial_card_vertical" />
 
-        <include layout="@layout/partial_card_horizontal" />
+        <include layout="@layout/partial_card_vertical" />
 
         <ua.jenshensoft.cardslayoutsample.views.debertz.FirstBarView
             android:layout_width="wrap_content"

@@ -22,7 +22,7 @@ import ua.jenshensoft.cardslayoutsample.BitmapUtils;
 import ua.jenshensoft.cardslayoutsample.R;
 import ua.jenshensoft.cardslayoutsample.views.CardInfoModel;
 
-public class DebertzGameTableLayout extends GameTableLayout<CardInfoModel, CardsLayout<CardInfoModel>> {
+public class DebertzGameTableLayout extends GameTableLayout<CardInfoModel, DebertzCardsLayout> {
 
     public DebertzGameTableLayout(Context context) {
         super(context);
@@ -53,9 +53,18 @@ public class DebertzGameTableLayout extends GameTableLayout<CardInfoModel, Cards
     @Override
     protected void onStartDistributedCardWave(List<Card<CardInfoModel>> cards) {
         for (Card<CardInfoModel> card : cards) {
-            setIcon(card, BitmapUtils.rotateBitmap(getContext(), getCardResId(card.getCardInfo().getEntity().getNumber()), 90));
+            setIcon(card, BitmapUtils.rotateBitmap(getContext(), getCardResId(card.getCardInfo().getEntity().getNumber()), findLayout(card).getCardRotation()));
         }
         super.onStartDistributedCardWave(cards);
+    }
+
+    private DebertzCardsLayout findLayout(Card<CardInfoModel> card) {
+        for (DebertzCardsLayout cardsLayout : cardsLayouts) {
+            if (cardsLayout.getCards().contains(card)) {
+                return cardsLayout;
+            }
+        }
+        return null;
     }
 
     private void init() {
@@ -77,7 +86,7 @@ public class DebertzGameTableLayout extends GameTableLayout<CardInfoModel, Cards
                 return new Predicate<Card<CardInfoModel>>() {
                     @Override
                     public boolean apply(Card<CardInfoModel> cardInfoCard) {
-                        return cardInfoCard.getCardInfo().getEntity().getNumber() < 2;
+                        return false;
                     }
                 };
             }
@@ -87,7 +96,7 @@ public class DebertzGameTableLayout extends GameTableLayout<CardInfoModel, Cards
                 return new Predicate<Card<CardInfoModel>>() {
                     @Override
                     public boolean apply(Card<CardInfoModel> cardInfoCard) {
-                        return cardInfoCard.getCardInfo().getEntity().getNumber() >= 2 && cardInfoCard.getCardInfo().getEntity().getNumber() < 9;
+                        return cardInfoCard.getCardInfo().getEntity().getNumber() < 9;
                     }
                 };
             }

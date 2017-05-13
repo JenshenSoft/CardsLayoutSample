@@ -7,6 +7,8 @@ import ua.jenshensoft.cardslayout.listeners.card.OnCardSwipedListener;
 import ua.jenshensoft.cardslayout.views.layout.bars.CardsLayoutWithBars;
 import ua.jenshensoft.cardslayoutsample.views.CardInfoModel;
 
+import static android.support.v7.widget.LinearLayoutCompat.VERTICAL;
+
 public class DebertzCardsLayout extends CardsLayoutWithBars<CardInfoModel, FirstBarView, SecondBarView> {
 
     public DebertzCardsLayout(Context context) {
@@ -29,6 +31,13 @@ public class DebertzCardsLayout extends CardsLayoutWithBars<CardInfoModel, First
         initLayout();
     }
 
+    public int getCardRotation() {
+        if (getChildListOrientation() == VERTICAL) {
+            return 90;
+        } else {
+            return 0;
+        }
+    }
 
     private void initLayout() {
         addOnCardSwipedListener(new OnCardSwipedListener<CardInfoModel>() {
