@@ -161,21 +161,19 @@ public class SwipeGestureManager<Entity> implements View.OnTouchListener {
                 shiftY = y - lastYPosition;
                 float currentY = cardInfo.getFirstPositionY() + (shiftY * swipeSpeed);
                 view.setY(currentY);
-                cardInfo.setCurrentPositionY((int) currentY);
 
-                triggerPercentageListener(true);
+                triggerPercentageListener(view, true);
                 triggerPositionChangeListener(shiftX, shiftY, true);
 
                 lastMotion = MotionEvent.ACTION_MOVE;
             } else if (event.getActionMasked() == MotionEvent.ACTION_UP) {
-                triggerPercentageListener(false);
+                triggerPercentageListener(view, false);
                 triggerPositionChangeListener(shiftX, shiftY, false);
                 lastMotion = MotionEvent.ACTION_UP;
                 if (percentageY >= 100f) {
                     triggerSwipeListener();
                 }
                 int firstPositionY = cardInfo.getFirstPositionY();
-                cardInfo.setCurrentPositionY(firstPositionY);
                 rollback(view, View.Y, view.getY(), firstPositionY);
             } else if (event.getActionMasked() == MotionEvent.ACTION_CANCEL) {
                 return false;
@@ -204,21 +202,19 @@ public class SwipeGestureManager<Entity> implements View.OnTouchListener {
                 shiftX = x - lastXPosition;
                 float currentX = cardInfo.getFirstPositionX() + (shiftX * swipeSpeed);
                 view.setX(currentX);
-                cardInfo.setCurrentPositionX((int) currentX);
 
-                triggerPercentageListener(true);
+                triggerPercentageListener(view, true);
                 triggerPositionChangeListener(shiftX, shiftY, true);
 
                 lastMotion = MotionEvent.ACTION_MOVE;
             } else if (event.getActionMasked() == MotionEvent.ACTION_UP) {
-                triggerPercentageListener(false);
+                triggerPercentageListener(view, false);
                 triggerPositionChangeListener(shiftX, shiftY, false);
                 lastMotion = MotionEvent.ACTION_UP;
                 if (percentageX >= 100f) {
                     triggerSwipeListener();
                 }
                 int firstPositionX = cardInfo.getFirstPositionX();
-                cardInfo.setCurrentPositionX(firstPositionX);
                 rollback(view, View.X, view.getX(), firstPositionX);
             } else if (event.getActionMasked() == MotionEvent.ACTION_CANCEL) {
                 return false;
@@ -240,13 +236,13 @@ public class SwipeGestureManager<Entity> implements View.OnTouchListener {
         throw new RuntimeException("Cant provide Card info, please attach it to SwipeGestureManager");
     }
 
-    private void triggerPercentageListener(boolean state) {
+    private void triggerPercentageListener(View view, boolean state) {
         if (cardPercentageChangeListener != null && lastMotion != MotionEvent.ACTION_UP) {
             float percentageX, percentageY;
             CardInfo<Entity> cardInfo = getCardInfo();
             if (mode == Card.START_TO_CURRENT) {
-                percentageX = getPercent(cardInfo.getFirstPositionX(), cardInfo.getCurrentPositionX());
-                percentageY = getPercent(cardInfo.getFirstPositionY(), cardInfo.getCurrentPositionY());
+                percentageX = getPercent(cardInfo.getFirstPositionX(), view.getX());
+                percentageY = getPercent(cardInfo.getFirstPositionY(), view.getY());
             } else if (mode == Card.LAST_TO_CURRENT) {
                 percentageX = this.percentageX;
                 percentageY = this.percentageY;

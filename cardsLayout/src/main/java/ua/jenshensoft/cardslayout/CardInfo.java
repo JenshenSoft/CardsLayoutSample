@@ -7,10 +7,7 @@ public class CardInfo<Entity> {
     private int cardPositionInLayout;
     private int firstPositionX;
     private int firstPositionY;
-    private int currentPositionX;
-    private int currentPositionY;
     private int firstRotation;
-    private int currentRotation;
     private boolean hasFilter;
     private boolean cardDistributed = true;
     @Nullable
@@ -53,37 +50,12 @@ public class CardInfo<Entity> {
         this.firstPositionY = firstPositionY;
     }
 
-    public int getCurrentPositionX() {
-        return currentPositionX;
-    }
-
-    public void setCurrentPositionX(int currentPositionX) {
-        this.currentPositionX = currentPositionX;
-    }
-
-    public int getCurrentPositionY() {
-        return currentPositionY;
-    }
-
-    public void setCurrentPositionY(int currentPositionY) {
-        this.currentPositionY = currentPositionY;
-    }
-
     public void setFirstRotation(int firstRotation) {
         this.firstRotation = firstRotation;
-        setCurrentRotation(firstRotation);
     }
 
     public int getFirstRotation() {
         return firstRotation;
-    }
-
-    public void setCurrentRotation(int currentRotation) {
-        this.currentRotation = currentRotation;
-    }
-
-    public int getCurrentRotation() {
-        return currentRotation;
     }
 
     public int getCardPositionInLayout() {

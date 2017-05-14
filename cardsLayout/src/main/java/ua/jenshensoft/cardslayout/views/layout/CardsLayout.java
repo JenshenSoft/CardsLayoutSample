@@ -94,7 +94,6 @@ public abstract class CardsLayout<Entity> extends ViewGroup
     private List<Card<Entity>> cards;
     @Nullable
     private ColorFilter colorFilter;
-    private boolean animateInViewUpdate;
 
     public CardsLayout(Context context) {
         super(context);
@@ -139,10 +138,7 @@ public abstract class CardsLayout<Entity> extends ViewGroup
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        if (animateInViewUpdate) {
-            invalidateCardsPosition(true);
-            animateInViewUpdate = false;
-        } else {
+        if (viewUpdateConfig.needUpdateViewOnLayout(changed)) {
             onLayoutCards();
         }
     }
@@ -198,11 +194,6 @@ public abstract class CardsLayout<Entity> extends ViewGroup
         clearAnimators();
     }
 
-    @Override
-    public boolean shouldDelayChildPressedState() {
-        return false;
-    }
-
     @SuppressWarnings("unchecked")
     public <CV extends View & Card<Entity>> List<CV> getCardViews() {
         List<CV> cardViews = new ArrayList<>();
@@ -252,7 +243,7 @@ public abstract class CardsLayout<Entity> extends ViewGroup
                 cardInfo.setCardPositionInLayout(cardPosition - 1);
             }
         }
-        animateInViewUpdate = true;
+        invalidateCardsPosition(true);
     }
 
     public void setIsTestMode() {
@@ -517,10 +508,8 @@ public abstract class CardsLayout<Entity> extends ViewGroup
         List<CV> validatedCardViews = getValidatedCardViews();
         for (int i = 0; i < validatedCardViews.size(); i++) {
             CV child = (CV) getChildAt(i);
-            if (child.isCanInvalidateView()) {
-                CardCoordinates coordinates = startPositions.get(i);
-                onLayoutCard(child, coordinates);
-            }
+            CardCoordinates coordinates = startPositions.get(i);
+            onLayoutCard(child, coordinates);
         }
     }
 
@@ -779,7 +768,7 @@ public abstract class CardsLayout<Entity> extends ViewGroup
                 return awesomeAnimation.build().getAnimatorSet();
             }
         };
-        viewUpdateConfig = new ViewUpdateConfig(this);
+        viewUpdateConfig = new ViewUpdateConfig(this, false);
         onCardPercentageChangeListeners = new ArrayList<>();
         onCardSwipedListeners = new ArrayList<>();
         onCardTranslationListeners = new ArrayList<>();
@@ -824,19 +813,21 @@ public abstract class CardsLayout<Entity> extends ViewGroup
         return cardView;
     }
 
-    private <CV extends View & Card<Entity>> void onLayoutCard(CV cardView, CardCoordinates coordinates) {
+    private <CV extends View & Card<Entity>> void onLayoutCard(CV card, CardCoordinates coordinates) {
+        float EPSILON = 1f;
+        if (!card.isCanInvalidateView() ||
+                ((Math.abs(coordinates.getX() - (card.getX())) < EPSILON)  &&
+                        (Math.abs(coordinates.getY() - (card.getY())) < EPSILON))) {
+            return;
+        }
         int x = Math.round(coordinates.getX());
         int y = Math.round(coordinates.getY());
         int angle = Math.round(coordinates.getAngle());
-        cardView.setRotation(angle);
-        cardView.layout(x, y, x + cardView.getMeasuredWidth(), y + cardView.getMeasuredHeight());
-        CardInfo<Entity> cardInfo = cardView.getCardInfo();
-        cardInfo.setFirstPositionX(x);
-        cardInfo.setCurrentPositionX(x);
-        cardInfo.setFirstPositionY(y);
-        cardInfo.setCurrentPositionY(y);
-        cardInfo.setFirstRotation(angle);
-        cardInfo.setCurrentRotation(angle);
+        card.setRotation(angle);
+        card.layout(x, y, x + card.getMeasuredWidth(), y + card.getMeasuredHeight());
+        card.setFirstX(x);
+        card.setFirstY(y);
+        card.setFirstRotation(angle);
     }
 
 

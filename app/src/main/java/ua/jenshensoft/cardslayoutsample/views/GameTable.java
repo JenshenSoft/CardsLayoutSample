@@ -92,7 +92,7 @@ public class GameTable extends GameTableLayout<CardInfoModel, CardsLayout<CardIn
                 return new Predicate<Card<CardInfoModel>>() {
                     @Override
                     public boolean apply(Card<CardInfoModel> cardInfoCard) {
-                        return cardInfoCard.getCardInfo().getEntity().getNumber() >= 2 && cardInfoCard.getCardInfo().getEntity().getNumber() < 9;
+                        return cardInfoCard.getCardInfo().getEntity().getNumber() >= 2 && cardInfoCard.getCardInfo().getEntity().getNumber() < 6;
                     }
                 };
             }

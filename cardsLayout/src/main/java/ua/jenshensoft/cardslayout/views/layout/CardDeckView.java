@@ -246,11 +246,8 @@ public abstract class CardDeckView<Entity> extends ViewGroup {
         cardView.layout(x, y, x + cardView.getMeasuredWidth(), y + cardView.getMeasuredHeight());
         CardInfo<Entity> cardInfo = cardView.getCardInfo();
         cardInfo.setFirstPositionX(x);
-        cardInfo.setCurrentPositionX(x);
         cardInfo.setFirstPositionY(y);
-        cardInfo.setCurrentPositionY(y);
         cardInfo.setFirstRotation(angle);
-        cardInfo.setCurrentRotation(angle);
     }
 
     private boolean shouldPassCard(Card<Entity> card) {

@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.ColorFilter;
 import android.os.Build;
-import android.support.annotation.CallSuper;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
@@ -139,11 +138,6 @@ public abstract class GameTableLayout<
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        onUpdateLayout(false);
-    }
-
-    @CallSuper
-    protected void onUpdateLayout(boolean withAnimation) {
         float cardDeckX = -1;
         float cardDeckY = -1;
         for (int i = 0; i < getChildCount(); i++) {
@@ -164,47 +158,7 @@ public abstract class GameTableLayout<
                 throw new RuntimeException("Can't support this view " + child.getClass().getSimpleName());
             }
         }
-        if (!cardDeckCards.isEmpty()) {
-            if (cardDeckView == null || cardDeckView.getCardsCoordinates().isEmpty()) {
-                int widthOfCardDeck = 0;
-                int heightOfCardDeck = 0;
-                for (Card<Entity> deckCard : cardDeckCards) {
-                    widthOfCardDeck += deckCard.getCardWidth();
-                    heightOfCardDeck += deckCard.getCardHeight();
-                }
-                widthOfCardDeck /= cardDeckCards.size();
-                heightOfCardDeck /= cardDeckCards.size();
-                cardDeckX = getXPositionForCardDeck(widthOfCardDeck, getMeasuredWidth());
-                cardDeckY = getYPositionForCardDeck(heightOfCardDeck, getMeasuredHeight());
-            } else {
-                List<ThreeDCardCoordinates> cardsCoordinates = cardDeckView.getCardsCoordinates();
-                if (cardsCoordinates == null) {
-                    throw new RuntimeException("Something went wrong, coordinates can't be null");
-                }
-                ThreeDCardCoordinates lastCardCoordinates;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    lastCardCoordinates = cardsCoordinates.get(0);
-                } else {
-                    lastCardCoordinates = cardsCoordinates.get(cardsCoordinates.size() - 1);
-                }
-
-                cardDeckX += lastCardCoordinates.getX() + cardDeckView.getPaddingLeft();
-                cardDeckY += lastCardCoordinates.getY() + cardDeckView.getPaddingTop();
-            }
-            @SuppressLint("DrawAllocation")
-            List<ThreeDCardCoordinates> cardsCoordinates = new CardDeckCoordinatesPattern(
-                    cardDeckCards.size(),
-                    cardDeckCardOffsetX,
-                    cardDeckCardOffsetY,
-                    cardDeckX,
-                    cardDeckY,
-                    cardDeckElevationMin,
-                    cardDeckElevationMax)
-                    .getCardsCoordinates();
-            for (int i = 0; i < cardDeckCards.size(); i++) {
-                onLayoutCardInCardDeck((View & Card<Entity>) cardDeckCards.get(i), cardsCoordinates.get(i));
-            }
-        }
+        onLayoutCardDeck(cardDeckX, cardDeckY);
         viewUpdater.onViewMeasured();
     }
 
@@ -442,8 +396,8 @@ public abstract class GameTableLayout<
             public <C extends View & Card<Entity>> Animator createAnimation(C view) {
                 if (view.equals(card)) {
                     AwesomeAnimation.Builder awesomeAnimation = new AwesomeAnimation.Builder(view)
-                            .setX(AwesomeAnimation.CoordinationMode.COORDINATES, view.getCardInfo().getCurrentPositionX(), view.getCardInfo().getFirstPositionX())
-                            .setY(AwesomeAnimation.CoordinationMode.COORDINATES, view.getCardInfo().getCurrentPositionY(), view.getCardInfo().getFirstPositionY())
+                            .setX(AwesomeAnimation.CoordinationMode.COORDINATES, view.getX(), view.getCardInfo().getFirstPositionX())
+                            .setY(AwesomeAnimation.CoordinationMode.COORDINATES, view.getY(), view.getCardInfo().getFirstPositionY())
                             .setRotation(180, card.getCardInfo().getFirstRotation())
                             .setDuration(durationOfDistributeAnimation);
                     if (cardsLayout.getInterpolator() != null) {
@@ -507,23 +461,75 @@ public abstract class GameTableLayout<
         }
     }
 
-    private <CV extends View & Card<Entity>> void onLayoutCardInCardDeck(CV cardView, ThreeDCardCoordinates coordinates) {
-        int x = Math.round(coordinates.getX());
-        int y = Math.round(coordinates.getY());
-        float z = coordinates.getZ();
-        int angle = Math.round(coordinates.getAngle());
-        cardView.setRotation(angle);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            cardView.setElevation(z);
+    private <CV extends View & Card<Entity>> void onLayoutCardDeck(float cardDeckX, float cardDeckY) {
+        if (!cardDeckCards.isEmpty()) {
+            if (cardDeckView == null || cardDeckView.getCardsCoordinates().isEmpty()) {
+                int widthOfCardDeck = 0;
+                int heightOfCardDeck = 0;
+                for (Card<Entity> deckCard : cardDeckCards) {
+                    widthOfCardDeck += ((CV) deckCard).getMeasuredWidth();
+                    heightOfCardDeck += ((CV) deckCard).getMeasuredHeight();
+                }
+                widthOfCardDeck /= cardDeckCards.size();
+                heightOfCardDeck /= cardDeckCards.size();
+                cardDeckX = getXPositionForCardDeck(widthOfCardDeck, getMeasuredWidth());
+                cardDeckY = getYPositionForCardDeck(heightOfCardDeck, getMeasuredHeight());
+            } else {
+                List<ThreeDCardCoordinates> cardsCoordinates = cardDeckView.getCardsCoordinates();
+                if (cardsCoordinates == null) {
+                    throw new RuntimeException("Something went wrong, coordinates can't be null");
+                }
+                ThreeDCardCoordinates lastCardCoordinates;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    lastCardCoordinates = cardsCoordinates.get(0);
+                } else {
+                    lastCardCoordinates = cardsCoordinates.get(cardsCoordinates.size() - 1);
+                }
+
+                cardDeckX += lastCardCoordinates.getX() + cardDeckView.getPaddingLeft();
+                cardDeckY += lastCardCoordinates.getY() + cardDeckView.getPaddingTop();
+            }
+            @SuppressLint("DrawAllocation")
+            List<ThreeDCardCoordinates> cardsCoordinates = new CardDeckCoordinatesPattern(
+                    cardDeckCards.size(),
+                    cardDeckCardOffsetX,
+                    cardDeckCardOffsetY,
+                    cardDeckX,
+                    cardDeckY,
+                    cardDeckElevationMin,
+                    cardDeckElevationMax)
+                    .getCardsCoordinates();
+            for (int i = 0; i < cardDeckCards.size(); i++) {
+                onLayoutCardInCardDeck((CV) cardDeckCards.get(i), cardsCoordinates.get(i));
+            }
         }
-        cardView.layout(x, y, x + cardView.getMeasuredWidth(), y + cardView.getMeasuredHeight());
-        CardInfo<Entity> cardInfo = cardView.getCardInfo();
-        cardInfo.setFirstPositionX(x);
-        cardInfo.setCurrentPositionX(x);
-        cardInfo.setFirstPositionY(y);
-        cardInfo.setCurrentPositionY(y);
-        cardInfo.setFirstRotation(angle);
-        cardInfo.setCurrentRotation(angle);
+    }
+
+    private <CV extends View & Card<Entity>> void onLayoutCardInCardDeck(CV card, ThreeDCardCoordinates coordinates) {
+        int x;
+        int y;
+        if (card.getCardInfo().isCardDistributed()) {
+            x = Math.round(card.getX());
+            y = Math.round(card.getY());
+        } else {
+            float EPSILON = 1f;
+            if ((Math.abs(coordinates.getX() - (card.getX())) < EPSILON) &&
+                            (Math.abs(coordinates.getY() - (card.getY())) < EPSILON)) {
+                return;
+            }
+            x = Math.round(coordinates.getX());
+            y = Math.round(coordinates.getY());
+            float z = coordinates.getZ();
+            int angle = Math.round(coordinates.getAngle()); card.setRotation(angle);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                card.setElevation(z);
+            }
+            card.setFirstX(x);
+            card.setFirstY(y);
+            card.setFirstRotation(angle);
+        }
+
+        card.layout(x, y, x + card.getMeasuredWidth(), y + card.getMeasuredHeight());
     }
 
     private void onActionWithCard(Entity entity) {

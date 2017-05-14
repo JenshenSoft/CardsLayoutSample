@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
 import android.support.annotation.Nullable;
-import android.support.annotation.Px;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
@@ -16,7 +15,6 @@ import ua.jenshensoft.cardslayout.listeners.card.OnCardPercentageChangeListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardSwipedListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardTranslationListener;
 import ua.jenshensoft.cardslayout.util.SwipeGestureManager;
-import ua.jenshensoft.cardslayout.views.layout.CardsLayout;
 import ua.jenshensoft.cardslayout.views.layout.CardsLayoutParams;
 
 import static ua.jenshensoft.cardslayout.util.SwipeGestureManager.EPSILON;
@@ -85,34 +83,6 @@ public class CardBoxView<Entity> extends FrameLayout implements Card<Entity> {
             return swipeManager.onTouch(this, ev);
         }
         return false;
-    }
-
-    @Override
-    public void setX(@Px float x) {
-        super.setX(x);
-        getCardInfo().setCurrentPositionX((int) x);
-    }
-
-    @Override
-    public void setY(@Px float y) {
-        super.setY(y);
-        getCardInfo().setCurrentPositionY((int) y);
-    }
-
-    @Override
-    public void setRotation(float rotation) {
-        super.setRotation(rotation);
-        getCardInfo().setCurrentRotation((int) rotation);
-    }
-
-    @Override
-    public float getElevation() {
-        return super.getElevation();
-    }
-
-    @Override
-    public void setElevation(@Px float elevation) {
-        super.setElevation(elevation);
     }
 
     @Override

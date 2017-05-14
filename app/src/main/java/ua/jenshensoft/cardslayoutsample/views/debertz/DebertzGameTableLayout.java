@@ -75,7 +75,6 @@ public class DebertzGameTableLayout extends GameTableLayout<CardInfoModel, Deber
             int i = 0;
             for (Card<CardInfoModel> card : cardsLayout.getCards()) {
                 card.getCardInfo().setEntity(new CardInfoModel(i));
-                setIcon(card, BitmapUtils.rotateBitmap(getContext(), getCardResId(card.getCardInfo().getEntity().getNumber()), 0));
                 i++;
             }
         }
@@ -86,7 +85,7 @@ public class DebertzGameTableLayout extends GameTableLayout<CardInfoModel, Deber
                 return new Predicate<Card<CardInfoModel>>() {
                     @Override
                     public boolean apply(Card<CardInfoModel> cardInfoCard) {
-                        return false;
+                        return cardInfoCard.getCardInfo().getEntity().getNumber() < 2;
                     }
                 };
             }
@@ -96,11 +95,21 @@ public class DebertzGameTableLayout extends GameTableLayout<CardInfoModel, Deber
                 return new Predicate<Card<CardInfoModel>>() {
                     @Override
                     public boolean apply(Card<CardInfoModel> cardInfoCard) {
-                        return cardInfoCard.getCardInfo().getEntity().getNumber() < 9;
+                        return cardInfoCard.getCardInfo().getEntity().getNumber() >= 2 && cardInfoCard.getCardInfo().getEntity().getNumber() < 9;
                     }
                 };
             }
         });
+
+        for (CardsLayout<CardInfoModel> cardsLayout : cardsLayouts) {
+            for (Card<CardInfoModel> card : cardsLayout.getCards()) {
+                if (card.getCardInfo().isCardDistributed()) {
+                    setIcon(card, BitmapUtils.rotateBitmap(getContext(), getCardResId(card.getCardInfo().getEntity().getNumber()), findLayout(card).getCardRotation()));
+                } else {
+                    setIcon(card, BitmapUtils.rotateBitmap(getContext(), getCardResId(card.getCardInfo().getEntity().getNumber()), 0));
+                }
+            }
+        }
     }
 
     private void setIcon(Card<CardInfoModel> card, Bitmap bitmap) {

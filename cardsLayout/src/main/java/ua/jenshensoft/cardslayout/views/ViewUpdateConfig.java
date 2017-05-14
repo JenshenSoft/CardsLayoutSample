@@ -6,22 +6,28 @@ import android.view.ViewGroup;
 public class ViewUpdateConfig {
 
     private final View view;
+    private final boolean validateChildCount;
     private Config onMeasure;
     private Config onLayout;
 
     public ViewUpdateConfig(View view) {
+        this(view, true);
+    }
+
+    public ViewUpdateConfig(View view, boolean validateChildCount) {
         this.view = view;
+        this.validateChildCount = validateChildCount;
         this.onMeasure = new Config();
         this.onLayout = new Config();
     }
 
     public boolean needUpdateViewOnMeasure() {
-        boolean validateCardCount = view instanceof ViewGroup;
+        boolean validateCardCount = validateChildCount && view instanceof ViewGroup;
         return onMeasure.needUpdate(view.getMeasuredWidth(), view.getMeasuredHeight(), validateCardCount ? ((ViewGroup) view).getChildCount() : -1, view.getVisibility());
     }
 
     public boolean needUpdateViewOnLayout(boolean changed) {
-        boolean validateCardCount = view instanceof ViewGroup;
+        boolean validateCardCount = validateChildCount && view instanceof ViewGroup;
         boolean needUpdate = onLayout.needUpdate(view.getMeasuredWidth(), view.getMeasuredHeight(), validateCardCount ? ((ViewGroup) view).getChildCount() : -1, view.getVisibility());
         return changed || needUpdate;
     }

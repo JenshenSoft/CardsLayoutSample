@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
 import android.support.annotation.Nullable;
-import android.support.annotation.Px;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -84,34 +83,6 @@ public class CardView<Entity> extends AppCompatImageView implements Card<Entity>
             return swipeManager.onTouch(this, ev);
         }
         return false;
-    }
-
-    @Override
-    public void setX(@Px float x) {
-        super.setX(x);
-        getCardInfo().setCurrentPositionX((int) x);
-    }
-
-    @Override
-    public void setY(@Px float y) {
-        super.setY(y);
-        getCardInfo().setCurrentPositionY((int) y);
-    }
-
-    @Override
-    public void setRotation(float rotation) {
-        super.setRotation(rotation);
-        getCardInfo().setCurrentRotation((int) rotation);
-    }
-
-    @Override
-    public float getElevation() {
-        return super.getElevation();
-    }
-
-    @Override
-    public void setElevation(@Px float elevation) {
-        super.setElevation(elevation);
     }
 
     @Override
