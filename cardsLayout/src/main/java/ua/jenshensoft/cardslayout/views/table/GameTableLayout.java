@@ -512,7 +512,6 @@ public abstract class GameTableLayout<
             x = Math.round(card.getX());
             y = Math.round(card.getY());
         } else {
-            float EPSILON = 1f;
             if ((Math.abs(coordinates.getX() - (card.getX())) < EPSILON) &&
                             (Math.abs(coordinates.getY() - (card.getY())) < EPSILON)) {
                 return;
