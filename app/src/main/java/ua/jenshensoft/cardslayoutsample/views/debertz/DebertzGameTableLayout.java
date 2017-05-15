@@ -53,7 +53,7 @@ public class DebertzGameTableLayout extends GameTableLayout<CardInfoModel, Deber
     @Override
     protected void onStartDistributedCardWave(List<Card<CardInfoModel>> cards) {
         for (Card<CardInfoModel> card : cards) {
-            setIcon(card, BitmapUtils.rotateBitmap(getContext(), getCardResId(card.getCardInfo().getEntity().getNumber()), findLayout(card).getCardRotation()));
+            setIcon(card, BitmapUtils.rotateBitmap(getContext(), getCardResId(card.getCardInfo().getEntity().getPosition()), findLayout(card).getCardRotation()));
         }
         super.onStartDistributedCardWave(cards);
     }
@@ -71,11 +71,13 @@ public class DebertzGameTableLayout extends GameTableLayout<CardInfoModel, Deber
         inflate(getContext(), R.layout.viewgroup_table_debertz, this);
         setDurationOfDistributeAnimation(1000);
 
+        int number = 0;
         for (CardsLayout<CardInfoModel> cardsLayout : cardsLayouts) {
-            int i = 0;
+            int position = 0;
             for (Card<CardInfoModel> card : cardsLayout.getCards()) {
-                card.getCardInfo().setEntity(new CardInfoModel(i));
-                i++;
+                card.getCardInfo().setEntity(new CardInfoModel(position, number));
+                position++;
+                number ++;
             }
         }
 
@@ -101,13 +103,11 @@ public class DebertzGameTableLayout extends GameTableLayout<CardInfoModel, Deber
             }
         });
 
-        for (CardsLayout<CardInfoModel> cardsLayout : cardsLayouts) {
+        for (DebertzCardsLayout cardsLayout : cardsLayouts) {
             for (Card<CardInfoModel> card : cardsLayout.getCards()) {
-                if (card.getCardInfo().isCardDistributed()) {
-                    setIcon(card, BitmapUtils.rotateBitmap(getContext(), getCardResId(card.getCardInfo().getEntity().getNumber()), findLayout(card).getCardRotation()));
-                } else {
-                    setIcon(card, BitmapUtils.rotateBitmap(getContext(), getCardResId(card.getCardInfo().getEntity().getNumber()), 0));
-                }
+                int cardRotation = cardsLayout.getCardRotation();
+                Bitmap bitmap = BitmapUtils.rotateBitmap(getContext(), getCardResId(card.getCardInfo().getEntity().getPosition()), cardRotation);
+                setIcon(card, bitmap);
             }
         }
     }

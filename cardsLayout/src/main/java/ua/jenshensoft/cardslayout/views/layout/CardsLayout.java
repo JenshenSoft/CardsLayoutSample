@@ -507,7 +507,7 @@ public abstract class CardsLayout<Entity> extends ViewGroup
         List<CardCoordinates> startPositions = getViewsCoordinatesForStartPosition();
         List<CV> validatedCardViews = getValidatedCardViews();
         for (int i = 0; i < validatedCardViews.size(); i++) {
-            CV child = (CV) getChildAt(i);
+            CV child = validatedCardViews.get(i);
             CardCoordinates coordinates = startPositions.get(i);
             onLayoutCard(child, coordinates);
         }
@@ -553,7 +553,7 @@ public abstract class CardsLayout<Entity> extends ViewGroup
                 @Override
                 public void onAnimationStart(Animator animation) {
                     for (CV card : cards) {
-                        card.setCanInvalidateView(false);
+                        card.setInAnimation(true);
                     }
                 }
 
@@ -561,7 +561,7 @@ public abstract class CardsLayout<Entity> extends ViewGroup
                 public void onAnimationEnd(Animator animation) {
                     startedAnimators.remove(animation);
                     for (CV card : cards) {
-                        card.setCanInvalidateView(true);
+                        card.setInAnimation(false);
                     }
                 }
             });
@@ -814,20 +814,21 @@ public abstract class CardsLayout<Entity> extends ViewGroup
     }
 
     private <CV extends View & Card<Entity>> void onLayoutCard(CV card, CardCoordinates coordinates) {
-        float EPSILON = 1f;
-        if (!card.isCanInvalidateView() ||
-                ((Math.abs(coordinates.getX() - (card.getX())) < EPSILON)  &&
-                        (Math.abs(coordinates.getY() - (card.getY())) < EPSILON))) {
-            return;
+        int x;
+        int y;
+        if (card.isInAnimation()) {
+            x = Math.round(card.getX());
+            y = Math.round(card.getY());
+        } else {
+            x = Math.round(coordinates.getX());
+            y = Math.round(coordinates.getY());
+            int angle = Math.round(coordinates.getAngle());
+            card.setRotation(angle);
+            card.setFirstX(x);
+            card.setFirstY(y);
+            card.setFirstRotation(angle);
         }
-        int x = Math.round(coordinates.getX());
-        int y = Math.round(coordinates.getY());
-        int angle = Math.round(coordinates.getAngle());
-        card.setRotation(angle);
         card.layout(x, y, x + card.getMeasuredWidth(), y + card.getMeasuredHeight());
-        card.setFirstX(x);
-        card.setFirstY(y);
-        card.setFirstRotation(angle);
     }
 
 

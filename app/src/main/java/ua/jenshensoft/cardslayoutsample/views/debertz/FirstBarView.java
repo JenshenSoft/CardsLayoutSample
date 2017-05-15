@@ -9,7 +9,7 @@ import ua.jenshensoft.cardslayout.views.ValidateViewBlocker;
 
 public class FirstBarView extends Button implements ValidateViewBlocker {
 
-    private boolean canInvalidateView = true;
+    private boolean inAnimation;
 
     public FirstBarView(Context context) {
         super(context);
@@ -28,12 +28,12 @@ public class FirstBarView extends Button implements ValidateViewBlocker {
     }
 
     @Override
-    public boolean isCanInvalidateView() {
-        return canInvalidateView;
+    public boolean isInAnimation() {
+        return inAnimation;
     }
 
     @Override
-    public void setCanInvalidateView(boolean canInvalidateView) {
-        this.canInvalidateView = canInvalidateView;
+    public void setInAnimation(boolean inAnimation) {
+        this.inAnimation = inAnimation;
     }
 }

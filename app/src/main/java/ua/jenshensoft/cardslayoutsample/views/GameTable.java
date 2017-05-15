@@ -68,11 +68,13 @@ public class GameTable extends GameTableLayout<CardInfoModel, CardsLayout<CardIn
 
         getCurrentPlayerCardsLayout().setColorFilter(new PorterDuffColorFilter(ContextCompat.getColor(getContext(), R.color.colorAccent), PorterDuff.Mode.MULTIPLY));
 
+        int j = 0;
         for (CardsLayout<CardInfoModel> cardsLayout : cardsLayouts) {
             int i = 0;
             for (Card<CardInfoModel> card : cardsLayout.getCards()) {
-                card.getCardInfo().setEntity(new CardInfoModel(i));
+                card.getCardInfo().setEntity(new CardInfoModel(i, j));
                 i++;
+                j++;
             }
         }
 
@@ -82,7 +84,7 @@ public class GameTable extends GameTableLayout<CardInfoModel, CardsLayout<CardIn
                 return new Predicate<Card<CardInfoModel>>() {
                     @Override
                     public boolean apply(Card<CardInfoModel> cardInfoCard) {
-                        return cardInfoCard.getCardInfo().getEntity().getNumber() < 2;
+                        return cardInfoCard.getCardInfo().getEntity().getPosition() < 2;
                     }
                 };
             }
@@ -92,7 +94,7 @@ public class GameTable extends GameTableLayout<CardInfoModel, CardsLayout<CardIn
                 return new Predicate<Card<CardInfoModel>>() {
                     @Override
                     public boolean apply(Card<CardInfoModel> cardInfoCard) {
-                        return cardInfoCard.getCardInfo().getEntity().getNumber() >= 2 && cardInfoCard.getCardInfo().getEntity().getNumber() < 6;
+                        return cardInfoCard.getCardInfo().getEntity().getPosition() >= 2 && cardInfoCard.getCardInfo().getEntity().getPosition() < 6;
                     }
                 };
             }

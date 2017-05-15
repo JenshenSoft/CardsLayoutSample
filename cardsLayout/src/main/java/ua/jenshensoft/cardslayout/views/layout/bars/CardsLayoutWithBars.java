@@ -106,25 +106,31 @@ public abstract class CardsLayoutWithBars<
     protected <CV extends View & Card<Entity>> void onLayoutCards() {
         super.onLayoutCards();
         Iterator<CardCoordinates> cardCoordinates = getCoordinatesForBars().iterator();
-        if (firstBarView != null && firstBarView.isCanInvalidateView() && cardCoordinates.hasNext()) {
-            CardCoordinates coordinates = cardCoordinates.next();
-            int x = Math.round(coordinates.getX());
-            int y = Math.round(coordinates.getY());
-            firstBarView.layout(
-                    x,
-                    y,
-                    x + firstBarView.getMeasuredWidth(),
-                    y + firstBarView.getMeasuredHeight());
+        if (firstBarView != null && !firstBarView.isInAnimation() && cardCoordinates.hasNext()) {
+            int x;
+            int y;
+            if (firstBarView.isInAnimation()) {
+                x = Math.round(firstBarView.getX());
+                y = Math.round(firstBarView.getY());
+            } else {
+                CardCoordinates coordinates = cardCoordinates.next();
+                x = Math.round(coordinates.getX());
+                y = Math.round(coordinates.getY());
+            }
+            firstBarView.layout(x, y, x + firstBarView.getMeasuredWidth(), y + firstBarView.getMeasuredHeight());
         }
-        if (secondBarView != null && secondBarView.isCanInvalidateView() && cardCoordinates.hasNext()) {
-            CardCoordinates coordinates = cardCoordinates.next();
-            int x = Math.round(coordinates.getX());
-            int y = Math.round(coordinates.getY());
-            secondBarView.layout(
-                    x,
-                    y,
-                    x + secondBarView.getMeasuredWidth(),
-                    y + secondBarView.getMeasuredHeight());
+        if (secondBarView != null && cardCoordinates.hasNext()) {
+            int x;
+            int y;
+            if (secondBarView.isInAnimation()) {
+                x = Math.round(secondBarView.getX());
+                y = Math.round(secondBarView.getY());
+            } else {
+                CardCoordinates coordinates = cardCoordinates.next();
+                x = Math.round(coordinates.getX());
+                y = Math.round(coordinates.getY());
+            }
+            secondBarView.layout(x, y, x + secondBarView.getMeasuredWidth(), y + secondBarView.getMeasuredHeight());
         }
     }
 
@@ -171,13 +177,13 @@ public abstract class CardsLayoutWithBars<
             animatorSet.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationStart(Animator animation) {
-                    view.setCanInvalidateView(false);
+                    view.setInAnimation(true);
                 }
 
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     startedAnimators.remove(animation);
-                    view.setCanInvalidateView(true);
+                    view.setInAnimation(false);
                 }
             });
             if (animatorListenerAdapter != null) {
