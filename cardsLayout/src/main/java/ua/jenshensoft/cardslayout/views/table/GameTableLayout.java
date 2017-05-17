@@ -467,11 +467,15 @@ public abstract class GameTableLayout<
                 int widthOfCardDeck = 0;
                 int heightOfCardDeck = 0;
                 for (Card<Entity> deckCard : cardDeckCards) {
-                    widthOfCardDeck += ((CV) deckCard).getMeasuredWidth();
-                    heightOfCardDeck += ((CV) deckCard).getMeasuredHeight();
+                    int measuredWidth = ((CV) deckCard).getMeasuredWidth();
+                    int measuredHeight = ((CV) deckCard).getMeasuredHeight();
+                    if (measuredWidth > widthOfCardDeck) {
+                        widthOfCardDeck = measuredWidth;
+                    }
+                    if (measuredHeight > heightOfCardDeck) {
+                        heightOfCardDeck = measuredHeight;
+                    }
                 }
-                widthOfCardDeck /= cardDeckCards.size();
-                heightOfCardDeck /= cardDeckCards.size();
                 cardDeckX = getXPositionForCardDeck(widthOfCardDeck, getMeasuredWidth());
                 cardDeckY = getYPositionForCardDeck(heightOfCardDeck, getMeasuredHeight());
             } else {
@@ -513,13 +517,14 @@ public abstract class GameTableLayout<
             y = Math.round(card.getY());
         } else {
             if ((Math.abs(coordinates.getX() - (card.getX())) < EPSILON) &&
-                            (Math.abs(coordinates.getY() - (card.getY())) < EPSILON)) {
+                    (Math.abs(coordinates.getY() - (card.getY())) < EPSILON)) {
                 return;
             }
             x = Math.round(coordinates.getX());
             y = Math.round(coordinates.getY());
             float z = coordinates.getZ();
-            int angle = Math.round(coordinates.getAngle()); card.setRotation(angle);
+            int angle = Math.round(coordinates.getAngle());
+            card.setRotation(angle);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 card.setElevation(z);
             }
