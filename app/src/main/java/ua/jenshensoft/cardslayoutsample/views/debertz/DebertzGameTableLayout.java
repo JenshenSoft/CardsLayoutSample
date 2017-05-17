@@ -87,7 +87,7 @@ public class DebertzGameTableLayout extends GameTableLayout<CardInfoModel, Deber
                 return new Predicate<Card<CardInfoModel>>() {
                     @Override
                     public boolean apply(Card<CardInfoModel> cardInfoCard) {
-                        return cardInfoCard.getCardInfo().getEntity().getNumber() < 2;
+                        return cardInfoCard.getCardInfo().getEntity().getPosition() < 2;
                     }
                 };
             }
@@ -97,7 +97,7 @@ public class DebertzGameTableLayout extends GameTableLayout<CardInfoModel, Deber
                 return new Predicate<Card<CardInfoModel>>() {
                     @Override
                     public boolean apply(Card<CardInfoModel> cardInfoCard) {
-                        return cardInfoCard.getCardInfo().getEntity().getNumber() >= 2 && cardInfoCard.getCardInfo().getEntity().getNumber() < 9;
+                        return cardInfoCard.getCardInfo().getEntity().getPosition() >= 2 && cardInfoCard.getCardInfo().getEntity().getPosition() < 9;
                     }
                 };
             }

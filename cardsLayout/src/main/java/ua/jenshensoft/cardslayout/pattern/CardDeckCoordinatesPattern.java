@@ -39,7 +39,7 @@ public class CardDeckCoordinatesPattern implements CardCoordinatesPattern<ThreeD
         List<ThreeDCardCoordinates> cardCoordinates = new ArrayList<>();
         float shadowXOffset = cardOffsetX;
         float shadowYOffset = cardOffsetY;
-        float shadowZOffset = (elevationMax - elevationMin) / cardsCount;
+        float shadowZOffset = (elevationMax - elevationMin) / (cardsCount);
         float x;
         float y;
         //because of elevation (android 21 > has support of Z 
@@ -54,8 +54,6 @@ public class CardDeckCoordinatesPattern implements CardCoordinatesPattern<ThreeD
         float z = elevationMax;
 
         for (int i = 0; i < cardsCount; i++) {
-            cardCoordinates.add(new ThreeDCardCoordinates(x, y, z, 0));
-
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 x += shadowXOffset;
                 y += shadowYOffset;
@@ -64,6 +62,7 @@ public class CardDeckCoordinatesPattern implements CardCoordinatesPattern<ThreeD
                 x -= shadowXOffset;
                 y -= shadowYOffset;
             }
+            cardCoordinates.add(new ThreeDCardCoordinates(x, y, z, 0));
         }
         return cardCoordinates;
     }

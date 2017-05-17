@@ -3,6 +3,7 @@ package ua.jenshensoft.cardslayoutsample.views.debertz;
 import android.content.Context;
 import android.util.AttributeSet;
 
+import ua.jenshensoft.cardslayout.listeners.card.OnCardPercentageChangeListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardSwipedListener;
 import ua.jenshensoft.cardslayout.views.layout.bars.CardsLayoutWithBars;
 import ua.jenshensoft.cardslayoutsample.views.CardInfoModel;
@@ -44,6 +45,12 @@ public class DebertzCardsLayout extends CardsLayoutWithBars<CardInfoModel, First
             @Override
             public void onCardSwiped(ua.jenshensoft.cardslayout.CardInfo<CardInfoModel> cardInfo) {
                 removeCardView(cardInfo.getCardPositionInLayout());
+            }
+        });
+        addCardPercentageChangeListener(new OnCardPercentageChangeListener<CardInfoModel>() {
+            @Override
+            public void onPercentageChanged(float percentageX, float percentageY, ua.jenshensoft.cardslayout.CardInfo<CardInfoModel> cardInfo, boolean isTouched) {
+
             }
         });
     }
