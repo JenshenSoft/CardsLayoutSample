@@ -138,8 +138,6 @@ public abstract class GameTableLayout<
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        float cardDeckX = -1;
-        float cardDeckY = -1;
         for (int i = 0; i < getChildCount(); i++) {
             View child = getChildAt(i);
             if (child instanceof CardsLayout) {
@@ -147,8 +145,8 @@ public abstract class GameTableLayout<
                 child.layout(0, 0, layout.getMeasuredWidth(), layout.getMeasuredHeight());
             } else if (child instanceof CardDeckView) {
                 CardDeckView cardDeckView = (CardDeckView) child;
-                cardDeckX = getXPositionForCardDeck(cardDeckView.getMeasuredWidth(), getMeasuredWidth());
-                cardDeckY = getYPositionForCardDeck(cardDeckView.getMeasuredHeight(), getMeasuredHeight());
+                float cardDeckX = getXPositionForCardDeck(cardDeckView.getMeasuredWidth(), getMeasuredWidth());
+                float cardDeckY = getYPositionForCardDeck(cardDeckView.getMeasuredHeight(), getMeasuredHeight());
                 child.layout(
                         Math.round(cardDeckX),
                         Math.round(cardDeckY),
@@ -158,12 +156,13 @@ public abstract class GameTableLayout<
                 throw new RuntimeException("Can't support this view " + child.getClass().getSimpleName());
             }
         }
-        onLayoutCardDeck(cardDeckX, cardDeckY);
+        onLayoutCardDeck(changed);
         viewUpdater.onViewMeasured();
     }
 
     /* view updater */
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     public void onUpdateViewParams(GameTableParams<Entity> params, boolean calledInOnMeasure) {
         if (hasDistributionState()) {
@@ -461,24 +460,15 @@ public abstract class GameTableLayout<
         }
     }
 
-    private <CV extends View & Card<Entity>> void onLayoutCardDeck(float cardDeckX, float cardDeckY) {
-        if (!cardDeckCards.isEmpty()) {
-            if (cardDeckView == null || cardDeckView.getCardsCoordinates().isEmpty()) {
-                int widthOfCardDeck = 0;
-                int heightOfCardDeck = 0;
-                for (Card<Entity> deckCard : cardDeckCards) {
-                    int measuredWidth = ((CV) deckCard).getMeasuredWidth();
-                    int measuredHeight = ((CV) deckCard).getMeasuredHeight();
-                    if (measuredWidth > widthOfCardDeck) {
-                        widthOfCardDeck = measuredWidth;
-                    }
-                    if (measuredHeight > heightOfCardDeck) {
-                        heightOfCardDeck = measuredHeight;
-                    }
-                }
-                cardDeckX = getXPositionForCardDeck(widthOfCardDeck, getMeasuredWidth());
-                cardDeckY = getYPositionForCardDeck(heightOfCardDeck, getMeasuredHeight());
-            } else {
+    @SuppressWarnings("unchecked")
+    private <CV extends View & Card<Entity>> void onLayoutCardDeck(boolean changed) {
+        if (cardDeckCards.isEmpty()) {
+            return;
+        }
+        if (viewUpdateConfig.needUpdateViewOnLayout(changed)) {
+            float cardDeckX;
+            float cardDeckY;
+            if (cardDeckView != null && !cardDeckView.getCardsCoordinates().isEmpty()) {
                 List<ThreeDCardCoordinates> cardsCoordinates = cardDeckView.getCardsCoordinates();
                 if (cardsCoordinates == null) {
                     throw new RuntimeException("Something went wrong, coordinates can't be null");
@@ -489,10 +479,25 @@ public abstract class GameTableLayout<
                 } else {
                     lastCardCoordinates = cardsCoordinates.get(cardsCoordinates.size() - 1);
                 }
-
-                cardDeckX += lastCardCoordinates.getX() + cardDeckView.getPaddingLeft();
-                cardDeckY += lastCardCoordinates.getY() + cardDeckView.getPaddingTop();
+                cardDeckX = cardDeckView.getX() + lastCardCoordinates.getX() + cardDeckView.getPaddingLeft();
+                cardDeckY = cardDeckView.getY() + lastCardCoordinates.getY() + cardDeckView.getPaddingTop();
+            } else {
+                int widthOfCardDeck = 0;
+                int heightOfCardDeck = 0;
+                for (Card<Entity> deckCard : cardDeckCards) {
+                    int measuredWidth = deckCard.getCardWidth();
+                    int measuredHeight = deckCard.getCardHeight();
+                    if (measuredWidth > widthOfCardDeck) {
+                        widthOfCardDeck = measuredWidth;
+                    }
+                    if (measuredHeight > heightOfCardDeck) {
+                        heightOfCardDeck = measuredHeight;
+                    }
+                }
+                cardDeckX = getXPositionForCardDeck(widthOfCardDeck, getMeasuredWidth());
+                cardDeckY = getYPositionForCardDeck(heightOfCardDeck, getMeasuredHeight());
             }
+
             @SuppressLint("DrawAllocation")
             List<ThreeDCardCoordinates> cardsCoordinates = new CardDeckCoordinatesPattern(
                     cardDeckCards.size(),
@@ -504,35 +509,41 @@ public abstract class GameTableLayout<
                     cardDeckElevationMax)
                     .getCardsCoordinates();
             for (int i = 0; i < cardDeckCards.size(); i++) {
-                onLayoutCardInCardDeck((CV) cardDeckCards.get(i), cardsCoordinates.get(i));
+                ThreeDCardCoordinates coordinates = cardsCoordinates.get(i);
+                onLayoutCardInCardDeck((CV) cardDeckCards.get(i), coordinates.getX(), coordinates.getY(), coordinates.getZ(), coordinates.getAngle());
+            }
+        } else {
+            for (int i = 0; i < cardDeckCards.size(); i++) {
+                CV card = (CV) cardDeckCards.get(i);
+                int x = Math.round(card.getX());
+                int y = Math.round(card.getY());
+                card.layout(x, y, x + card.getMeasuredWidth(), y + card.getMeasuredHeight());
             }
         }
     }
 
-    private <CV extends View & Card<Entity>> void onLayoutCardInCardDeck(CV card, ThreeDCardCoordinates coordinates) {
+    private <CV extends View & Card<Entity>> void onLayoutCardInCardDeck(CV card, float cardX, float cardY, float cardZ, float cardAngle) {
         int x;
         int y;
         if (card.getCardInfo().isCardDistributed()) {
             x = Math.round(card.getX());
             y = Math.round(card.getY());
         } else {
-            if ((Math.abs(coordinates.getX() - (card.getX())) < EPSILON) &&
-                    (Math.abs(coordinates.getY() - (card.getY())) < EPSILON)) {
+            if ((Math.abs(cardX - (card.getX())) < EPSILON) &&
+                    (Math.abs(cardY - (card.getY())) < EPSILON)) {
                 return;
             }
-            x = Math.round(coordinates.getX());
-            y = Math.round(coordinates.getY());
-            float z = coordinates.getZ();
-            int angle = Math.round(coordinates.getAngle());
+            x = Math.round(cardX);
+            y = Math.round(cardY);
+            int angle = Math.round(cardAngle);
             card.setRotation(angle);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                card.setElevation(z);
+                card.setElevation(cardZ);
             }
             card.setFirstX(x);
             card.setFirstY(y);
             card.setFirstRotation(angle);
         }
-
         card.layout(x, y, x + card.getMeasuredWidth(), y + card.getMeasuredHeight());
     }
 

@@ -53,7 +53,9 @@ public class DebertzGameTableLayout extends GameTableLayout<CardInfoModel, Deber
     @Override
     protected void onStartDistributedCardWave(List<Card<CardInfoModel>> cards) {
         for (Card<CardInfoModel> card : cards) {
-            setIcon(card, BitmapUtils.rotateBitmap(getContext(), getCardResId(card.getCardInfo().getEntity().getPosition()), findLayout(card).getCardRotation()));
+            int cardResId = getCardResId(card.getCardInfo().getEntity().getPosition());
+            int cardRotation = findLayout(card).getCardRotation();
+            setIcon(card, BitmapUtils.rotateBitmap(getContext(), cardResId, cardRotation));
         }
         super.onStartDistributedCardWave(cards);
     }
@@ -106,7 +108,7 @@ public class DebertzGameTableLayout extends GameTableLayout<CardInfoModel, Deber
         for (DebertzCardsLayout cardsLayout : cardsLayouts) {
             for (Card<CardInfoModel> card : cardsLayout.getCards()) {
                 int cardRotation = cardsLayout.getCardRotation();
-                Bitmap bitmap = BitmapUtils.rotateBitmap(getContext(), getCardResId(card.getCardInfo().getEntity().getPosition()), cardRotation);
+                Bitmap bitmap = BitmapUtils.rotateBitmap(getContext(), getCardResId(card.getCardInfo().getEntity().getPosition()), 0);
                 setIcon(card, bitmap);
             }
         }
