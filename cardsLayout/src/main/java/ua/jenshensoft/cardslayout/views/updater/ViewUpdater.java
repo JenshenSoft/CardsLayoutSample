@@ -19,7 +19,7 @@ public class ViewUpdater<P extends ViewUpdaterParams> {
     private final OnViewParamsUpdate<P> viewParamsUpdate;
     @Nullable
     private P params;
-    private boolean measured;
+    private boolean updated;
     private List<ViewUpdaterAction> actions;
 
     public ViewUpdater() {
@@ -36,8 +36,8 @@ public class ViewUpdater<P extends ViewUpdaterParams> {
         this.actions = new ArrayList<>();
     }
 
-    public void onViewMeasured() {
-        measured = true;
+    public void onViewUpdated() {
+        updated = true;
         onUpdateViewParams(true);
         onUpdateViewActions(true);
     }
@@ -84,19 +84,19 @@ public class ViewUpdater<P extends ViewUpdaterParams> {
         return null;
     }
 
-    public boolean isMeasured() {
-        return measured;
+    public boolean isUpdated() {
+        return updated;
     }
 
     private void onUpdateViewParams(boolean calledInOnMeasure) {
         boolean predicate = this.predicate == null || this.predicate.test();
-        if (measured && params != null && viewParamsUpdate != null && predicate) {
+        if (updated && params != null && viewParamsUpdate != null && predicate) {
             viewParamsUpdate.onUpdateViewParams(this.params, calledInOnMeasure);
         }
     }
 
     private void onUpdateViewActions(boolean calledInOnMeasure) {
-        if (measured && (predicate == null || predicate.test())) {
+        if (updated && (predicate == null || predicate.test())) {
             for (ViewUpdaterAction action : actions) {
                 action.onAction(calledInOnMeasure);
             }

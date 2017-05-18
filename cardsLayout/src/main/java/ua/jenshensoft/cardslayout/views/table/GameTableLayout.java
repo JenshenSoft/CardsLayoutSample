@@ -157,7 +157,7 @@ public abstract class GameTableLayout<
             }
         }
         onLayoutCardDeck(changed);
-        viewUpdater.onViewMeasured();
+        viewUpdater.onViewUpdated();
     }
 
     /* view updater */
