@@ -92,4 +92,15 @@
         <!--<item name="layout_behavior">@string/tableLayoutBehavior</item>-->
     </style>
 
+    <style name="Widget.CardDeckView">
+        <item name="cardDeck_cardDeck_cardOffset_x">@dimen/cardsLayout_shadow_desk_offset</item>
+        <item name="cardDeck_cardDeck_cardOffset_y">@dimen/cardsLayout_shadow_desk_offset</item>
+        <item name="cardDeck_cardDeck_elevation_min">@dimen/cardDeck_elevationMin</item>
+        <item name="cardDeck_cardDeck_elevation_max">@dimen/cardDeck_elevationMax</item>
+        <item name="cardDeck_offsetBottom">@dimen/cardsLayout_cardDeck_offset</item>
+        <item name="cardDeck_offsetLeft">@dimen/cardsLayout_cardDeck_offset</item>
+        <item name="cardDeck_offsetRight">@dimen/cardsLayout_cardDeck_offset</item>
+        <item name="cardDeck_offsetTop">@dimen/cardsLayout_cardDeck_offset</item>
+    </style>
+
 </resources>
