@@ -145,6 +145,10 @@ public abstract class CardDeckView<Entity> extends ViewGroup {
         this.addView(cardView);
     }
 
+    public List<Card<Entity>> getCards() {
+        return cards;
+    }
+
     public List<ThreeDCardCoordinates> getCardsCoordinates() {
         return cardsCoordinates;
     }

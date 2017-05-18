@@ -103,7 +103,7 @@ public class CardBoxView<Entity> extends FrameLayout implements Card<Entity> {
     @Override
     public int getCardWidth() {
         ViewGroup.LayoutParams layoutParams = getLayoutParams();
-        if (layoutParams != null && layoutParams instanceof CardsLayoutParams) {
+        if (getCardInfo().isCardDistributed() && layoutParams != null && layoutParams instanceof CardsLayoutParams) {
             CardsLayoutParams params = (CardsLayoutParams) layoutParams;
             int widthForCalculation = params.getWidthForCalculation();
             if (widthForCalculation != -1) {
@@ -116,7 +116,7 @@ public class CardBoxView<Entity> extends FrameLayout implements Card<Entity> {
     @Override
     public int getCardHeight() {
         ViewGroup.LayoutParams layoutParams = getLayoutParams();
-        if (layoutParams != null && layoutParams instanceof CardsLayoutParams) {
+        if (getCardInfo().isCardDistributed() && layoutParams != null && layoutParams instanceof CardsLayoutParams) {
             CardsLayoutParams params = (CardsLayoutParams) layoutParams;
             int heightForCalculation = params.getHeightForCalculation();
             if (heightForCalculation != -1) {
