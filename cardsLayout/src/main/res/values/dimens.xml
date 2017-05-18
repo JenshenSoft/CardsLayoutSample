@@ -2,6 +2,6 @@
     <dimen name="cardsLayout_test_card_offset">32dp</dimen>
     <dimen name="cardsLayout_card_elevation_normal">4dp</dimen>
     <dimen name="cardsLayout_card_elevation_pressed">8dp</dimen>
-    <dimen name="cardsLayout_shadow_desk_offset">0.3dp</dimen>
-    <dimen name="cardsLayout_cardDeck_offset">30dp</dimen>
+    <dimen name="cardsLayout_shadow_desk_offset">3dp</dimen>
+    <dimen name="cardsLayout_cardDeck_offset">130dp</dimen>
 </resources>
