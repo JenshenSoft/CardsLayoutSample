@@ -122,12 +122,19 @@ public abstract class CardDeckView<Entity> extends ViewGroup {
         if (viewUpdateConfig.needUpdateViewOnLayout(changed)) {
             List<Card<Entity>> validatedCards = getValidatedCards();
             Iterator<Card<Entity>> validatedCardViews = validatedCards.iterator();
+            float startX = getMeasuredWidth() / 2;
+            float startY = getMeasuredHeight() / 2;
+            if (!validatedCards.isEmpty()) {
+                Card<Entity> card = validatedCards.iterator().next();
+                startX -= card.getCardWidth() / 2;
+                startY -= card.getCardHeight() / 2;
+            }
             cardsCoordinates = new CardDeckCoordinatesPattern(
                     validatedCards.size(),
                     cardDeckCardOffsetX,
                     cardDeckCardOffsetY,
-                    this.offsetLeft,
-                    this.offsetTop,
+                    startX,
+                    startY,
                     cardDeckElevationMin,
                     cardDeckElevationMax)
                     .getCardsCoordinates();
