@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -87,16 +87,15 @@
         <item name="gameTableLayout_cardDeckGravity">center</item>
         <item name="cardDeck_cardDeck_cardOffset_x">@dimen/cardsLayout_shadow_desk_offset</item>
         <item name="cardDeck_cardDeck_cardOffset_y">@dimen/cardsLayout_shadow_desk_offset</item>
-        <item name="cardDeck_cardDeck_elevation_min">@dimen/cardDeck_elevationMin</item>
-        <item name="cardDeck_cardDeck_elevation_max">@dimen/cardDeck_elevationMax</item>
+        <item name="cardDeck_cardDeck_cardOffset_z">@dimen/cardsLayout_shadow_desk_offset</item>
         <!--<item name="layout_behavior">@string/tableLayoutBehavior</item>-->
     </style>
 
     <style name="Widget.CardDeckView">
+        <item name="android:elevation" tools:ignore="NewApi">@dimen/cardsLayout_cardDeck_elevation</item>
         <item name="cardDeck_cardDeck_cardOffset_x">@dimen/cardsLayout_shadow_desk_offset</item>
         <item name="cardDeck_cardDeck_cardOffset_y">@dimen/cardsLayout_shadow_desk_offset</item>
-        <item name="cardDeck_cardDeck_elevation_min">@dimen/cardDeck_elevationMin</item>
-        <item name="cardDeck_cardDeck_elevation_max">@dimen/cardDeck_elevationMax</item>
+        <item name="cardDeck_cardDeck_cardOffset_z">@dimen/cardsLayout_shadow_desk_offset</item>
         <item name="cardDeck_offsetBottom">@dimen/cardsLayout_cardDeck_offset</item>
         <item name="cardDeck_offsetLeft">@dimen/cardsLayout_cardDeck_offset</item>
         <item name="cardDeck_offsetRight">@dimen/cardsLayout_cardDeck_offset</item>

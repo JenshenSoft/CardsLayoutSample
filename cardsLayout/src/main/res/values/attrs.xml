@@ -118,7 +118,6 @@
         <attr name="cardDeck_offsetBottom" format="dimension" />
         <attr name="cardDeck_cardDeck_cardOffset_x" format="dimension" />
         <attr name="cardDeck_cardDeck_cardOffset_y" format="dimension" />
-        <attr name="cardDeck_cardDeck_elevation_min" format="dimension" />
-        <attr name="cardDeck_cardDeck_elevation_max" format="dimension" />
+        <attr name="cardDeck_cardDeck_cardOffset_z" format="dimension" />
     </declare-styleable>
 </resources>

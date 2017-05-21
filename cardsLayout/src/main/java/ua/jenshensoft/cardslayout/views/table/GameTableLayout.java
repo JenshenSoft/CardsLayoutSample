@@ -9,6 +9,7 @@ import android.graphics.ColorFilter;
 import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -66,8 +67,7 @@ public abstract class GameTableLayout<
     private FlagManager cardDeckGravity;
     private float cardDeckCardOffsetX = -1;
     private float cardDeckCardOffsetY = -1;
-    private float cardDeckElevationMin = -1;
-    private float cardDeckElevationMax = -1;
+    private float cardDeckCardOffsetZ = -1;
     //listeners
     @Nullable
     private OnCardClickListener<Entity> onCardClickListener;
@@ -462,8 +462,7 @@ public abstract class GameTableLayout<
 
                 cardDeckCardOffsetX = attributes.getDimension(R.styleable.CardDeckView_cardDeck_cardDeck_cardOffset_x, cardDeckCardOffsetX);
                 cardDeckCardOffsetY = attributes.getDimension(R.styleable.CardDeckView_cardDeck_cardDeck_cardOffset_y, cardDeckCardOffsetY);
-                cardDeckElevationMin = attributes.getDimension(R.styleable.CardDeckView_cardDeck_cardDeck_elevation_min, cardDeckElevationMin);
-                cardDeckElevationMax = attributes.getDimension(R.styleable.CardDeckView_cardDeck_cardDeck_elevation_max, cardDeckElevationMax);
+                cardDeckCardOffsetZ = attributes.getDimension(R.styleable.CardDeckView_cardDeck_cardDeck_cardOffset_z, cardDeckCardOffsetZ);
             } finally {
                 attributesTable.recycle();
                 attributes.recycle();
@@ -479,18 +478,14 @@ public abstract class GameTableLayout<
         viewUpdateConfig = new ViewUpdateConfig(this);
         startedAnimators = new ArrayList<>();
         cardDeckGravity = new FlagManager(FlagManager.Gravity.CENTER);
-
-        if (Math.abs(cardDeckElevationMin - (-1)) < EPSILON) {
-            cardDeckElevationMin = getResources().getDimension(R.dimen.cardsLayout_card_elevation_normal);
-        }
-        if (Math.abs(cardDeckElevationMax - (-1)) < EPSILON) {
-            cardDeckElevationMax = getResources().getDimension(R.dimen.cardsLayout_card_elevation_pressed);
-        }
         if (Math.abs(cardDeckCardOffsetX - (-1)) < EPSILON) {
             cardDeckCardOffsetX = getResources().getDimension(R.dimen.cardsLayout_shadow_desk_offset);
         }
         if (Math.abs(cardDeckCardOffsetY - (-1)) < EPSILON) {
             cardDeckCardOffsetY = getResources().getDimension(R.dimen.cardsLayout_shadow_desk_offset);
+        }
+        if (Math.abs(cardDeckCardOffsetZ - (-1)) < EPSILON) {
+            cardDeckCardOffsetZ = getResources().getDimension(R.dimen.cardsLayout_shadow_desk_offset);
         }
     }
 
@@ -502,6 +497,7 @@ public abstract class GameTableLayout<
         if (viewUpdateConfig.needUpdateViewOnLayout(changed)) {
             float cardDeckX;
             float cardDeckY;
+            float cardDeckZ;
             if (cardDeckView != null && !cardDeckView.getCardsCoordinates().isEmpty()) {
                 List<ThreeDCardCoordinates> cardsCoordinates = cardDeckView.getCardsCoordinates();
                 if (cardsCoordinates == null) {
@@ -510,21 +506,28 @@ public abstract class GameTableLayout<
                 ThreeDCardCoordinates lastCardCoordinates = cardsCoordinates.get(0);
                 cardDeckX = cardDeckView.getX() + lastCardCoordinates.getX() + cardDeckView.getPaddingLeft();
                 cardDeckY = cardDeckView.getY() + lastCardCoordinates.getY() + cardDeckView.getPaddingTop();
+                cardDeckZ = ViewCompat.getElevation(cardDeckView);
             } else {
                 int widthOfCardDeck = 0;
                 int heightOfCardDeck = 0;
+                float higherElevation = 0;
                 for (Card<Entity> deckCard : cardDeckCards) {
                     int measuredWidth = deckCard.getCardWidth();
                     int measuredHeight = deckCard.getCardHeight();
+                    float elevation = deckCard.getCardZ();
                     if (measuredWidth > widthOfCardDeck) {
                         widthOfCardDeck = measuredWidth;
                     }
                     if (measuredHeight > heightOfCardDeck) {
                         heightOfCardDeck = measuredHeight;
                     }
+                    if (elevation > higherElevation) {
+                        higherElevation = elevation;
+                    }
                 }
                 cardDeckX = getXPositionForCardDeck(widthOfCardDeck, getMeasuredWidth());
                 cardDeckY = getYPositionForCardDeck(heightOfCardDeck, getMeasuredHeight());
+                cardDeckZ = higherElevation;
             }
 
             @SuppressLint("DrawAllocation")
@@ -532,10 +535,10 @@ public abstract class GameTableLayout<
                     cardDeckCards.size(),
                     cardDeckCardOffsetX,
                     cardDeckCardOffsetY,
+                    cardDeckCardOffsetZ,
                     cardDeckX,
                     cardDeckY,
-                    cardDeckElevationMin,
-                    cardDeckElevationMax)
+                    cardDeckZ)
                     .getCardsCoordinates();
             for (int i = 0; i < cardDeckCards.size(); i++) {
                 ThreeDCardCoordinates coordinates = cardsCoordinates.get(i);

@@ -64,7 +64,7 @@ public class GameTable extends GameTableLayout<CardInfoModel, CardsLayout<CardIn
 
     private void init() {
         inflate(getContext(), R.layout.viewgroup_table, this);
-        setDurationOfDistributeAnimation(10000);
+        setDurationOfDistributeAnimation(1000);
 
         getCurrentPlayerCardsLayout().setColorFilter(new PorterDuffColorFilter(ContextCompat.getColor(getContext(), R.color.colorAccent), PorterDuff.Mode.MULTIPLY));
 

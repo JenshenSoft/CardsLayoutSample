@@ -13,54 +13,51 @@ public class CardDeckCoordinatesPattern implements CardCoordinatesPattern<ThreeD
     private final int cardsCount;
     private final float cardOffsetX;
     private final float cardOffsetY;
+    private final float cardOffsetZ;
     private final float cardDeckX;
     private final float cardDeckY;
-    private final float elevationMin;
-    private final float elevationMax;
+    private final float cardDeckZ;
 
     public CardDeckCoordinatesPattern(int cardsCount,
                                       float cardOffsetX,
                                       float cardOffsetY,
+                                      float cardOffsetZ,
                                       float cardDeckX,
                                       float cardDeckY,
-                                      float elevationMin,
-                                      float elevationMax) {
+                                      float cardDeckZ) {
         this.cardsCount = cardsCount;
         this.cardOffsetX = cardOffsetX;
         this.cardOffsetY = cardOffsetY;
+        this.cardOffsetZ = cardOffsetZ;
         this.cardDeckX = cardDeckX;
         this.cardDeckY = cardDeckY;
-        this.elevationMin = elevationMin;
-        this.elevationMax = elevationMax;
+        this.cardDeckZ = cardDeckZ;
     }
 
     @Override
     public List<ThreeDCardCoordinates> getCardsCoordinates() {
         List<ThreeDCardCoordinates> cardCoordinates = new ArrayList<>();
-        float shadowXOffset = cardOffsetX;
-        float shadowYOffset = cardOffsetY;
-        float shadowZOffset = (elevationMax - elevationMin) / (cardsCount);
         float x;
         float y;
         //because of elevation (android 21 > has support of Z 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            x = cardDeckX - (cardsCount * shadowXOffset);
-            y = cardDeckY - (cardsCount * shadowYOffset);
+            x = cardDeckX - (cardsCount * cardOffsetX);
+            y = cardDeckY - (cardsCount * cardOffsetY);
         } else {
-            x = cardDeckX + (cardsCount * shadowXOffset);
-            y = cardDeckY + (cardsCount * shadowYOffset);
+            x = cardDeckX + (cardsCount * cardOffsetX);
+            y = cardDeckY + (cardsCount * cardOffsetY);
         }
 
-        float z = elevationMax;
+        float z = cardDeckZ + cardOffsetZ * cardsCount;
 
         for (int i = 0; i < cardsCount; i++) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                x += shadowXOffset;
-                y += shadowYOffset;
-                z -= shadowZOffset;
+                x += cardOffsetX;
+                y += cardOffsetY;
+                z -= cardOffsetZ;
             } else {
-                x -= shadowXOffset;
-                y -= shadowYOffset;
+                x -= cardOffsetX;
+                y -= cardOffsetY;
             }
             cardCoordinates.add(new ThreeDCardCoordinates(x, y, z, 0));
         }

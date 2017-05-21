@@ -5,6 +5,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
+import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,8 +33,7 @@ public abstract class CardDeckView<Entity> extends ViewGroup {
     //attr
     private float cardDeckCardOffsetX = -1;
     private float cardDeckCardOffsetY = -1;
-    private float cardDeckElevationMin = -1;
-    private float cardDeckElevationMax = -1;
+    private float cardDeckCardOffsetZ = -1;
     private float offsetLeft = -1;
     private float offsetRight = -1;
     private float offsetTop = -1;
@@ -133,10 +133,10 @@ public abstract class CardDeckView<Entity> extends ViewGroup {
                     validatedCards.size(),
                     cardDeckCardOffsetX,
                     cardDeckCardOffsetY,
+                    cardDeckCardOffsetZ,
                     startX,
                     startY,
-                    cardDeckElevationMin,
-                    cardDeckElevationMax)
+                    ViewCompat.getElevation(this))
                     .getCardsCoordinates();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 for (int i = 0; i < cardsCoordinates.size(); i++) {
@@ -172,8 +172,7 @@ public abstract class CardDeckView<Entity> extends ViewGroup {
             try {
                 cardDeckCardOffsetX = attributes.getDimension(R.styleable.CardDeckView_cardDeck_cardDeck_cardOffset_x, cardDeckCardOffsetX);
                 cardDeckCardOffsetY = attributes.getDimension(R.styleable.CardDeckView_cardDeck_cardDeck_cardOffset_y, cardDeckCardOffsetY);
-                cardDeckElevationMin = attributes.getDimension(R.styleable.CardDeckView_cardDeck_cardDeck_elevation_min, cardDeckElevationMin);
-                cardDeckElevationMax = attributes.getDimension(R.styleable.CardDeckView_cardDeck_cardDeck_elevation_max, cardDeckElevationMax);
+                cardDeckCardOffsetZ = attributes.getDimension(R.styleable.CardDeckView_cardDeck_cardDeck_cardOffset_z, cardDeckCardOffsetZ);
 
                 offsetLeft = attributes.getDimension(R.styleable.CardDeckView_cardDeck_offsetLeft, offsetLeft);
                 offsetRight = attributes.getDimension(R.styleable.CardDeckView_cardDeck_offsetRight, offsetRight);
@@ -190,17 +189,14 @@ public abstract class CardDeckView<Entity> extends ViewGroup {
         viewUpdater = new ViewUpdater<>();
         viewUpdateConfig = new ViewUpdateConfig(this);
 
-        if (Math.abs(cardDeckElevationMin - (-1)) < EPSILON) {
-            cardDeckElevationMin = getResources().getDimension(R.dimen.cardsLayout_card_elevation_normal);
-        }
-        if (Math.abs(cardDeckElevationMax - (-1)) < EPSILON) {
-            cardDeckElevationMax = getResources().getDimension(R.dimen.cardsLayout_card_elevation_pressed);
-        }
         if (Math.abs(cardDeckCardOffsetX - (-1)) < EPSILON) {
             cardDeckCardOffsetX = getResources().getDimension(R.dimen.cardsLayout_shadow_desk_offset);
         }
         if (Math.abs(cardDeckCardOffsetY - (-1)) < EPSILON) {
             cardDeckCardOffsetY = getResources().getDimension(R.dimen.cardsLayout_shadow_desk_offset);
+        }
+        if (Math.abs(cardDeckCardOffsetZ - (-1)) < EPSILON) {
+            cardDeckCardOffsetZ = getResources().getDimension(R.dimen.cardsLayout_shadow_desk_offset);
         }
 
         if (Math.abs(offsetLeft - (-1)) < EPSILON) {

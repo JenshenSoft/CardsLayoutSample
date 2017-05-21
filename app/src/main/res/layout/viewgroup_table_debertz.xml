@@ -6,11 +6,6 @@
     android:layout_height="match_parent"
     tools:context="ua.jenshensoft.cardslayoutsample.MainActivity">
 
-    <ua.jenshensoft.cardslayoutsample.views.CardDeck
-        style="@style/Widget.CardDeckView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
     <ua.jenshensoft.cardslayoutsample.views.debertz.DebertzCardsLayout
         android:id="@+id/cardsOnTheHand_layout_1"
         style="@style/Widget.CardsLayout.OtherPlayer.Vertical"
