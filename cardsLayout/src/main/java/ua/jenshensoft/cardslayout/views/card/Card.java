@@ -38,11 +38,9 @@ public interface Card<Entity> extends ValidateViewBlocker {
 
     float getRotation();
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    void setElevation(@Px float z);
+    void setCardZ(@Px float z);
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    float getElevation();
+    float getCardZ();
 
     int getCardWidth();
 

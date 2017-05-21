@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import ua.jenshensoft.cardslayout.CardInfo;
@@ -87,54 +88,57 @@ public abstract class CardDeckView<Entity> extends ViewGroup {
     @SuppressLint("DrawAllocation")
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        if (viewUpdateConfig.needUpdateViewOnMeasure()) {
-
-            // Find out how big everyone wants to be
-            measureChildren(widthMeasureSpec, heightMeasureSpec);
-
-            List<Card<Entity>> validatedCardViews = getValidatedCards();
-            cardsCoordinates = new CardDeckCoordinatesPattern(
-                    validatedCardViews.size(),
-                    cardDeckCardOffsetX,
-                    cardDeckCardOffsetY,
-                    offsetLeft,
-                    offsetTop,
-                    cardDeckElevationMin,
-                    cardDeckElevationMax)
-                    .getCardsCoordinates();
-
-            int maxHeight = 0;
-            int maxWidth = 0;
-            // Find rightmost and bottom-most child
-            for (int i = 0; i < validatedCardViews.size(); i++) {
-                Card<Entity> card = validatedCardViews.get(i);
-                ThreeDCardCoordinates cardCoordinates = cardsCoordinates.get(i);
-                float childRight = cardCoordinates.getX() + card.getCardWidth();
-                float childBottom = cardCoordinates.getY() + card.getCardHeight();
-                maxWidth = Math.max(maxWidth, Math.round(childRight));
-                maxHeight = Math.max(maxHeight, Math.round(childBottom));
-            }
-
-            // Account for padding too
-            maxWidth += getPaddingLeft()+ getPaddingRight() + offsetRight;
-            maxHeight += getPaddingTop()+ getPaddingBottom() + offsetBottom;
-
-            // Check against minimum height and width
-            maxHeight = Math.max(maxHeight, getSuggestedMinimumHeight());
-            maxWidth = Math.max(maxWidth, getSuggestedMinimumWidth());
-
-            setMeasuredDimension(
-                    resolveSizeAndState(maxWidth, widthMeasureSpec, 0),
-                    resolveSizeAndState(maxHeight, heightMeasureSpec, 0));
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        // Find out how big everyone wants to be
+        measureChildren(widthMeasureSpec, heightMeasureSpec);
+        List<Card<Entity>> validatedCardViews = getValidatedCards();
+        int maxHeight = 0;
+        int maxWidth = 0;
+        // Find rightmost and bottom-most child
+        for (int i = 0; i < validatedCardViews.size(); i++) {
+            Card<Entity> card = validatedCardViews.get(i);
+            float childRight = card.getCardWidth();
+            float childBottom = card.getCardHeight();
+            maxWidth = Math.max(maxWidth, Math.round(childRight));
+            maxHeight = Math.max(maxHeight, Math.round(childBottom));
         }
+
+        // Account for padding too
+        maxWidth += getPaddingLeft() + getPaddingRight() + offsetLeft + offsetRight;
+        maxHeight += getPaddingTop() + getPaddingBottom() + offsetBottom + offsetTop;
+
+        // Check against minimum height and width
+        maxHeight = Math.max(maxHeight, getSuggestedMinimumHeight());
+        maxWidth = Math.max(maxWidth, getSuggestedMinimumWidth());
+
+        setMeasuredDimension(
+                resolveSizeAndState(maxWidth, widthMeasureSpec, 0),
+                resolveSizeAndState(maxHeight, heightMeasureSpec, 0));
     }
 
+    @SuppressLint("DrawAllocation")
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         if (viewUpdateConfig.needUpdateViewOnLayout(changed)) {
-            List<Card<Entity>> validatedCardViews = getValidatedCards();
-            for (int i = 0; i < validatedCardViews.size(); i++) {
-                onLayoutCardInCardDeck((View & Card<Entity>) validatedCardViews.get(i), cardsCoordinates.get(i));
+            List<Card<Entity>> validatedCards = getValidatedCards();
+            Iterator<Card<Entity>> validatedCardViews = validatedCards.iterator();
+            cardsCoordinates = new CardDeckCoordinatesPattern(
+                    validatedCards.size(),
+                    cardDeckCardOffsetX,
+                    cardDeckCardOffsetY,
+                    this.offsetLeft,
+                    this.offsetTop,
+                    cardDeckElevationMin,
+                    cardDeckElevationMax)
+                    .getCardsCoordinates();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                for (int i = 0; i < cardsCoordinates.size(); i++) {
+                    onLayoutCardInCardDeck((View & Card<Entity>) validatedCardViews.next(), cardsCoordinates.get(i));
+                }
+            } else {
+                for (int i = cardsCoordinates.size() - 1; i >= 0; i--) {
+                    onLayoutCardInCardDeck((View & Card<Entity>) validatedCardViews.next(), cardsCoordinates.get(i));
+                }
             }
         }
     }
@@ -244,9 +248,7 @@ public abstract class CardDeckView<Entity> extends ViewGroup {
         float z = coordinates.getZ();
         int angle = Math.round(coordinates.getAngle());
         cardView.setRotation(angle);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            cardView.setElevation(z);
-        }
+        cardView.setCardZ(z);
         cardView.layout(x, y, x + cardView.getMeasuredWidth(), y + cardView.getMeasuredHeight());
         CardInfo<Entity> cardInfo = cardView.getCardInfo();
         cardInfo.setFirstPositionX(x);

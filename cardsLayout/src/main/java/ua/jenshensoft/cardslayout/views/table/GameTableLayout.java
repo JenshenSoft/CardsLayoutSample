@@ -27,7 +27,6 @@ import ua.jenshensoft.cardslayout.listeners.table.OnCardClickListener;
 import ua.jenshensoft.cardslayout.listeners.table.OnDistributedCardsListener;
 import ua.jenshensoft.cardslayout.pattern.CardDeckCoordinatesPattern;
 import ua.jenshensoft.cardslayout.pattern.models.ThreeDCardCoordinates;
-import ua.jenshensoft.cardslayout.util.CardsUtil;
 import ua.jenshensoft.cardslayout.util.DistributionState;
 import ua.jenshensoft.cardslayout.util.FlagManager;
 import ua.jenshensoft.cardslayout.views.ViewUpdateConfig;
@@ -280,10 +279,8 @@ public abstract class GameTableLayout<
     }
 
     public void setCardDeckCards(Predicate<Card<Entity>> predicateForCardsOnTheHands) {
-        List<Iterator<Card<Entity>>> cardsInDeskForPlayers = new ArrayList<>();
-        for (Layout cardsLayout : cardsLayouts) {
-            List<Card<Entity>> cardsInDeskForPlayer = new ArrayList<>();
-            for (Card<Entity> card : cardsLayout.getCards()) {
+        for (Layout layout : cardsLayouts) {
+            for (Card<Entity> card : layout.getCards()) {
                 if (predicateForCardsOnTheHands.apply(card)) {
                     if (deskOfCardsEnable) {
                         card.getCardInfo().setCardDistributed(true);
@@ -297,16 +294,54 @@ public abstract class GameTableLayout<
                     } else {
                         card.setVisibility(INVISIBLE);
                     }
-                    cardsInDeskForPlayer.add(card);
+                    cardDeckCards.add(0, card);
                 }
             }
-            if (!cardsInDeskForPlayer.isEmpty()) {
-                cardsInDeskForPlayers.add(cardsInDeskForPlayer.iterator());
+        }
+        /*List<Iterator<Card<Entity>>> cardsIterators = new ArrayList<>();
+        for (Layout layout : cardsLayouts) {
+            cardsIterators.add(layout.getCards().iterator());
+        }
+
+        while (hasNextCard(cardsIterators)) {
+            List<Card<Entity>> cards = getNextCards(cardsIterators);
+            for (Card card : cards) {
+                if (predicateForCardsOnTheHands.apply(card)) {
+                    if (deskOfCardsEnable) {
+                        card.getCardInfo().setCardDistributed(true);
+                    } else {
+                        card.setVisibility(VISIBLE);
+                    }
+                } else {
+                    if (deskOfCardsEnable) {
+                        CardInfo<Entity> cardInfo = card.getCardInfo();
+                        cardInfo.setCardDistributed(false);
+                    } else {
+                        card.setVisibility(INVISIBLE);
+                    }
+                    cardDeckCards.add(card);
+                }
+            }
+        }*/
+    }
+
+    private boolean hasNextCard(List<Iterator<Card<Entity>>> cardsIterators) {
+        for (Iterator<Card<Entity>> cardIterator : cardsIterators) {
+            if (cardIterator.hasNext()) {
+                return true;
             }
         }
-        if (!cardsInDeskForPlayers.isEmpty()) {
-            cardDeckCards.addAll(CardsUtil.getCardsForDesk(cardsInDeskForPlayers));
+        return false;
+    }
+
+    private List<Card<Entity>> getNextCards(List<Iterator<Card<Entity>>> cardsIterators) {
+        List<Card<Entity>> cards = new ArrayList<>();
+        for (Iterator<Card<Entity>> cardIterator : cardsIterators) {
+            if (cardIterator.hasNext()) {
+                cards.add(cardIterator.next());
+            }
         }
+        return cards;
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -374,12 +409,11 @@ public abstract class GameTableLayout<
         }
     }
 
-    @SuppressWarnings("ConstantConditions")
     protected void onEndDistributeCardWave(List<Card<Entity>> cards) {
         //set elevation
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             for (Card<Entity> card : cards) {
-                card.setElevation(card.getNormalElevation());
+                card.setCardZ(card.getNormalElevation());
             }
         }
         cardDeckCards.removeAll(cards);
@@ -473,12 +507,7 @@ public abstract class GameTableLayout<
                 if (cardsCoordinates == null) {
                     throw new RuntimeException("Something went wrong, coordinates can't be null");
                 }
-                ThreeDCardCoordinates lastCardCoordinates;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    lastCardCoordinates = cardsCoordinates.get(0);
-                } else {
-                    lastCardCoordinates = cardsCoordinates.get(cardsCoordinates.size() - 1);
-                }
+                ThreeDCardCoordinates lastCardCoordinates = cardsCoordinates.get(0);
                 cardDeckX = cardDeckView.getX() + lastCardCoordinates.getX() + cardDeckView.getPaddingLeft();
                 cardDeckY = cardDeckView.getY() + lastCardCoordinates.getY() + cardDeckView.getPaddingTop();
             } else {
@@ -537,9 +566,7 @@ public abstract class GameTableLayout<
             y = Math.round(cardY);
             int angle = Math.round(cardAngle);
             card.setRotation(angle);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                card.setElevation(cardZ);
-            }
+            card.setCardZ(cardZ);
             card.setFirstX(x);
             card.setFirstY(y);
             card.setFirstRotation(angle);

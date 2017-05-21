@@ -71,7 +71,7 @@ public class DebertzGameTableLayout extends GameTableLayout<CardInfoModel, Deber
 
     private void init() {
         inflate(getContext(), R.layout.viewgroup_table_debertz, this);
-        setDurationOfDistributeAnimation(1000);
+        setDurationOfDistributeAnimation(10000);
 
         int number = 0;
         for (CardsLayout<CardInfoModel> cardsLayout : cardsLayouts) {

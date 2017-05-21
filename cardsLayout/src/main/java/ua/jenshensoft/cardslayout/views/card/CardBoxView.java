@@ -2,8 +2,8 @@ package ua.jenshensoft.cardslayout.views.card;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.os.Build;
 import android.support.annotation.Nullable;
+import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
@@ -126,6 +126,16 @@ public class CardBoxView<Entity> extends FrameLayout implements Card<Entity> {
         return getMeasuredHeight();
     }
 
+    @Override
+    public void setCardZ(float z) {
+        ViewCompat.setElevation(this, z);
+    }
+
+    @Override
+    public float getCardZ() {
+        return ViewCompat.getElevation(this);
+    }
+
     /* attr */
 
     @Override
@@ -228,9 +238,7 @@ public class CardBoxView<Entity> extends FrameLayout implements Card<Entity> {
         if (Math.abs(cardElevation - (-1)) < EPSILON) {
             cardElevation = getResources().getDimension(R.dimen.cardsLayout_card_elevation_normal);
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            setElevation(cardElevation);
-        }
+        setCardZ(cardElevation);
         if (Math.abs(cardElevationPressed - (-1)) < EPSILON) {
             cardElevationPressed = getResources().getDimension(R.dimen.cardsLayout_card_elevation_pressed);
         }
