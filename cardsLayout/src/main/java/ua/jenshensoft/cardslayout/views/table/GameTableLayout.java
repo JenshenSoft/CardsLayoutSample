@@ -9,7 +9,6 @@ import android.graphics.ColorFilter;
 import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
-import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -506,28 +505,34 @@ public abstract class GameTableLayout<
                 ThreeDCardCoordinates lastCardCoordinates = cardsCoordinates.get(0);
                 cardDeckX = cardDeckView.getX() + lastCardCoordinates.getX() + cardDeckView.getPaddingLeft();
                 cardDeckY = cardDeckView.getY() + lastCardCoordinates.getY() + cardDeckView.getPaddingTop();
-                cardDeckZ = ViewCompat.getElevation(cardDeckView);
-            } else {
-                int widthOfCardDeck = 0;
-                int heightOfCardDeck = 0;
-                float higherElevation = 0;
-                for (Card<Entity> deckCard : cardDeckCards) {
-                    int measuredWidth = deckCard.getCardWidth();
-                    int measuredHeight = deckCard.getCardHeight();
-                    float elevation = deckCard.getCardZ();
-                    if (measuredWidth > widthOfCardDeck) {
-                        widthOfCardDeck = measuredWidth;
-                    }
-                    if (measuredHeight > heightOfCardDeck) {
-                        heightOfCardDeck = measuredHeight;
-                    }
-                    if (elevation > higherElevation) {
-                        higherElevation = elevation;
+                cardDeckZ = 0;
+                for (Card<Entity> card : cardDeckCards) {
+                    float cardZ = card.getCardZ();
+                    if (cardZ > cardDeckZ) {
+                        cardDeckZ = cardZ;
                     }
                 }
-                cardDeckX = getXPositionForCardDeck(widthOfCardDeck, getMeasuredWidth());
-                cardDeckY = getYPositionForCardDeck(heightOfCardDeck, getMeasuredHeight());
-                cardDeckZ = higherElevation;
+            } else {
+                float maxWidth = 0;
+                float maxHeight = 0;
+                float maxElevation = 0;
+                for (Card<Entity> card : cardDeckCards) {
+                    float cardWidth = card.getCardWidth();
+                    float cardHeight = card.getCardHeight();
+                    float cardZ = card.getCardZ();
+                    if (cardWidth > maxWidth) {
+                        maxWidth = cardWidth;
+                    }
+                    if (cardHeight > maxHeight) {
+                        maxHeight = cardHeight;
+                    }
+                    if (cardZ > maxElevation) {
+                        maxElevation = cardZ;
+                    }
+                }
+                cardDeckX = getXPositionForCardDeck(maxWidth, getMeasuredWidth());
+                cardDeckY = getYPositionForCardDeck(maxHeight, getMeasuredHeight());
+                cardDeckZ = maxElevation;
             }
 
             @SuppressLint("DrawAllocation")

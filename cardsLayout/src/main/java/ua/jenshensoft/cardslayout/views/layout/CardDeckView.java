@@ -5,7 +5,6 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
-import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -124,10 +123,29 @@ public abstract class CardDeckView<Entity> extends ViewGroup {
             Iterator<Card<Entity>> validatedCardViews = validatedCards.iterator();
             float startX = getMeasuredWidth() / 2;
             float startY = getMeasuredHeight() / 2;
+            float startZ = 0;
             if (!validatedCards.isEmpty()) {
+                float maxWidth = 0;
+                float maxHeight = 0;
+                float maxElevation = 0;
+                for (Card<Entity> card : validatedCards) {
+                    float cardWidth = card.getCardWidth();
+                    float cardHeight = card.getCardHeight();
+                    float cardZ = card.getCardZ();
+                    if (cardWidth > maxWidth) {
+                        maxWidth = cardWidth;
+                    }
+                    if (cardHeight > maxHeight) {
+                        maxHeight = cardHeight;
+                    }
+                    if (cardZ > maxElevation) {
+                        maxElevation = cardZ;
+                    }
+                }
                 Card<Entity> card = validatedCards.iterator().next();
                 startX -= card.getCardWidth() / 2;
                 startY -= card.getCardHeight() / 2;
+                startZ = maxElevation;
             }
             cardsCoordinates = new CardDeckCoordinatesPattern(
                     validatedCards.size(),
@@ -136,7 +154,7 @@ public abstract class CardDeckView<Entity> extends ViewGroup {
                     cardDeckCardOffsetZ,
                     startX,
                     startY,
-                    ViewCompat.getElevation(this))
+                    startZ)
                     .getCardsCoordinates();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 for (int i = 0; i < cardsCoordinates.size(); i++) {
