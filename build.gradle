@@ -29,7 +29,7 @@ buildscript {
         classpath 'me.tatarka:gradle-retrolambda:3.3.0'
 
         // Required plugins added to classpath to facilitate pushing to Jcenter/Bintray
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.4'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
     }
 }
