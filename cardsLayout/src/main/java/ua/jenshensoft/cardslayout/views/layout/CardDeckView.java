@@ -182,6 +182,21 @@ public abstract class CardDeckView<Entity> extends ViewGroup {
         return cardsCoordinates;
     }
 
+    protected  <CV extends View & Card<Entity>> void onLayoutCardInCardDeck(CV cardView,
+                                                                            ThreeDCardCoordinates coordinates) {
+        int x = Math.round(coordinates.getX());
+        int y = Math.round(coordinates.getY());
+        float z = coordinates.getZ();
+        int angle = Math.round(coordinates.getAngle());
+        cardView.setRotation(angle);
+        cardView.setCardZ(z);
+        cardView.layout(x, y, x + cardView.getMeasuredWidth(), y + cardView.getMeasuredHeight());
+        CardInfo<Entity> cardInfo = cardView.getCardInfo();
+        cardInfo.setFirstPositionX(x);
+        cardInfo.setFirstPositionY(y);
+        cardInfo.setFirstRotation(angle);
+    }
+
     /* private methods */
 
     private void inflateAttributes(Context context, AttributeSet attrs) {
@@ -260,21 +275,6 @@ public abstract class CardDeckView<Entity> extends ViewGroup {
             }
         }
         return validatedCards;
-    }
-
-    private <CV extends View & Card<Entity>> void onLayoutCardInCardDeck(CV cardView,
-                                                                         ThreeDCardCoordinates coordinates) {
-        int x = Math.round(coordinates.getX());
-        int y = Math.round(coordinates.getY());
-        float z = coordinates.getZ();
-        int angle = Math.round(coordinates.getAngle());
-        cardView.setRotation(angle);
-        cardView.setCardZ(z);
-        cardView.layout(x, y, x + cardView.getMeasuredWidth(), y + cardView.getMeasuredHeight());
-        CardInfo<Entity> cardInfo = cardView.getCardInfo();
-        cardInfo.setFirstPositionX(x);
-        cardInfo.setFirstPositionY(y);
-        cardInfo.setFirstRotation(angle);
     }
 
     private boolean shouldPassCard(Card<Entity> card) {
