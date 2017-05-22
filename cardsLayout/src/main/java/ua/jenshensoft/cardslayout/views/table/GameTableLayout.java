@@ -473,12 +473,7 @@ public abstract class GameTableLayout<
                 if (cardsCoordinates == null) {
                     throw new RuntimeException("Something went wrong, coordinates can't be null");
                 }
-                ThreeDCardCoordinates lastCardCoordinates;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    lastCardCoordinates = cardsCoordinates.get(0);
-                } else {
-                    lastCardCoordinates = cardsCoordinates.get(cardsCoordinates.size() - 1);
-                }
+                ThreeDCardCoordinates lastCardCoordinates = cardsCoordinates.get(cardsCoordinates.size() - 1);
                 cardDeckX = cardDeckView.getX() + lastCardCoordinates.getX() + cardDeckView.getPaddingLeft();
                 cardDeckY = cardDeckView.getY() + lastCardCoordinates.getY() + cardDeckView.getPaddingTop();
                 cardDeckZ = 0;
