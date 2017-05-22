@@ -277,70 +277,41 @@ public abstract class GameTableLayout<
         }
     }
 
+    private void setCardDeckCard(Card<Entity> card, Predicate<Card<Entity>> predicateForCardsOnTheHands) {
+        if (predicateForCardsOnTheHands.apply(card)) {
+            if (deskOfCardsEnable) {
+                card.getCardInfo().setCardDistributed(true);
+            } else {
+                card.setVisibility(VISIBLE);
+            }
+        } else {
+            if (deskOfCardsEnable) {
+                CardInfo<Entity> cardInfo = card.getCardInfo();
+                cardInfo.setCardDistributed(false);
+            } else {
+                card.setVisibility(INVISIBLE);
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                cardDeckCards.add(0, card);
+            } else {
+                cardDeckCards.add(card);
+            }
+        }
+    }
+
     public void setCardDeckCards(Predicate<Card<Entity>> predicateForCardsOnTheHands) {
         for (Layout layout : cardsLayouts) {
-            for (Card<Entity> card : layout.getCards()) {
-                if (predicateForCardsOnTheHands.apply(card)) {
-                    if (deskOfCardsEnable) {
-                        card.getCardInfo().setCardDistributed(true);
-                    } else {
-                        card.setVisibility(VISIBLE);
-                    }
-                } else {
-                    if (deskOfCardsEnable) {
-                        CardInfo<Entity> cardInfo = card.getCardInfo();
-                        cardInfo.setCardDistributed(false);
-                    } else {
-                        card.setVisibility(INVISIBLE);
-                    }
-                    cardDeckCards.add(0, card);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                for (int i = layout.getCards().size() - 1; i >= 0; i--) {
+                    Card<Entity> card = layout.getCards().get(i);
+                    setCardDeckCard(card, predicateForCardsOnTheHands);
+                }
+            } else {
+                for (Card<Entity> card : layout.getCards()) {
+                    setCardDeckCard(card, predicateForCardsOnTheHands);
                 }
             }
         }
-        /*List<Iterator<Card<Entity>>> cardsIterators = new ArrayList<>();
-        for (Layout layout : cardsLayouts) {
-            cardsIterators.add(layout.getCards().iterator());
-        }
-
-        while (hasNextCard(cardsIterators)) {
-            List<Card<Entity>> cards = getNextCards(cardsIterators);
-            for (Card card : cards) {
-                if (predicateForCardsOnTheHands.apply(card)) {
-                    if (deskOfCardsEnable) {
-                        card.getCardInfo().setCardDistributed(true);
-                    } else {
-                        card.setVisibility(VISIBLE);
-                    }
-                } else {
-                    if (deskOfCardsEnable) {
-                        CardInfo<Entity> cardInfo = card.getCardInfo();
-                        cardInfo.setCardDistributed(false);
-                    } else {
-                        card.setVisibility(INVISIBLE);
-                    }
-                    cardDeckCards.add(card);
-                }
-            }
-        }*/
-    }
-
-    private boolean hasNextCard(List<Iterator<Card<Entity>>> cardsIterators) {
-        for (Iterator<Card<Entity>> cardIterator : cardsIterators) {
-            if (cardIterator.hasNext()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private List<Card<Entity>> getNextCards(List<Iterator<Card<Entity>>> cardsIterators) {
-        List<Card<Entity>> cards = new ArrayList<>();
-        for (Iterator<Card<Entity>> cardIterator : cardsIterators) {
-            if (cardIterator.hasNext()) {
-                cards.add(cardIterator.next());
-            }
-        }
-        return cards;
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -502,7 +473,12 @@ public abstract class GameTableLayout<
                 if (cardsCoordinates == null) {
                     throw new RuntimeException("Something went wrong, coordinates can't be null");
                 }
-                ThreeDCardCoordinates lastCardCoordinates = cardsCoordinates.get(0);
+                ThreeDCardCoordinates lastCardCoordinates;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    lastCardCoordinates = cardsCoordinates.get(0);
+                } else {
+                    lastCardCoordinates = cardsCoordinates.get(cardsCoordinates.size() - 1);
+                }
                 cardDeckX = cardDeckView.getX() + lastCardCoordinates.getX() + cardDeckView.getPaddingLeft();
                 cardDeckY = cardDeckView.getY() + lastCardCoordinates.getY() + cardDeckView.getPaddingTop();
                 cardDeckZ = 0;
@@ -545,9 +521,17 @@ public abstract class GameTableLayout<
                     cardDeckY,
                     cardDeckZ)
                     .getCardsCoordinates();
-            for (int i = 0; i < cardDeckCards.size(); i++) {
-                ThreeDCardCoordinates coordinates = cardsCoordinates.get(i);
-                onLayoutCardInCardDeck((CV) cardDeckCards.get(i), coordinates.getX(), coordinates.getY(), coordinates.getZ(), coordinates.getAngle());
+            Iterator<Card<Entity>> validatedCardViews = cardDeckCards.iterator();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                for (int i = cardsCoordinates.size() - 1; i >= 0; i--) {
+                    ThreeDCardCoordinates coordinates = cardsCoordinates.get(i);
+                    onLayoutCardInCardDeck((View & Card<Entity>) validatedCardViews.next(), coordinates.getX(), coordinates.getY(), coordinates.getZ(), coordinates.getAngle());
+                }
+            } else {
+                for (int i = 0; i < cardsCoordinates.size(); i++) {
+                    ThreeDCardCoordinates coordinates = cardsCoordinates.get(i);
+                    onLayoutCardInCardDeck((View & Card<Entity>) validatedCardViews.next(), coordinates.getX(), coordinates.getY(), coordinates.getZ(), coordinates.getAngle());
+                }
             }
         } else {
             for (int i = 0; i < cardDeckCards.size(); i++) {

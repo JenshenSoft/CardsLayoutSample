@@ -2,8 +2,8 @@ package ua.jenshensoft.cardslayout.views.card;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Build;
 import android.support.annotation.Nullable;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -128,12 +128,17 @@ public class CardView<Entity> extends AppCompatImageView implements Card<Entity>
 
     @Override
     public void setCardZ(float z) {
-        ViewCompat.setElevation(this, z);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            setElevation(z);
+        }
     }
 
     @Override
     public float getCardZ() {
-        return ViewCompat.getElevation(this);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            return getElevation();
+        }
+        return 0;
     }
 
     /* attr */

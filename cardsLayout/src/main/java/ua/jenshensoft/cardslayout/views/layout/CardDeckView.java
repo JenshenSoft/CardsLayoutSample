@@ -120,7 +120,6 @@ public abstract class CardDeckView<Entity> extends ViewGroup {
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         if (viewUpdateConfig.needUpdateViewOnLayout(changed)) {
             List<Card<Entity>> validatedCards = getValidatedCards();
-            Iterator<Card<Entity>> validatedCardViews = validatedCards.iterator();
             float startX = getMeasuredWidth() / 2;
             float startY = getMeasuredHeight() / 2;
             float startZ = 0;
@@ -156,12 +155,13 @@ public abstract class CardDeckView<Entity> extends ViewGroup {
                     startY,
                     startZ)
                     .getCardsCoordinates();
+            Iterator<Card<Entity>> validatedCardViews = validatedCards.iterator();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                for (int i = 0; i < cardsCoordinates.size(); i++) {
+                for (int i = cardsCoordinates.size() - 1; i >= 0; i--) {
                     onLayoutCardInCardDeck((View & Card<Entity>) validatedCardViews.next(), cardsCoordinates.get(i));
                 }
             } else {
-                for (int i = cardsCoordinates.size() - 1; i >= 0; i--) {
+                for (int i = 0; i < cardsCoordinates.size(); i++) {
                     onLayoutCardInCardDeck((View & Card<Entity>) validatedCardViews.next(), cardsCoordinates.get(i));
                 }
             }

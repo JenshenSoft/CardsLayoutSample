@@ -37,27 +37,15 @@ public class CardDeckCoordinatesPattern implements CardCoordinatesPattern<ThreeD
     @Override
     public List<ThreeDCardCoordinates> getCardsCoordinates() {
         List<ThreeDCardCoordinates> cardCoordinates = new ArrayList<>();
-        float x;
-        float y;
-        //because of elevation (android 21 > has support of Z 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            x = cardDeckX - (cardsCount * cardOffsetX);
-            y = cardDeckY - (cardsCount * cardOffsetY);
-        } else {
-            x = cardDeckX + (cardsCount * cardOffsetX);
-            y = cardDeckY + (cardsCount * cardOffsetY);
-        }
-
-        float z = cardDeckZ + cardOffsetZ * cardsCount;
-
+        float x = cardDeckX;
+        float y = cardDeckY;
+        float z = cardDeckZ;
         for (int i = 0; i < cardsCount; i++) {
+            x -= cardOffsetX;
+            y -= cardOffsetY;
+            //because of elevation (android 21 > has support of Z
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                x += cardOffsetX;
-                y += cardOffsetY;
-                z -= cardOffsetZ;
-            } else {
-                x -= cardOffsetX;
-                y -= cardOffsetY;
+                z += cardOffsetZ;
             }
             cardCoordinates.add(new ThreeDCardCoordinates(x, y, z, 0));
         }
