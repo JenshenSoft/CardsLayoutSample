@@ -414,6 +414,31 @@ public abstract class GameTableLayout<
         };
     }
 
+    protected  <CV extends View & Card<Entity>> void onLayoutCardInCardDeck(CV card, ThreeDCardCoordinates coordinates) {
+        int x;
+        int y;
+        if (card.getCardInfo().isCardDistributed()) {
+            x = Math.round(card.getX());
+            y = Math.round(card.getY());
+        } else {
+            if ((Math.abs(coordinates.getX() - (card.getX())) < EPSILON) &&
+                    (Math.abs(coordinates.getY() - (card.getY())) < EPSILON)) {
+                return;
+            }
+            x = Math.round(coordinates.getX());
+            y = Math.round(coordinates.getY());
+            int angle = Math.round(coordinates.getAngle());
+            card.setRotation(angle);
+            card.setCardZ(coordinates.getZ());
+            card.setFirstX(x);
+            card.setFirstY(y);
+            card.setFirstRotation(angle);
+        }
+        card.layout(x, y, x + card.getMeasuredWidth(), y + card.getMeasuredHeight());
+    }
+
+    /* private methods */
+
     @SuppressWarnings({"unchecked"})
     private void initLayout(AttributeSet attrs) {
         if (attrs != null) {
@@ -439,8 +464,6 @@ public abstract class GameTableLayout<
             }
         }
     }
-
-    /* private methods */
 
     private void inflateLayout() {
         cardsLayouts = new ArrayList<>();
@@ -520,12 +543,12 @@ public abstract class GameTableLayout<
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 for (int i = cardsCoordinates.size() - 1; i >= 0; i--) {
                     ThreeDCardCoordinates coordinates = cardsCoordinates.get(i);
-                    onLayoutCardInCardDeck((View & Card<Entity>) validatedCardViews.next(), coordinates.getX(), coordinates.getY(), coordinates.getZ(), coordinates.getAngle());
+                    onLayoutCardInCardDeck((View & Card<Entity>) validatedCardViews.next(), coordinates);
                 }
             } else {
                 for (int i = 0; i < cardsCoordinates.size(); i++) {
                     ThreeDCardCoordinates coordinates = cardsCoordinates.get(i);
-                    onLayoutCardInCardDeck((View & Card<Entity>) validatedCardViews.next(), coordinates.getX(), coordinates.getY(), coordinates.getZ(), coordinates.getAngle());
+                    onLayoutCardInCardDeck((View & Card<Entity>) validatedCardViews.next(), coordinates);
                 }
             }
         } else {
@@ -536,29 +559,6 @@ public abstract class GameTableLayout<
                 card.layout(x, y, x + card.getMeasuredWidth(), y + card.getMeasuredHeight());
             }
         }
-    }
-
-    private <CV extends View & Card<Entity>> void onLayoutCardInCardDeck(CV card, float cardX, float cardY, float cardZ, float cardAngle) {
-        int x;
-        int y;
-        if (card.getCardInfo().isCardDistributed()) {
-            x = Math.round(card.getX());
-            y = Math.round(card.getY());
-        } else {
-            if ((Math.abs(cardX - (card.getX())) < EPSILON) &&
-                    (Math.abs(cardY - (card.getY())) < EPSILON)) {
-                return;
-            }
-            x = Math.round(cardX);
-            y = Math.round(cardY);
-            int angle = Math.round(cardAngle);
-            card.setRotation(angle);
-            card.setCardZ(cardZ);
-            card.setFirstX(x);
-            card.setFirstY(y);
-            card.setFirstRotation(angle);
-        }
-        card.layout(x, y, x + card.getMeasuredWidth(), y + card.getMeasuredHeight());
     }
 
     private void onActionWithCard(Entity entity) {
