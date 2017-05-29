@@ -150,8 +150,6 @@ public abstract class GameTableLayout<
                         Math.round(cardDeckY),
                         Math.round(cardDeckX) + cardDeckView.getMeasuredWidth(),
                         Math.round(cardDeckY) + cardDeckView.getMeasuredHeight());
-            } else {
-                throw new RuntimeException("Can't support this view " + child.getClass().getSimpleName());
             }
         }
         onLayoutCardDeck(changed);
@@ -228,22 +226,21 @@ public abstract class GameTableLayout<
 
     public void setSwipeValidatorEnabled(final Layout cardsLayout) {
         cardsLayout.addOnCardSwipedListener(cardInfo -> {
-            onActionWithCard(cardInfo.getEntity());
             if (!cardsLayout.isEnabled()) {
                 cardsLayout.setEnabled(true);
             }
+            onActionWithCard(cardInfo.getEntity());
         });
     }
 
     public void setPercentageValidatorEnabled(final Layout cardsLayout) {
         cardsLayout.addCardPercentageChangeListener((percentageX, percentageY, cardInfo, isTouched) -> {
             if (!isTouched) {
-                if (percentageX >= 100 || percentageY >= 100) {
-                    onActionWithCard(cardInfo.getEntity());
-                    return;
-                }
                 if (!cardsLayout.isEnabled()) {
                     cardsLayout.setEnabled(true);
+                }
+                if (percentageX >= 100 || percentageY >= 100) {
+                    onActionWithCard(cardInfo.getEntity());
                 }
             } else {
                 if (cardsLayout.isEnabled()) {

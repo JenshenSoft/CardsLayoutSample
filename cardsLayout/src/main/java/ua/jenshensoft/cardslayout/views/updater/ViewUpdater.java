@@ -42,6 +42,10 @@ public class ViewUpdater<P extends ViewUpdaterParams> {
         onUpdateViewActions(true);
     }
 
+    public void setIsUpdated(boolean updated) {
+        this.updated = updated;
+    }
+
     public void ping() {
         onUpdateViewParams(false);
         onUpdateViewActions(false);
