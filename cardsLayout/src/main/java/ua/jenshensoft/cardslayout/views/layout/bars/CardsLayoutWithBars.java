@@ -103,10 +103,10 @@ public abstract class CardsLayoutWithBars<
     }
 
     @Override
-    protected <CV extends View & Card<Entity>> void onLayoutCards() {
-        super.onLayoutCards();
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        super.onLayout(changed, l, t, r, b);
         Iterator<CardCoordinates> cardCoordinates = getCoordinatesForBars().iterator();
-        if (firstBarView != null && !firstBarView.isInAnimation() && cardCoordinates.hasNext()) {
+        if (firstBarView != null && firstBarView.getVisibility() != GONE && cardCoordinates.hasNext()) {
             int x;
             int y;
             if (firstBarView.isInAnimation()) {
@@ -119,7 +119,7 @@ public abstract class CardsLayoutWithBars<
             }
             firstBarView.layout(x, y, x + firstBarView.getMeasuredWidth(), y + firstBarView.getMeasuredHeight());
         }
-        if (secondBarView != null && cardCoordinates.hasNext()) {
+        if (secondBarView != null && secondBarView.getVisibility() != GONE && cardCoordinates.hasNext()) {
             int x;
             int y;
             if (secondBarView.isInAnimation()) {
@@ -140,13 +140,13 @@ public abstract class CardsLayoutWithBars<
                                                                              @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
         super.moveViewsToStartPosition(withAnimation, animationCreateAction, animatorListenerAdapter);
         Iterator<CardCoordinates> cardCoordinates = getCoordinatesForBars().iterator();
-        if (firstBarView != null) {
+        if (firstBarView != null && firstBarView.getVisibility() != GONE) {
             CardCoordinates coordinates = cardCoordinates.next();
             int x = Math.round(coordinates.getX());
             int y = Math.round(coordinates.getY());
             moveFirstBarToPosition(new int[]{x, y}, withAnimation, null);
         }
-        if (secondBarView != null) {
+        if (secondBarView != null && secondBarView.getVisibility() != GONE) {
             CardCoordinates coordinates = cardCoordinates.next();
             int x = Math.round(coordinates.getX());
             int y = Math.round(coordinates.getY());
