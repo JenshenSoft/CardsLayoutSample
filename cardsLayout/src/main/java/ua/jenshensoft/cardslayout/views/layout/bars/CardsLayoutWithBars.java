@@ -30,6 +30,7 @@ import ua.jenshensoft.cardslayout.views.card.Card;
 import ua.jenshensoft.cardslayout.views.layout.CardsLayout;
 import ua.jenshensoft.cardslayout.views.layout.Config;
 
+import static ua.jenshensoft.cardslayout.views.layout.CardDeckView.EPSILON;
 import static ua.jenshensoft.cardslayout.views.layout.bars.CardsLayoutWithBars.AnchorPosition.VIEW_POSITION_CENTER;
 import static ua.jenshensoft.cardslayout.views.layout.bars.CardsLayoutWithBars.AnchorPosition.VIEW_POSITION_END;
 import static ua.jenshensoft.cardslayout.views.layout.bars.CardsLayoutWithBars.AnchorPosition.VIEW_POSITION_START;
@@ -106,23 +107,28 @@ public abstract class CardsLayoutWithBars<
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
         Iterator<CardCoordinates> cardCoordinates = getCoordinatesForBars().iterator();
-        if (firstBarView != null
-                && !firstBarView.isInAnimation()
-                && firstBarView.getVisibility() != GONE
-                && cardCoordinates.hasNext()) {
-            CardCoordinates coordinates = cardCoordinates.next();
-            int x = Math.round(coordinates.getX());
-            int y = Math.round(coordinates.getY());
-            firstBarView.layout(x, y, x + firstBarView.getMeasuredWidth(), y + firstBarView.getMeasuredHeight());
+        if (cardCoordinates.hasNext()) {
+            onLayoutAdditionView(firstBarView, cardCoordinates::next);
         }
-        if (secondBarView != null
-                && !secondBarView.isInAnimation()
-                && secondBarView.getVisibility() != GONE
-                && cardCoordinates.hasNext()) {
-            CardCoordinates coordinates = cardCoordinates.next();
-            int x = Math.round(coordinates.getX());
-            int y = Math.round(coordinates.getY());
-            secondBarView.layout(x, y, x + secondBarView.getMeasuredWidth(), y + secondBarView.getMeasuredHeight());
+        if (cardCoordinates.hasNext()) {
+            onLayoutAdditionView(secondBarView, cardCoordinates::next);
+        }
+    }
+
+    protected<V extends View & ValidateViewBlocker> void onLayoutAdditionView(V view, CoordinatesProvider coordinatesProvider) {
+        if (view != null
+                && !view.isInAnimation()
+                && view.getVisibility() != GONE) {
+            CardCoordinates coordinates = coordinatesProvider.get();
+            int x  = Math.round(coordinates.getX());
+            int y  = Math.round(coordinates.getY());
+            view.layout(x, y, x + view.getMeasuredWidth(), y + view.getMeasuredHeight());
+            if (Math.abs(view.getX() - x) > EPSILON) {
+                view.setX(x);
+            }
+            if (Math.abs(view.getY() - y) > EPSILON) {
+                view.setY(y);
+            }
         }
     }
 
@@ -494,5 +500,9 @@ public abstract class CardsLayoutWithBars<
         int VIEW_POSITION_START = 0;
         int VIEW_POSITION_END = 1;
         int VIEW_POSITION_CENTER = 2;
+    }
+
+    public interface CoordinatesProvider {
+        CardCoordinates get();
     }
 }
