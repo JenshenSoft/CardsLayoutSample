@@ -44,6 +44,7 @@ public class SwipeGestureManager<Entity> implements View.OnTouchListener {
     private float percentageY;
     private int mode;
     private CardInfoProvider<Entity> cardInfoProvider;
+    private boolean cardDragged;
 
     private SwipeGestureManager(Context context, float swipeSpeed, float swipeOffset, int orientationMode) {
         this.swipeSpeed = swipeSpeed;
@@ -70,6 +71,7 @@ public class SwipeGestureManager<Entity> implements View.OnTouchListener {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 view.setElevation(((Card<Entity>) view).getPressedElevation());
             }
+            cardDragged = true;
         } else if (event.getActionMasked() == MotionEvent.ACTION_UP) {
             AwesomeAnimation awesomeAnimation = new AwesomeAnimation.Builder(view)
                     .setSizeX(AwesomeAnimation.SizeMode.SCALE, 1f)
@@ -80,6 +82,7 @@ public class SwipeGestureManager<Entity> implements View.OnTouchListener {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 view.setElevation(((Card<Entity>) view).getNormalElevation());
             }
+            cardDragged = false;
         }
 
         boolean status;
@@ -97,6 +100,10 @@ public class SwipeGestureManager<Entity> implements View.OnTouchListener {
                 status = false;
         }
         return status;
+    }
+
+    public boolean isCardDragged() {
+        return cardDragged;
     }
 
     public void addBlock(int orientationMode) {

@@ -1,9 +1,7 @@
 package ua.jenshensoft.cardslayout.views.card;
 
 
-import android.os.Build;
 import android.support.annotation.Px;
-import android.support.annotation.RequiresApi;
 
 import ua.jenshensoft.cardslayout.CardInfo;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardPercentageChangeListener;
@@ -20,27 +18,29 @@ public interface Card<Entity> extends ValidateViewBlocker {
 
     void setCardInfo(CardInfo<Entity> objectCardInfo);
 
-    /* params */
+    boolean isCardDragged();
 
-    void setVisibility(int visible);
+    /* params */
 
     int getVisibility();
 
-    void setX(@Px float x);
+    void setVisibility(int visible);
 
     float getX();
 
-    void setY(@Px float y);
+    void setX(@Px float x);
 
     float getY();
 
-    void setRotation(float rotation);
+    void setY(@Px float y);
 
     float getRotation();
 
-    void setCardZ(@Px float z);
+    void setRotation(float rotation);
 
     float getCardZ();
+
+    void setCardZ(@Px float z);
 
     int getCardWidth();
 

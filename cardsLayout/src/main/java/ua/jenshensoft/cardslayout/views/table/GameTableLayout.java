@@ -192,6 +192,15 @@ public abstract class GameTableLayout<
         }
     }
 
+    public boolean isCardDragged() {
+        for (Layout layout : cardsLayouts) {
+            if (layout.isCardDragged()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void setOnCardClickListener(@Nullable OnCardClickListener<Entity> onCardClickListener) {
         this.onCardClickListener = onCardClickListener;
     }

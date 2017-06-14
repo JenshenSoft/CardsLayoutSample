@@ -209,6 +209,15 @@ public abstract class CardsLayout<Entity> extends ViewGroup
         return cards;
     }
 
+    public boolean isCardDragged() {
+        for (Card<Entity> card : getCards()) {
+            if (card.isCardDragged()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void addCardView(CardView<Entity> cardView, int position) {
         cardView.setCardInfo(new CardInfo<>(position));
         this.addView(cardView, position);

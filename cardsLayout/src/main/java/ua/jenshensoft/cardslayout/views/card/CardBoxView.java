@@ -166,6 +166,11 @@ public class CardBoxView<Entity> extends FrameLayout implements Card<Entity> {
     }
 
     @Override
+    public boolean isCardDragged() {
+        return swipeManager.isCardDragged();
+    }
+
+    @Override
     public void setSwipeOrientationMode(int orientationMode) {
         swipeManager.setOrientationMode(orientationMode);
     }
