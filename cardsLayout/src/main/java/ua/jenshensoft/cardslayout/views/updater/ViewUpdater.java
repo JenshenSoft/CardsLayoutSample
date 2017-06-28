@@ -29,6 +29,7 @@ public class ViewUpdater<P extends ViewUpdaterParams> {
     private boolean updated;
     private List<ViewUpdaterAction> actions;
     private Queue<ViewUpdaterQueueAction> queueActions;
+    private boolean isPassingOnQueue;
 
     public ViewUpdater() {
         this(null, null);
@@ -66,7 +67,6 @@ public class ViewUpdater<P extends ViewUpdaterParams> {
     }
 
     public void addActionToQueue(@NonNull ViewUpdaterQueueAction params) {
-        addActionToQueue(params, true);
         addActionToQueue(params, true);
     }
 
@@ -123,7 +123,10 @@ public class ViewUpdater<P extends ViewUpdaterParams> {
     private void onUpdateViewActions(boolean calledInOnMeasure) {
         if (updated && (predicate == null || predicate.test())) {
             invokeActions(calledInOnMeasure, actions);
-            invokeQueueActions(calledInOnMeasure, queueActions);
+            if (!isPassingOnQueue) {
+                isPassingOnQueue = true;
+                invokeQueueActions(calledInOnMeasure, queueActions);
+            }
         }
     }
 
@@ -135,7 +138,7 @@ public class ViewUpdater<P extends ViewUpdaterParams> {
     }
 
     private void invokeQueueActions(boolean calledInOnMeasure, Queue<ViewUpdaterQueueAction> queueActions) {
-        while (!queueActions.isEmpty()) {
+        if (!queueActions.isEmpty()) {
             ViewUpdaterQueueAction queueAction = queueActions.element();
             OnAnimationCallbackDelegator onAnimationCallbackDelegator = queueAction.onAction(calledInOnMeasure);
             onAnimationCallbackDelegator.addAdapter(new AnimatorListenerAdapter() {
@@ -145,6 +148,8 @@ public class ViewUpdater<P extends ViewUpdaterParams> {
                     invokeQueueActions(calledInOnMeasure, queueActions);
                 }
             });
+        } else {
+            isPassingOnQueue = false;
         }
     }
 
