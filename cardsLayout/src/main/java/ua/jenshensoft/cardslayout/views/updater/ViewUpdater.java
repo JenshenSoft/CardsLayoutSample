@@ -8,10 +8,10 @@ import android.support.annotation.Nullable;
 
 import com.jenshen.awesomeanimation.OnAnimationCallbackDelegator;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import ua.jenshensoft.cardslayout.views.updater.callback.OnViewParamsUpdate;
 import ua.jenshensoft.cardslayout.views.updater.callback.ViewUpdaterAction;
@@ -42,8 +42,8 @@ public class ViewUpdater<P extends ViewUpdaterParams> {
     public ViewUpdater(@Nullable MeasurePredicate predicate, @Nullable OnViewParamsUpdate<P> viewParamsUpdate) {
         this.predicate = predicate;
         this.viewParamsUpdate = viewParamsUpdate;
-        this.actions = new ArrayList<>();
-        this.queueActions = new ArrayDeque<>();
+        this.actions = new CopyOnWriteArrayList<>();
+        this.queueActions = new ConcurrentLinkedQueue<>();
     }
 
     public void onViewUpdated() {
@@ -112,6 +112,15 @@ public class ViewUpdater<P extends ViewUpdaterParams> {
     public boolean isUpdated() {
         return updated;
     }
+
+    public void clear() {
+        updated = false;
+        params = null;
+        actions.clear();
+        queueActions.clear();
+    }
+
+    /* private methods */
 
     private void onUpdateViewParams(boolean calledInOnMeasure) {
         boolean predicate = this.predicate == null || this.predicate.test();
