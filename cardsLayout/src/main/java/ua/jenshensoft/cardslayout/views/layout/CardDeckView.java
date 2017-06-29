@@ -168,6 +168,12 @@ public abstract class CardDeckView<Entity> extends ViewGroup {
         }
     }
 
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        viewUpdater.clear();
+    }
+
     public void addCardBoxView(View view) {
         CardBoxView<Entity> cardView = createCardBoxView(view);
         cardView.setCardInfo(new CardInfo<>(cards.size()));

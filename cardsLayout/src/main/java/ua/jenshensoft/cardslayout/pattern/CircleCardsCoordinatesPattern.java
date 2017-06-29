@@ -209,8 +209,8 @@ public class CircleCardsCoordinatesPattern implements CardCoordinatesPattern {
         return (float) ((Math.PI * radius) / 180f * angleDegrees);
     }
 
-    private float calcArcFromChord(float radius, float сhordLenght) {
-        float angleDegrees = (float) Math.toDegrees(Math.asin((сhordLenght / 2f) / radius)) * 2f;
+    private float calcArcFromChord(float radius, float chordLength) {
+        float angleDegrees = (float) Math.toDegrees(Math.asin((chordLength / 2f) / radius)) * 2f;
         return calcArc(radius, angleDegrees);
     }
 

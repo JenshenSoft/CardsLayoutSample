@@ -1,18 +1,15 @@
 package ua.jenshensoft.cardslayout.views.updater;
 
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-
-import com.jenshen.awesomeanimation.OnAnimationCallbackDelegator;
 
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import ua.jenshensoft.cardslayout.views.updater.callback.OnQueueActionFinished;
 import ua.jenshensoft.cardslayout.views.updater.callback.OnViewParamsUpdate;
 import ua.jenshensoft.cardslayout.views.updater.callback.ViewUpdaterAction;
 import ua.jenshensoft.cardslayout.views.updater.callback.ViewUpdaterQueueAction;
@@ -149,13 +146,10 @@ public class ViewUpdater<P extends ViewUpdaterParams> {
     private void invokeQueueActions(boolean calledInOnMeasure, Queue<ViewUpdaterQueueAction> queueActions) {
         if (!queueActions.isEmpty()) {
             ViewUpdaterQueueAction queueAction = queueActions.element();
-            OnAnimationCallbackDelegator onAnimationCallbackDelegator = queueAction.onAction(calledInOnMeasure);
-            onAnimationCallbackDelegator.addAdapter(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    queueActions.remove(queueAction);
-                    invokeQueueActions(calledInOnMeasure, queueActions);
-                }
+            OnQueueActionFinished actionFinished = queueAction.onAction(calledInOnMeasure);
+            actionFinished.addAction(() -> {
+                queueActions.remove(queueAction);
+                invokeQueueActions(calledInOnMeasure, queueActions);
             });
         } else {
             isPassingOnQueue = false;
