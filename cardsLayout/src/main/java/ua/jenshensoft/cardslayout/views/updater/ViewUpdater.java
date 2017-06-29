@@ -112,6 +112,7 @@ public class ViewUpdater<P extends ViewUpdaterParams> {
 
     public void clear() {
         updated = false;
+        isPassingOnQueue = false;
         params = null;
         actions.clear();
         queueActions.clear();
@@ -144,10 +145,13 @@ public class ViewUpdater<P extends ViewUpdaterParams> {
     }
 
     private void invokeQueueActions(boolean calledInOnMeasure, Queue<ViewUpdaterQueueAction> queueActions) {
-        if (!queueActions.isEmpty()) {
+        if (isPassingOnQueue && !queueActions.isEmpty()) {
             ViewUpdaterQueueAction queueAction = queueActions.element();
             OnQueueActionFinished actionFinished = queueAction.onAction(calledInOnMeasure);
             actionFinished.addAction(() -> {
+                if (!isPassingOnQueue) {
+                    return;
+                }
                 queueActions.remove(queueAction);
                 invokeQueueActions(calledInOnMeasure, queueActions);
             });
