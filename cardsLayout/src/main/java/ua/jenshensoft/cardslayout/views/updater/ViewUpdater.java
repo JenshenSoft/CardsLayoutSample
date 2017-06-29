@@ -74,6 +74,10 @@ public class ViewUpdater<P extends ViewUpdaterParams> {
         }
     }
 
+    public boolean hasActionInQueue() {
+        return !queueActions.isEmpty();
+    }
+
     public void addAction(@NonNull ViewUpdaterAction action) {
         addAction(action, true);
     }
@@ -147,7 +151,7 @@ public class ViewUpdater<P extends ViewUpdaterParams> {
     private void invokeQueueActions(boolean calledInOnMeasure, Queue<ViewUpdaterQueueAction> queueActions) {
         if (isPassingOnQueue && !queueActions.isEmpty()) {
             ViewUpdaterQueueAction queueAction = queueActions.element();
-            OnQueueActionFinished actionFinished = queueAction.onAction(calledInOnMeasure);
+            OnQueueActionFinished actionFinished = new OnQueueActionFinished();
             actionFinished.addAction(() -> {
                 if (!isPassingOnQueue) {
                     return;
@@ -155,6 +159,7 @@ public class ViewUpdater<P extends ViewUpdaterParams> {
                 queueActions.remove(queueAction);
                 invokeQueueActions(calledInOnMeasure, queueActions);
             });
+            queueAction.onAction(actionFinished, calledInOnMeasure);
         } else {
             isPassingOnQueue = false;
         }
