@@ -19,13 +19,13 @@ import ua.jenshensoft.cardslayout.views.layout.CardsLayoutParams;
 
 import static ua.jenshensoft.cardslayout.util.SwipeGestureManager.EPSILON;
 
-public class CardView<Entity> extends AppCompatImageView implements Card<Entity> {
+public class CardView extends AppCompatImageView implements Card {
     //attr
     private float swipeSpeed = 1.0f;
     private float swipeOffset = -1;
     private int swipeOrientationMode = SwipeGestureManager.OrientationMode.UP_BOTTOM;
-    private SwipeGestureManager<Entity> swipeManager;
-    private CardInfo<Entity> cardInfo;
+    private SwipeGestureManager swipeManager;
+    private CardInfo cardInfo;
     private boolean scrollAndClickable = true;
     private boolean inAnimation;
     private float cardElevation = -1;
@@ -65,7 +65,7 @@ public class CardView<Entity> extends AppCompatImageView implements Card<Entity>
     public boolean equals(Object o) {
         if (this == o) return true;
         if (Card.class.isInstance(o)) {
-            Card card = (Card<Entity>) o;
+            Card card = (Card) o;
             return cardInfo.equals(card.getCardInfo());
         }
         return false;
@@ -154,12 +154,12 @@ public class CardView<Entity> extends AppCompatImageView implements Card<Entity>
     }
 
     @Override
-    public CardInfo<Entity> getCardInfo() {
+    public CardInfo getCardInfo() {
         return cardInfo;
     }
 
     @Override
-    public void setCardInfo(CardInfo<Entity> cardInfo) {
+    public void setCardInfo(CardInfo cardInfo) {
         this.cardInfo = cardInfo;
         if (swipeManager != null)
             swipeManager.setCardInfoProvider(() -> cardInfo);
@@ -176,17 +176,17 @@ public class CardView<Entity> extends AppCompatImageView implements Card<Entity>
     }
 
     @Override
-    public void setCardTranslationListener(final OnCardTranslationListener<Entity> cardTranslationListener) {
+    public void setCardTranslationListener(final OnCardTranslationListener cardTranslationListener) {
         swipeManager.setCardTranslationListener(cardTranslationListener);
     }
 
     @Override
-    public void setCardSwipedListener(final OnCardSwipedListener<Entity> cardSwipedListener) {
+    public void setCardSwipedListener(final OnCardSwipedListener cardSwipedListener) {
         swipeManager.setCardSwipedListener(cardSwipedListener);
     }
 
     @Override
-    public void setCardPercentageChangeListener(final OnCardPercentageChangeListener<Entity> cardPercentageChangeListener, int mode) {
+    public void setCardPercentageChangeListener(final OnCardPercentageChangeListener cardPercentageChangeListener, int mode) {
         swipeManager.setCardPercentageChangeListener(cardPercentageChangeListener, mode);
     }
 
@@ -252,7 +252,7 @@ public class CardView<Entity> extends AppCompatImageView implements Card<Entity>
         if (Math.abs(cardElevationPressed - (-1)) < EPSILON) {
             cardElevationPressed = getResources().getDimension(R.dimen.cardsLayout_card_elevation_pressed);
         }
-        SwipeGestureManager.Builder<Entity> builder = new SwipeGestureManager.Builder<>(getContext());
+        SwipeGestureManager.Builder builder = new SwipeGestureManager.Builder(getContext());
         builder.setSwipeSpeed(swipeSpeed);
         builder.setSwipeOffset(swipeOffset);
         builder.setOrientationMode(swipeOrientationMode);

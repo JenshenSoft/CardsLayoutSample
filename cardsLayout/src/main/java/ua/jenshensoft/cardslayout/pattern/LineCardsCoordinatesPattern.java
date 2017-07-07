@@ -11,7 +11,7 @@ import ua.jenshensoft.cardslayout.pattern.models.CardCoordinates;
 import ua.jenshensoft.cardslayout.views.card.Card;
 import ua.jenshensoft.cardslayout.views.layout.Config;
 
-public class LineCardsCoordinatesPattern<Entity, CV extends View & Card<Entity>> implements CardCoordinatesPattern {
+public class LineCardsCoordinatesPattern<CV extends View & Card> implements CardCoordinatesPattern {
 
     @LinearLayoutCompat.OrientationMode
     private final int orientation;
@@ -42,7 +42,7 @@ public class LineCardsCoordinatesPattern<Entity, CV extends View & Card<Entity>>
                 x += card.getCardWidth() - distanceBetweenViewsX;
             }
             if (orientation == LinearLayout.VERTICAL) {
-                y += card.getCardHeight()  - distanceBetweenViewsY;
+                y += card.getCardHeight() - distanceBetweenViewsY;
             }
         }
         return cardCoordinates;

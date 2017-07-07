@@ -5,17 +5,17 @@ import android.support.annotation.Nullable;
 
 import ua.jenshensoft.cardslayout.util.DistributionState;
 
-public class GameTableParams<Entity> implements ViewUpdaterParams {
+public class GameTableParams implements ViewUpdaterParams {
 
     @Nullable
-    private DistributionState<Entity> distributionState;
+    private DistributionState distributionState;
 
-    public GameTableParams(@Nullable DistributionState<Entity> distributionState) {
+    public GameTableParams(@Nullable DistributionState distributionState) {
         this.distributionState = distributionState;
     }
 
     @Nullable
-    public DistributionState<Entity> getDistributionState() {
+    public DistributionState getDistributionState() {
         return distributionState;
     }
 }

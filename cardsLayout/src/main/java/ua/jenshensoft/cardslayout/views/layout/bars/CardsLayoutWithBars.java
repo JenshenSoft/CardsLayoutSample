@@ -36,10 +36,9 @@ import static ua.jenshensoft.cardslayout.views.layout.bars.CardsLayoutWithBars.A
 import static ua.jenshensoft.cardslayout.views.layout.bars.CardsLayoutWithBars.AnchorPosition.VIEW_POSITION_START;
 
 public abstract class CardsLayoutWithBars<
-        Entity,
         FirstBarView extends View & ValidateViewBlocker,
         SecondBarView extends View & ValidateViewBlocker>
-        extends CardsLayout<Entity> {
+        extends CardsLayout {
 
     //additional views
     @Nullable
@@ -115,13 +114,13 @@ public abstract class CardsLayoutWithBars<
         }
     }
 
-    protected<V extends View & ValidateViewBlocker> void onLayoutAdditionView(V view, CoordinatesProvider coordinatesProvider) {
+    protected <V extends View & ValidateViewBlocker> void onLayoutAdditionView(V view, CoordinatesProvider coordinatesProvider) {
         if (view != null
                 && !view.isInAnimation()
                 && view.getVisibility() != GONE) {
             CardCoordinates coordinates = coordinatesProvider.get();
-            int x  = Math.round(coordinates.getX());
-            int y  = Math.round(coordinates.getY());
+            int x = Math.round(coordinates.getX());
+            int y = Math.round(coordinates.getY());
             view.layout(x, y, x + view.getMeasuredWidth(), y + view.getMeasuredHeight());
             if (Math.abs(view.getX() - x) > EPSILON) {
                 view.setX(x);
@@ -133,9 +132,9 @@ public abstract class CardsLayoutWithBars<
     }
 
     @Override
-    protected <CV extends View & Card<Entity>> void moveViewsToStartPosition(boolean withAnimation,
-                                                                             @Nullable OnCreateAnimatorAction<Entity> animationCreateAction,
-                                                                             @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
+    protected <CV extends View & Card> void moveViewsToStartPosition(boolean withAnimation,
+                                                                     @Nullable OnCreateAnimatorAction animationCreateAction,
+                                                                     @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
         super.moveViewsToStartPosition(withAnimation, animationCreateAction, animatorListenerAdapter);
         Iterator<CardCoordinates> cardCoordinates = getCoordinatesForBars().iterator();
         if (firstBarView != null && firstBarView.getVisibility() != GONE) {
@@ -249,10 +248,10 @@ public abstract class CardsLayoutWithBars<
     }
 
     private List<CardCoordinates> getCoordinatesForBars() {
-        List<Card<Entity>> cardViews = getCards();
+        List<Card> cardViews = getCards();
 
-        List<Card<Entity>> visibleCardViews = new ArrayList<>();
-        for (Card<Entity> cardView : cardViews) {
+        List<Card> visibleCardViews = new ArrayList<>();
+        for (Card cardView : cardViews) {
             if (cardView.getCardInfo().isCardDistributed() && cardView.getVisibility() == VISIBLE) {
                 visibleCardViews.add(cardView);
             }
@@ -286,7 +285,7 @@ public abstract class CardsLayoutWithBars<
         return cardCoordinates;
     }
 
-    private <CV extends View & Card<Entity>> AnchorViewInfo getAnchorViewInfo(@AnchorPosition int position) {
+    private <CV extends View & Card> AnchorViewInfo getAnchorViewInfo(@AnchorPosition int position) {
         List<CV> cardViews = getCardViews();
         List<CV> visibleCardViews = new ArrayList<>();
         for (CV card : cardViews) {

@@ -3,7 +3,7 @@ package ua.jenshensoft.cardslayout;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-public class CardInfo<Entity> {
+public class CardInfo {
     private int cardPositionInLayout;
     private int firstPositionX;
     private int firstPositionY;
@@ -11,14 +11,14 @@ public class CardInfo<Entity> {
     private boolean hasFilter;
     private boolean cardDistributed = true;
     @Nullable
-    private Entity entity;
+    private Object entity;
 
     public CardInfo(int cardPositionInLayout) {
         this.cardPositionInLayout = cardPositionInLayout;
     }
 
     @Nullable
-    public Entity getEntity() {
+    public Object getEntity() {
         return entity;
     }
 
@@ -30,7 +30,7 @@ public class CardInfo<Entity> {
         this.cardDistributed = cardDistributed;
     }
 
-    public void setEntity(@NonNull Entity entity) {
+    public void setEntity(@NonNull Object entity) {
         this.entity = entity;
     }
 
@@ -79,7 +79,7 @@ public class CardInfo<Entity> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        CardInfo<?> cardInfo = (CardInfo<?>) o;
+        CardInfo  cardInfo = (CardInfo) o;
 
         if (cardPositionInLayout != cardInfo.cardPositionInLayout) return false;
         return entity != null ? entity.equals(cardInfo.entity) : cardInfo.entity == null;

@@ -6,7 +6,7 @@ import android.util.AttributeSet;
 import ua.jenshensoft.cardslayout.views.layout.CardDeckView;
 
 
-public class CardDeck extends CardDeckView<CardInfoModel> {
+public class CardDeck extends CardDeckView {
 
     public CardDeck(Context context) {
         super(context);

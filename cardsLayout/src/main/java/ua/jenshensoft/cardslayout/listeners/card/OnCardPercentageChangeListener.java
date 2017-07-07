@@ -2,7 +2,7 @@ package ua.jenshensoft.cardslayout.listeners.card;
 
 import ua.jenshensoft.cardslayout.CardInfo;
 
-public interface OnCardPercentageChangeListener<Entity> {
+public interface OnCardPercentageChangeListener {
 
     /**
      * difference between last position and current position (for swipe mode)
@@ -12,5 +12,5 @@ public interface OnCardPercentageChangeListener<Entity> {
      * @param cardInfo
      * @param isTouched
      */
-    void onPercentageChanged(float percentageX, float percentageY, CardInfo<Entity> cardInfo, boolean isTouched);
+    void onPercentageChanged(float percentageX, float percentageY, CardInfo cardInfo, boolean isTouched);
 }

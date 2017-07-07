@@ -22,7 +22,7 @@ import ua.jenshensoft.cardslayoutsample.BitmapUtils;
 import ua.jenshensoft.cardslayoutsample.R;
 import ua.jenshensoft.cardslayoutsample.views.CardInfoModel;
 
-public class DebertzGameTableLayout extends GameTableLayout<CardInfoModel, DebertzCardsLayout> {
+public class DebertzGameTableLayout extends GameTableLayout<DebertzCardsLayout> {
 
     public DebertzGameTableLayout(Context context) {
         super(context);
@@ -51,16 +51,17 @@ public class DebertzGameTableLayout extends GameTableLayout<CardInfoModel, Deber
     }
 
     @Override
-    protected void onStartDistributedCardWave(List<Card<CardInfoModel>> cards) {
-        for (Card<CardInfoModel> card : cards) {
-            int cardResId = getCardResId(card.getCardInfo().getEntity().getPosition());
+    protected void onStartDistributedCardWave(List<Card> cards) {
+        for (Card card : cards) {
+            CardInfoModel entity = (CardInfoModel) card.getCardInfo().getEntity();
+            int cardResId = getCardResId(entity.getPosition());
             int cardRotation = findLayout(card).getCardRotation();
             setIcon(card, BitmapUtils.rotateBitmap(getContext(), cardResId, cardRotation));
         }
         super.onStartDistributedCardWave(cards);
     }
 
-    private DebertzCardsLayout findLayout(Card<CardInfoModel> card) {
+    private DebertzCardsLayout findLayout(Card card) {
         for (DebertzCardsLayout cardsLayout : cardsLayouts) {
             if (cardsLayout.getCards().contains(card)) {
                 return cardsLayout;
@@ -74,47 +75,50 @@ public class DebertzGameTableLayout extends GameTableLayout<CardInfoModel, Deber
         setDurationOfDistributeAnimation(1000);
 
         int number = 0;
-        for (CardsLayout<CardInfoModel> cardsLayout : cardsLayouts) {
+        for (CardsLayout cardsLayout : cardsLayouts) {
             int position = 0;
-            for (Card<CardInfoModel> card : cardsLayout.getCards()) {
+            for (Card card : cardsLayout.getCards()) {
                 card.getCardInfo().setEntity(new CardInfoModel(position, number));
                 position++;
-                number ++;
+                number++;
             }
         }
 
-        updateDistributionState(new DistributionState<CardInfoModel>(false) {
+        updateDistributionState(new DistributionState(false) {
             @Override
-            public Predicate<Card<CardInfoModel>> getCardsPredicateBeforeDistribution() {
-                return new Predicate<Card<CardInfoModel>>() {
+            public Predicate<Card> getCardsPredicateBeforeDistribution() {
+                return new Predicate<Card>() {
                     @Override
-                    public boolean apply(Card<CardInfoModel> cardInfoCard) {
-                        return cardInfoCard.getCardInfo().getEntity().getPosition() < 2;
+                    public boolean apply(Card cardInfoCard) {
+                        CardInfoModel entity = (CardInfoModel) cardInfoCard.getCardInfo().getEntity();
+                        return entity.getPosition() < 2;
                     }
                 };
             }
 
             @Override
-            public Predicate<Card<CardInfoModel>> getCardsPredicateForDistribution() {
-                return new Predicate<Card<CardInfoModel>>() {
+            public Predicate<Card> getCardsPredicateForDistribution() {
+                return new Predicate<Card>() {
                     @Override
-                    public boolean apply(Card<CardInfoModel> cardInfoCard) {
-                        return cardInfoCard.getCardInfo().getEntity().getPosition() >= 2 && cardInfoCard.getCardInfo().getEntity().getPosition() < 9;
+                    public boolean apply(Card cardInfoCard) {
+                        CardInfoModel entity = (CardInfoModel) cardInfoCard.getCardInfo().getEntity();
+                        return entity.getPosition() >= 2 && entity.getPosition() < 9;
                     }
                 };
             }
         });
 
         for (DebertzCardsLayout cardsLayout : cardsLayouts) {
-            for (Card<CardInfoModel> card : cardsLayout.getCards()) {
-                int cardRotation = cardsLayout.getCardRotation();
-                Bitmap bitmap = BitmapUtils.rotateBitmap(getContext(), getCardResId(card.getCardInfo().getEntity().getPosition()), 0);
+            for (Card card : cardsLayout.getCards()) {
+                //int cardRotation = cardsLayout.getCardRotation();
+                CardInfoModel entity = (CardInfoModel) card.getCardInfo().getEntity();
+                Bitmap bitmap = BitmapUtils.rotateBitmap(getContext(), getCardResId(entity.getPosition()), 0);
                 setIcon(card, bitmap);
             }
         }
     }
 
-    private void setIcon(Card<CardInfoModel> card, Bitmap bitmap) {
+    private void setIcon(Card card, Bitmap bitmap) {
         if (card instanceof CardView) {
             CardView cardView = (CardView) card;
             cardView.setImageBitmap(bitmap);

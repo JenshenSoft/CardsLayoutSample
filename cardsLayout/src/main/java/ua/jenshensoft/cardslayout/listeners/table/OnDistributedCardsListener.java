@@ -4,10 +4,10 @@ import java.util.List;
 
 import ua.jenshensoft.cardslayout.views.card.Card;
 
-public interface OnDistributedCardsListener<Entity> {
+public interface OnDistributedCardsListener {
     void onDistributedCards();
 
-    void onStartDistributedCardWave(List<Card<Entity>> cards);
+    void onStartDistributedCardWave(List<Card> cards);
 
-    void onEndDistributeCardWave(List<Card<Entity>> cards);
+    void onEndDistributeCardWave(List<Card> cards);
 }

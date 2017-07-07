@@ -10,8 +10,6 @@ import android.util.AttributeSet;
 
 import com.android.internal.util.Predicate;
 
-import java.util.List;
-
 import ua.jenshensoft.cardslayout.util.DistributionState;
 import ua.jenshensoft.cardslayout.views.card.Card;
 import ua.jenshensoft.cardslayout.views.layout.CardsLayout;
@@ -19,7 +17,7 @@ import ua.jenshensoft.cardslayout.views.table.GameTableLayout;
 import ua.jenshensoft.cardslayout.views.updater.model.GameTableParams;
 import ua.jenshensoft.cardslayoutsample.R;
 
-public class GameTable extends GameTableLayout<CardInfoModel, CardsLayout<CardInfoModel>> {
+public class GameTable extends GameTableLayout<CardsLayout> {
 
     public GameTable(Context context) {
         super(context);
@@ -47,9 +45,11 @@ public class GameTable extends GameTableLayout<CardInfoModel, CardsLayout<CardIn
         super.onUpdateViewParams(params, calledInOnMeasure);
     }
 
+    /*
+
     @Override
-    protected void onStartDistributedCardWave(List<Card<CardInfoModel>> cards) {
-        /*Bitmap bitmap = BitmapUtils.rotateBitmap(getContext(), R.drawable.ic_card1, 90);
+    protected void onStartDistributedCardWave(List<Card> cards) {
+        *//*Bitmap bitmap = BitmapUtils.rotateBitmap(getContext(), R.drawable.ic_card1, 90);
         for (Card<CardsLayoutDefault.CardInfoModel> card : cards) {
             if (card instanceof CardView) {
                 CardView cardView = (CardView) card;
@@ -58,9 +58,9 @@ public class GameTable extends GameTableLayout<CardInfoModel, CardsLayout<CardIn
                 CardBoxView cardView = (CardBoxView) card;
                 ((ImageView)cardView.getChildAt(0)).setImageBitmap(bitmap);
             }
-        }*/
+        }*//*
         super.onStartDistributedCardWave(cards);
-    }
+    }*/
 
     private void init() {
         inflate(getContext(), R.layout.viewgroup_table, this);
@@ -69,32 +69,34 @@ public class GameTable extends GameTableLayout<CardInfoModel, CardsLayout<CardIn
         getCurrentPlayerCardsLayout().setColorFilter(new PorterDuffColorFilter(ContextCompat.getColor(getContext(), R.color.colorAccent), PorterDuff.Mode.MULTIPLY));
 
         int j = 0;
-        for (CardsLayout<CardInfoModel> cardsLayout : cardsLayouts) {
+        for (CardsLayout cardsLayout : cardsLayouts) {
             int i = 0;
-            for (Card<CardInfoModel> card : cardsLayout.getCards()) {
+            for (Card card : cardsLayout.getCards()) {
                 card.getCardInfo().setEntity(new CardInfoModel(i, j));
                 i++;
                 j++;
             }
         }
 
-        updateDistributionState(new DistributionState<CardInfoModel>(false) {
+        updateDistributionState(new DistributionState(false) {
             @Override
-            public Predicate<Card<CardInfoModel>> getCardsPredicateBeforeDistribution() {
-                return new Predicate<Card<CardInfoModel>>() {
+            public Predicate<Card> getCardsPredicateBeforeDistribution() {
+                return new Predicate<Card>() {
                     @Override
-                    public boolean apply(Card<CardInfoModel> cardInfoCard) {
-                        return cardInfoCard.getCardInfo().getEntity().getPosition() < 2;
+                    public boolean apply(Card cardInfoCard) {
+                        CardInfoModel entity = (CardInfoModel) cardInfoCard.getCardInfo().getEntity();
+                        return entity.getPosition() < 2;
                     }
                 };
             }
 
             @Override
-            public Predicate<Card<CardInfoModel>> getCardsPredicateForDistribution() {
-                return new Predicate<Card<CardInfoModel>>() {
+            public Predicate<Card> getCardsPredicateForDistribution() {
+                return new Predicate<Card>() {
                     @Override
-                    public boolean apply(Card<CardInfoModel> cardInfoCard) {
-                        return cardInfoCard.getCardInfo().getEntity().getPosition() >= 2 && cardInfoCard.getCardInfo().getEntity().getPosition() < 8;
+                    public boolean apply(Card cardInfoCard) {
+                        CardInfoModel entity = (CardInfoModel) cardInfoCard.getCardInfo().getEntity();
+                        return entity.getPosition() >= 2 && entity.getPosition() < 8;
                     }
                 };
             }

@@ -6,11 +6,10 @@ import android.util.AttributeSet;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardPercentageChangeListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardSwipedListener;
 import ua.jenshensoft.cardslayout.views.layout.bars.CardsLayoutWithBars;
-import ua.jenshensoft.cardslayoutsample.views.CardInfoModel;
 
 import static android.support.v7.widget.LinearLayoutCompat.VERTICAL;
 
-public class DebertzCardsLayout extends CardsLayoutWithBars<CardInfoModel, FirstBarView, SecondBarView> {
+public class DebertzCardsLayout extends CardsLayoutWithBars<FirstBarView, SecondBarView> {
 
     public DebertzCardsLayout(Context context) {
         super(context);
@@ -41,15 +40,15 @@ public class DebertzCardsLayout extends CardsLayoutWithBars<CardInfoModel, First
     }
 
     private void initLayout() {
-        addOnCardSwipedListener(new OnCardSwipedListener<CardInfoModel>() {
+        addOnCardSwipedListener(new OnCardSwipedListener() {
             @Override
-            public void onCardSwiped(ua.jenshensoft.cardslayout.CardInfo<CardInfoModel> cardInfo) {
+            public void onCardSwiped(ua.jenshensoft.cardslayout.CardInfo cardInfo) {
                 removeCardView(cardInfo.getCardPositionInLayout());
             }
         });
-        addCardPercentageChangeListener(new OnCardPercentageChangeListener<CardInfoModel>() {
+        addCardPercentageChangeListener(new OnCardPercentageChangeListener() {
             @Override
-            public void onPercentageChanged(float percentageX, float percentageY, ua.jenshensoft.cardslayout.CardInfo<CardInfoModel> cardInfo, boolean isTouched) {
+            public void onPercentageChanged(float percentageX, float percentageY, ua.jenshensoft.cardslayout.CardInfo cardInfo, boolean isTouched) {
 
             }
         });

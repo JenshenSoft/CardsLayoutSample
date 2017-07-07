@@ -3,8 +3,8 @@ package ua.jenshensoft.cardslayout.listeners.card;
 
 import ua.jenshensoft.cardslayout.CardInfo;
 
-public interface OnCardSwipedListener<Entity> {
+public interface OnCardSwipedListener {
 
-    void onCardSwiped(CardInfo<Entity> cardInfo);
+    void onCardSwiped(CardInfo cardInfo);
 
 }

@@ -1,8 +1,8 @@
 package ua.jenshensoft.cardslayout.listeners.table;
 
-import android.support.annotation.Nullable;
+import ua.jenshensoft.cardslayout.CardInfo;
 
 @FunctionalInterface
-public interface OnCardClickListener<Entity> {
-    void onCardAction(@Nullable Entity entity);
+public interface OnCardClickListener {
+    void onCardAction(CardInfo cardInfo);
 }

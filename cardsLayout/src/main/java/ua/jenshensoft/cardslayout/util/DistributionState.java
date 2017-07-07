@@ -4,7 +4,7 @@ import com.android.internal.util.Predicate;
 
 import ua.jenshensoft.cardslayout.views.card.Card;
 
-public abstract class DistributionState<Entity> {
+public abstract class DistributionState {
 
     private boolean isCardsAlreadyDistributed;
 
@@ -25,12 +25,12 @@ public abstract class DistributionState<Entity> {
      *
      * @return
      */
-    public abstract Predicate<Card<Entity>> getCardsPredicateBeforeDistribution();
+    public abstract Predicate<Card> getCardsPredicateBeforeDistribution();
 
     /**
      * set cards for the distribution to players hands
      *
      * @return
      */
-    public abstract Predicate<Card<Entity>> getCardsPredicateForDistribution();
+    public abstract Predicate<Card> getCardsPredicateForDistribution();
 }

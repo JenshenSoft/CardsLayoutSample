@@ -22,13 +22,13 @@ import ua.jenshensoft.cardslayout.views.card.Card;
 import ua.jenshensoft.cardslayout.views.card.CardBoxView;
 import ua.jenshensoft.cardslayout.views.updater.ViewUpdater;
 
-public abstract class CardDeckView<Entity> extends ViewGroup {
+public abstract class CardDeckView extends ViewGroup {
 
     public static final float EPSILON = 0.00000001f;
     //updaters
     protected ViewUpdater viewUpdater;
     protected ViewUpdateConfig viewUpdateConfig;
-    private List<Card<Entity>> cards;
+    private List<Card> cards;
     //attr
     private float cardDeckCardOffsetX = -1;
     private float cardDeckCardOffsetY = -1;
@@ -77,7 +77,7 @@ public abstract class CardDeckView<Entity> extends ViewGroup {
     public void onViewAdded(View child) {
         super.onViewAdded(child);
         if (child instanceof Card) {
-            setUpCard((View & Card<Entity>) child);
+            setUpCard((View & Card) child);
         } else {
             ((ViewGroup) child.getParent()).removeView(child);
             addCardBoxView(child);
@@ -90,12 +90,12 @@ public abstract class CardDeckView<Entity> extends ViewGroup {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         // Find out how big everyone wants to be
         measureChildren(widthMeasureSpec, heightMeasureSpec);
-        List<Card<Entity>> validatedCardViews = getValidatedCards();
+        List<Card> validatedCardViews = getValidatedCards();
         int maxHeight = 0;
         int maxWidth = 0;
         // Find rightmost and bottom-most child
         for (int i = 0; i < validatedCardViews.size(); i++) {
-            Card<Entity> card = validatedCardViews.get(i);
+            Card card = validatedCardViews.get(i);
             float childRight = card.getCardWidth();
             float childBottom = card.getCardHeight();
             maxWidth = Math.max(maxWidth, Math.round(childRight));
@@ -119,7 +119,7 @@ public abstract class CardDeckView<Entity> extends ViewGroup {
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         if (viewUpdateConfig.needUpdateViewOnLayout(changed)) {
-            List<Card<Entity>> validatedCards = getValidatedCards();
+            List<Card> validatedCards = getValidatedCards();
             float startX = getMeasuredWidth() / 2;
             float startY = getMeasuredHeight() / 2;
             float startZ = 0;
@@ -127,7 +127,7 @@ public abstract class CardDeckView<Entity> extends ViewGroup {
                 float maxWidth = 0;
                 float maxHeight = 0;
                 float maxElevation = 0;
-                for (Card<Entity> card : validatedCards) {
+                for (Card card : validatedCards) {
                     float cardWidth = card.getCardWidth();
                     float cardHeight = card.getCardHeight();
                     float cardZ = card.getCardZ();
@@ -141,7 +141,7 @@ public abstract class CardDeckView<Entity> extends ViewGroup {
                         maxElevation = cardZ;
                     }
                 }
-                Card<Entity> card = validatedCards.iterator().next();
+                Card card = validatedCards.iterator().next();
                 startX -= card.getCardWidth() / 2;
                 startY -= card.getCardHeight() / 2;
                 startZ = maxElevation;
@@ -155,26 +155,26 @@ public abstract class CardDeckView<Entity> extends ViewGroup {
                     startY,
                     startZ)
                     .getCardsCoordinates();
-            Iterator<Card<Entity>> validatedCardViews = validatedCards.iterator();
+            Iterator<Card> validatedCardViews = validatedCards.iterator();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 for (int i = cardsCoordinates.size() - 1; i >= 0; i--) {
-                    onLayoutCardInCardDeck((View & Card<Entity>) validatedCardViews.next(), cardsCoordinates.get(i));
+                    onLayoutCardInCardDeck((View & Card) validatedCardViews.next(), cardsCoordinates.get(i));
                 }
             } else {
                 for (int i = 0; i < cardsCoordinates.size(); i++) {
-                    onLayoutCardInCardDeck((View & Card<Entity>) validatedCardViews.next(), cardsCoordinates.get(i));
+                    onLayoutCardInCardDeck((View & Card) validatedCardViews.next(), cardsCoordinates.get(i));
                 }
             }
         }
     }
 
     public void addCardBoxView(View view) {
-        CardBoxView<Entity> cardView = createCardBoxView(view);
-        cardView.setCardInfo(new CardInfo<>(cards.size()));
+        CardBoxView cardView = createCardBoxView(view);
+        cardView.setCardInfo(new CardInfo(cards.size()));
         this.addView(cardView);
     }
 
-    public List<Card<Entity>> getCards() {
+    public List<Card> getCards() {
         return cards;
     }
 
@@ -182,7 +182,7 @@ public abstract class CardDeckView<Entity> extends ViewGroup {
         return cardsCoordinates;
     }
 
-    protected  <CV extends View & Card<Entity>> void onLayoutCardInCardDeck(CV cardView,
+    protected  <CV extends View & Card> void onLayoutCardInCardDeck(CV cardView,
                                                                             ThreeDCardCoordinates coordinates) {
         int x = Math.round(coordinates.getX());
         int y = Math.round(coordinates.getY());
@@ -191,7 +191,7 @@ public abstract class CardDeckView<Entity> extends ViewGroup {
         cardView.setRotation(angle);
         cardView.setCardZ(z);
         cardView.layout(x, y, x + cardView.getMeasuredWidth(), y + cardView.getMeasuredHeight());
-        CardInfo<Entity> cardInfo = cardView.getCardInfo();
+        CardInfo cardInfo = cardView.getCardInfo();
         cardInfo.setFirstPositionX(x);
         cardInfo.setFirstPositionY(y);
         cardInfo.setFirstRotation(angle);
@@ -248,10 +248,10 @@ public abstract class CardDeckView<Entity> extends ViewGroup {
 
     /* card view methods */
 
-    private void setUpCard(Card<Entity> card) {
-        CardInfo<Entity> cardInfo = card.getCardInfo();
+    private void setUpCard(Card card) {
+        CardInfo cardInfo = card.getCardInfo();
         if (cardInfo == null) {
-            cardInfo = new CardInfo<>(cards.size());
+            cardInfo = new CardInfo(cards.size());
             card.setCardInfo(cardInfo);
         }
         cardInfo.setCardDistributed(false);
@@ -259,17 +259,17 @@ public abstract class CardDeckView<Entity> extends ViewGroup {
         this.cards.add(cardInfo.getCardPositionInLayout(), card);
     }
 
-    private CardBoxView<Entity> createCardBoxView(View view) {
-        CardBoxView<Entity> cardView = new CardBoxView<>(getContext());
+    private CardBoxView createCardBoxView(View view) {
+        CardBoxView cardView = new CardBoxView(getContext());
         ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         cardView.setLayoutParams(layoutParams);
         cardView.addView(view);
         return cardView;
     }
 
-    private List<Card<Entity>> getValidatedCards() {
-        final List<Card<Entity>> validatedCards = new ArrayList<>();
-        for (Card<Entity> card : cards) {
+    private List<Card> getValidatedCards() {
+        final List<Card> validatedCards = new ArrayList<>();
+        for (Card card : cards) {
             if (!shouldPassCard(card)) {
                 validatedCards.add(card);
             }
@@ -277,7 +277,7 @@ public abstract class CardDeckView<Entity> extends ViewGroup {
         return validatedCards;
     }
 
-    private boolean shouldPassCard(Card<Entity> card) {
+    private boolean shouldPassCard(Card card) {
         return card.getVisibility() != VISIBLE || card.getCardInfo().isCardDistributed();
     }
 }

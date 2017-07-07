@@ -9,14 +9,14 @@ import ua.jenshensoft.cardslayout.listeners.card.OnCardSwipedListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardTranslationListener;
 import ua.jenshensoft.cardslayout.views.ValidateViewBlocker;
 
-public interface Card<Entity> extends ValidateViewBlocker {
+public interface Card extends ValidateViewBlocker {
 
     int START_TO_CURRENT = 1;
     int LAST_TO_CURRENT = 2;
 
-    CardInfo<Entity> getCardInfo();
+    CardInfo getCardInfo();
 
-    void setCardInfo(CardInfo<Entity> objectCardInfo);
+    void setCardInfo(CardInfo objectCardInfo);
 
     boolean isCardDragged();
 
@@ -65,14 +65,14 @@ public interface Card<Entity> extends ValidateViewBlocker {
      */
     void setSwipeOrientationMode(int mode);
 
-    void setCardTranslationListener(OnCardTranslationListener<Entity> cardTranslationListener);
+    void setCardTranslationListener(OnCardTranslationListener cardTranslationListener);
 
-    void setCardSwipedListener(OnCardSwipedListener<Entity> cardSwipedListener);
+    void setCardSwipedListener(OnCardSwipedListener cardSwipedListener);
 
     /**
      * @param mode 0 - START_TO_CURRENT , 1 - LAST_TO_CURRENT
      */
-    void setCardPercentageChangeListener(OnCardPercentageChangeListener<Entity> cardPercentageChangeListener, int mode);
+    void setCardPercentageChangeListener(OnCardPercentageChangeListener cardPercentageChangeListener, int mode);
 
     void addBlock(int orientationMode);
 
