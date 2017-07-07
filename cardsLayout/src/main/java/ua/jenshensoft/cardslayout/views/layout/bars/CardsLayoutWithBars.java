@@ -30,7 +30,6 @@ import ua.jenshensoft.cardslayout.views.card.Card;
 import ua.jenshensoft.cardslayout.views.layout.CardsLayout;
 import ua.jenshensoft.cardslayout.views.layout.Config;
 
-import static ua.jenshensoft.cardslayout.views.layout.CardDeckView.EPSILON;
 import static ua.jenshensoft.cardslayout.views.layout.bars.CardsLayoutWithBars.AnchorPosition.VIEW_POSITION_CENTER;
 import static ua.jenshensoft.cardslayout.views.layout.bars.CardsLayoutWithBars.AnchorPosition.VIEW_POSITION_END;
 import static ua.jenshensoft.cardslayout.views.layout.bars.CardsLayoutWithBars.AnchorPosition.VIEW_POSITION_START;
@@ -162,6 +161,9 @@ public abstract class CardsLayoutWithBars<
     }
 
     protected <V extends View & ValidateViewBlocker> void moveViewToPosition(V view, int[] coordinates, boolean isAnimated, @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
+        if (Math.abs(coordinates[0] - (view.getX())) < EPSILON && Math.abs(coordinates[1] - (view.getY())) < EPSILON) {
+            return;
+        }
         if (isAnimated) {
             AwesomeAnimation.Builder awesomeAnimation = new AwesomeAnimation.Builder(view)
                     .setX(AwesomeAnimation.CoordinationMode.COORDINATES, view.getX(), coordinates[0])

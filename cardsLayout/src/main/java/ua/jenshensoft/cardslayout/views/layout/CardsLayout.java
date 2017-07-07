@@ -61,6 +61,7 @@ public abstract class CardsLayout extends ViewGroup
         OnCardPercentageChangeListener {
 
     public static final int EMPTY = -1;
+    public static final float EPSILON = 0.00000001f;
 
     //animation params
     @Nullable

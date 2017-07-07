@@ -172,6 +172,7 @@ public abstract class GameTableLayout<
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         clearAnimators();
+        viewUpdater.clear();
     }
 
     @Override
