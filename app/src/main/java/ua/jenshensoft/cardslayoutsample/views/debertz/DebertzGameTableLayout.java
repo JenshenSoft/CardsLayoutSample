@@ -3,8 +3,11 @@ package ua.jenshensoft.cardslayoutsample.views.debertz;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.android.internal.util.Predicate;
@@ -43,6 +46,38 @@ public class DebertzGameTableLayout extends GameTableLayout<DebertzCardsLayout> 
     public DebertzGameTableLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init();
+    }
+
+    @Override
+    protected void onVisibilityChanged(@NonNull View changedView, int visibility) {
+        super.onVisibilityChanged(changedView, visibility);
+        if (visibility == View.VISIBLE) {
+            Log.e("GAME_TABLE", "onResume called(Visibility)");
+        } else {
+            Log.e("GAME_TABLE", "onPause called(Visibility)");
+        }
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasWindowFocus) {
+        super.onWindowFocusChanged(hasWindowFocus);
+        if (hasWindowFocus) {
+            Log.e("GAME_TABLE", "onResume called(hasWindowFocus)");
+        } else {
+            Log.e("GAME_TABLE", "onPause called(hasWindowFocus)");
+        }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        Log.e("GAME_TABLE", "onDestroy called(onDetachedFromWindow)");
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        Log.e("GAME_TABLE", "onCreate called(onAttachedToWindow)");
     }
 
     @Override

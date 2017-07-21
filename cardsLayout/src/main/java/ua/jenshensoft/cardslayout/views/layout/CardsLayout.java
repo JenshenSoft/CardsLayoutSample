@@ -22,6 +22,7 @@ import android.view.ViewParent;
 import android.view.animation.Interpolator;
 
 import com.jenshen.awesomeanimation.AwesomeAnimation;
+import com.jenshen.awesomeanimation.util.AnimatorHandler;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -68,7 +69,7 @@ public abstract class CardsLayout extends ViewGroup
     protected Interpolator interpolator;
     protected OnCreateAnimatorAction defaultAnimatorAction;
     protected ViewUpdateConfig viewUpdateConfig;
-    protected List<Animator> startedAnimators;
+    protected AnimatorHandler animationHandler;
     //listeners
     protected List<OnCardSwipedListener> onCardSwipedListeners;
     protected List<OnCardPercentageChangeListener> onCardPercentageChangeListeners;
@@ -192,7 +193,17 @@ public abstract class CardsLayout extends ViewGroup
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        clearAnimators();
+        animationHandler.clear();
+    }
+
+    @Override
+    protected void onVisibilityChanged(@NonNull View changedView, int visibility) {
+        super.onVisibilityChanged(changedView, visibility);
+        if (visibility == View.VISIBLE) {
+            animationHandler.onResume();
+        } else {
+            animationHandler.onPause();
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -569,7 +580,6 @@ public abstract class CardsLayout extends ViewGroup
 
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    startedAnimators.remove(animation);
                     for (CV card : cards) {
                         card.setInAnimation(false);
                     }
@@ -578,8 +588,8 @@ public abstract class CardsLayout extends ViewGroup
             if (animatorListenerAdapter != null) {
                 animatorSet.addListener(animatorListenerAdapter);
             }
-            clearAnimators();
-            startedAnimators.add(animatorSet);
+            animationHandler.clear();
+            animationHandler.addAnimator(animatorSet);
             animatorSet.start();
         }
     }
@@ -782,7 +792,7 @@ public abstract class CardsLayout extends ViewGroup
         onCardPercentageChangeListeners = new ArrayList<>();
         onCardSwipedListeners = new ArrayList<>();
         onCardTranslationListeners = new ArrayList<>();
-        startedAnimators = new ArrayList<>();
+        animationHandler = new AnimatorHandler();
     }
 
     @SuppressWarnings("WrongConstant")
@@ -932,16 +942,6 @@ public abstract class CardsLayout extends ViewGroup
             }
         }
         return validatedCards;
-    }
-
-    private void clearAnimators() {
-        if (!startedAnimators.isEmpty()) {
-            for (Animator animator : startedAnimators) {
-                animator.removeAllListeners();
-                animator.cancel();
-            }
-        }
-        clearAnimation();
     }
 
     @FunctionalInterface

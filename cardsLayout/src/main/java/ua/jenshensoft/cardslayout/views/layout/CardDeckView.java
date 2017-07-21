@@ -142,8 +142,8 @@ public abstract class CardDeckView extends ViewGroup {
                     }
                 }
                 Card card = validatedCards.iterator().next();
-                startX -= card.getCardWidth() / 2;
-                startY -= card.getCardHeight() / 2;
+                startX -= card.getCardWidth() / 2f;
+                startY -= card.getCardHeight() / 2f;
                 startZ = maxElevation;
             }
             cardsCoordinates = new CardDeckCoordinatesPattern(

@@ -160,7 +160,8 @@ public abstract class CardsLayoutWithBars<
         moveViewToPosition(secondBarView, coordinatesForGameInfoBar, withAnimation, animatorListenerAdapter);
     }
 
-    protected <V extends View & ValidateViewBlocker> void moveViewToPosition(V view, int[] coordinates, boolean isAnimated, @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
+    protected <V extends View & ValidateViewBlocker> void moveViewToPosition(V view, int[] coordinates, boolean isAnimated,
+                                                                             @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
         if (Math.abs(coordinates[0] - (view.getX())) < EPSILON && Math.abs(coordinates[1] - (view.getY())) < EPSILON) {
             return;
         }
@@ -181,14 +182,13 @@ public abstract class CardsLayoutWithBars<
 
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    startedAnimators.remove(animation);
                     view.setInAnimation(false);
                 }
             });
             if (animatorListenerAdapter != null) {
                 animatorSet.addListener(animatorListenerAdapter);
             }
-            startedAnimators.add(animatorSet);
+            animationHandler.addAnimator(animatorSet);
             animatorSet.start();
         } else {
             view.setX(coordinates[0]);
