@@ -3,9 +3,9 @@
 ext {
     configuration = [
             buildToolsVersion: "26.0.0",
-            compileSdkVersion: 25,
+            compileSdkVersion: 26,
             minSdkVersion    : 14,
-            targetSdkVersion : 25,
+            targetSdkVersion : 26,
             versionCode      : 1,
             versionName      : "0.11"
     ]
@@ -26,7 +26,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.3.3'
-        classpath 'me.tatarka:gradle-retrolambda:3.3.0'
+        classpath 'me.tatarka:gradle-retrolambda:3.6.0'
 
         // Required plugins added to classpath to facilitate pushing to Jcenter/Bintray
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
