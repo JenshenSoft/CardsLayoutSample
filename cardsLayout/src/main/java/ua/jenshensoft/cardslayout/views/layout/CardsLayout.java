@@ -193,17 +193,19 @@ public abstract class CardsLayout extends ViewGroup
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        animationHandler.clear();
+        animationHandler.cancel();
     }
 
     @Override
     protected void onVisibilityChanged(@NonNull View changedView, int visibility) {
         super.onVisibilityChanged(changedView, visibility);
-        if (visibility == View.VISIBLE) {
-            animationHandler.onResume();
-        } else {
-            animationHandler.onPause();
-        }
+        animationHandler.onVisibilityChanged(visibility);
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasWindowFocus) {
+        super.onWindowFocusChanged(hasWindowFocus);
+        animationHandler.onWindowFocusChanged(hasWindowFocus);
     }
 
     @SuppressWarnings("unchecked")
@@ -550,7 +552,7 @@ public abstract class CardsLayout extends ViewGroup
     protected <CV extends View & Card> void moveViewsToStartPosition(boolean withAnimation,
                                                                      @Nullable OnCreateAnimatorAction animationCreateAction,
                                                                      @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
-        animationHandler.clear();
+        animationHandler.cancel(this);
         List<CV> cards = getValidatedCardViews();
         final List<Animator> animators = new ArrayList<>();
         for (CV card : cards) {

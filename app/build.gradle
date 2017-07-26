@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 def cfg = rootProject.ext.configuration
-def libs = rootProject.ext.libraries;
-def testLibs = rootProject.ext.testingLibraries;
+def libs = rootProject.ext.libraries
+def testLibs = rootProject.ext.testingLibraries
 
 android {
 
