@@ -529,8 +529,10 @@ public abstract class CardsLayout extends ViewGroup
         List<CV> validatedCardViews = getValidatedCardViews();
         for (int i = 0; i < validatedCardViews.size(); i++) {
             CV child = validatedCardViews.get(i);
-            CardCoordinates coordinates = startPositions.get(i);
-            onLayoutCard(child, coordinates);
+            if (child.getVisibility() != GONE) {
+                CardCoordinates coordinates = startPositions.get(i);
+                onLayoutCard(child, coordinates);
+            }
         }
     }
 
@@ -548,6 +550,7 @@ public abstract class CardsLayout extends ViewGroup
     protected <CV extends View & Card> void moveViewsToStartPosition(boolean withAnimation,
                                                                      @Nullable OnCreateAnimatorAction animationCreateAction,
                                                                      @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
+        animationHandler.clear();
         List<CV> cards = getValidatedCardViews();
         final List<Animator> animators = new ArrayList<>();
         for (CV card : cards) {
@@ -588,7 +591,6 @@ public abstract class CardsLayout extends ViewGroup
             if (animatorListenerAdapter != null) {
                 animatorSet.addListener(animatorListenerAdapter);
             }
-            animationHandler.clear();
             animationHandler.addAnimator(animatorSet);
             animatorSet.start();
         }
