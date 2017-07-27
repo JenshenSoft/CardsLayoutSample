@@ -83,7 +83,7 @@ public class FlagManager implements Cloneable {
         }
     }
 
-    @IntDef({RIGHT, LEFT, TOP, BOTTOM, CENTER, CENTER_HORIZONTAL, CENTER_VERTICAL, EMPTY})
+    @IntDef(value = {RIGHT, LEFT, TOP, BOTTOM, CENTER, CENTER_HORIZONTAL, CENTER_VERTICAL, EMPTY}, flag = true)
     @Retention(RetentionPolicy.SOURCE)
     public @interface Gravity {
         int RIGHT = 1; // 0000 0001
