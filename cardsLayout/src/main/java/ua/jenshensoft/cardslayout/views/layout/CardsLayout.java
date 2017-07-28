@@ -143,7 +143,7 @@ public abstract class CardsLayout extends ViewGroup
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         if (viewUpdateConfig.needUpdateViewOnLayout(changed)) {
-            onLayoutCards();
+            onLayoutCards(getValidatedCardViews());
         }
         viewUpdater.onViewUpdated();
     }
@@ -319,10 +319,12 @@ public abstract class CardsLayout extends ViewGroup
                                         @Nullable OnCreateAnimatorAction onCreateAnimatorAction,
                                         @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
         viewUpdater.addAction(calledInOnMeasure -> {
-            setViewsCoordinatesToStartPosition(getViewsCoordinatesForStartPosition());
             animationHandler.cancel();
-            AnimatorSet animatorSet = moveViewsToStartPosition(withAnimation, onCreateAnimatorAction, animatorListenerAdapter);
+            AnimatorSet animatorSet = createAnimationOrMoveToPosition(withAnimation, onCreateAnimatorAction);
             if (animatorSet != null) {
+                if (animatorListenerAdapter != null) {
+                    animatorSet.addListener(animatorListenerAdapter);
+                }
                 animationHandler.addAnimator(animatorSet);
                 animatorSet.start();
             }
@@ -497,9 +499,42 @@ public abstract class CardsLayout extends ViewGroup
         }
     }
 
+    @Nullable
+    public <CV extends View & Card> AnimatorSet createAnimationOrMoveToPosition(boolean withAnimation,
+                                                                                @Nullable OnCreateAnimatorAction animationCreateAction) {
+        final List<CV> cards = getValidatedCardViews();
+        final List<CardCoordinates> cardsStartPositions = getViewsCoordinatesForStartPosition(cards);
+        final List<CV> verifiedCards = new ArrayList<>();
+        final List<CardCoordinates> verifiedCardsStartPositions = new ArrayList<>();
+        for (int i = 0; i < cards.size(); i++) {
+            CV card = cards.get(i);
+            CardCoordinates cardCoordinates = cardsStartPositions.get(i);
+            CardInfo cardInfo = card.getCardInfo();
+            if (Math.round(cardCoordinates.getX()) != cardInfo.getFirstPositionX()
+                    || Math.round(cardCoordinates.getY()) != cardInfo.getFirstPositionY()
+                    || Math.round(cardCoordinates.getAngle()) != cardInfo.getFirstRotation()) {
+                verifiedCards.add(card);
+                verifiedCardsStartPositions.add(cardCoordinates);
+            }
+        }
+        setViewsCoordinatesToStartPosition(verifiedCards, verifiedCardsStartPositions);
+        if (withAnimation) {
+            return createAnimationsForCards(verifiedCards, animationCreateAction);
+        } else {
+            for (CV card : verifiedCards) {
+                CardInfo cardInfo = card.getCardInfo();
+                card.setX(cardInfo.getFirstPositionX());
+                card.setY(cardInfo.getFirstPositionY());
+                card.setRotation(cardInfo.getFirstRotation());
+            }
+        }
+        return null;
+    }
+
+    /* protected methods */
+
     @SuppressWarnings("unchecked")
-    protected <CV extends View & Card> List<CardCoordinates> getViewsCoordinatesForStartPosition() {
-        List<CV> cards = getValidatedCardViews();
+    protected <CV extends View & Card> List<CardCoordinates> getViewsCoordinatesForStartPosition(List<CV> cards) {
         final Config xConfig = getXConfiguration(cards);
         final Config yConfig = getYConfiguration(cards);
         final CardCoordinatesPattern coordinatesPattern;
@@ -536,11 +571,9 @@ public abstract class CardsLayout extends ViewGroup
         return coordinatesPattern.getCardsCoordinates();
     }
 
-    /* protected methods */
-
     @SuppressWarnings("unchecked")
-    protected <CV extends View & Card> void onLayoutCards() {
-        List<CardCoordinates> startPositions = getViewsCoordinatesForStartPosition();
+    protected <CV extends View & Card> void onLayoutCards(List<CV> cards) {
+        List<CardCoordinates> startPositions = getViewsCoordinatesForStartPosition(cards);
         List<CV> validatedCardViews = getValidatedCardViews();
         for (int i = 0; i < validatedCardViews.size(); i++) {
             CV child = validatedCardViews.get(i);
@@ -551,8 +584,7 @@ public abstract class CardsLayout extends ViewGroup
         }
     }
 
-    protected <CV extends View & Card> void setViewsCoordinatesToStartPosition(List<CardCoordinates> cardsCoordinates) {
-        List<CV> cards = getValidatedCardViews();
+    protected <CV extends View & Card> void setViewsCoordinatesToStartPosition(List<CV> cards, List<CardCoordinates> cardsCoordinates) {
         for (int i = 0; i < cardsCoordinates.size(); i++) {
             final Card card = cards.get(i);
             final CardCoordinates cardCoordinates = cardsCoordinates.get(i);
@@ -563,28 +595,17 @@ public abstract class CardsLayout extends ViewGroup
     }
 
     @Nullable
-    protected <CV extends View & Card> AnimatorSet moveViewsToStartPosition(boolean withAnimation,
-                                                                            @Nullable OnCreateAnimatorAction animationCreateAction,
-                                                                            @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
-        List<CV> cards = getValidatedCardViews();
+    protected <CV extends View & Card> AnimatorSet createAnimationsForCards(final List<CV> cards, @Nullable OnCreateAnimatorAction animationCreateAction) {
         final List<Animator> animators = new ArrayList<>();
         for (CV card : cards) {
-            CardInfo cardInfo = card.getCardInfo();
-            if (withAnimation) {
-                final Animator animator;
-                if (animationCreateAction != null) {
-                    animator = animationCreateAction.createAnimation(card);
-                } else {
-                    animator = this.defaultAnimatorAction.createAnimation(card);
-                }
-                animators.add(animator);
+            final Animator animator;
+            if (animationCreateAction != null) {
+                animator = animationCreateAction.createAnimation(card);
             } else {
-                card.setX(cardInfo.getFirstPositionX());
-                card.setY(cardInfo.getFirstPositionY());
-                card.setRotation(cardInfo.getFirstRotation());
+                animator = this.defaultAnimatorAction.createAnimation(card);
             }
+            animators.add(animator);
         }
-
         if (!animators.isEmpty()) {
             AnimatorSet animatorSet = new AnimatorSet();
             animatorSet.playTogether(animators);
@@ -603,9 +624,6 @@ public abstract class CardsLayout extends ViewGroup
                     }
                 }
             });
-            if (animatorListenerAdapter != null) {
-                animatorSet.addListener(animatorListenerAdapter);
-            }
             return animatorSet;
         }
         return null;

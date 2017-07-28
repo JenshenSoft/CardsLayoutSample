@@ -9,6 +9,20 @@ public class CardsUtil {
 
     public static final float SIZE_MULTIPLIER = 1.2f;
 
+    public static <Entity> List<List<Entity>> getEntitiesByWaves(List<Iterator<Entity>> cardsOnTheTable) {
+        List<List<Entity>> entities = new ArrayList<>();
+        while (hasNextCardForWave(cardsOnTheTable)) {
+            List<Entity> cardsForWave = new ArrayList<>();
+            for (Iterator<Entity> entityIterator : cardsOnTheTable) {
+                if (entityIterator.hasNext()) {
+                    cardsForWave.add(entityIterator.next());
+                }
+            }
+            entities.add(cardsForWave);
+        }
+        return entities;
+    }
+
     public static <Entity> List<Entity> getCardsForDesk(List<Iterator<Entity>> cardsInDeskForPlayers) {
         List<Entity> entities = new ArrayList<>();
         while (hasNextCardForWave(cardsInDeskForPlayers)) {
