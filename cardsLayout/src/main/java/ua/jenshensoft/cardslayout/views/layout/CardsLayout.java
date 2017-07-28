@@ -22,7 +22,7 @@ import android.view.ViewParent;
 import android.view.animation.Interpolator;
 
 import com.jenshen.awesomeanimation.AwesomeAnimation;
-import com.jenshen.awesomeanimation.util.AnimatorHandler;
+import com.jenshen.awesomeanimation.util.animator.AnimatorHandler;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -45,6 +45,7 @@ import ua.jenshensoft.cardslayout.views.ViewUpdateConfig;
 import ua.jenshensoft.cardslayout.views.card.Card;
 import ua.jenshensoft.cardslayout.views.card.CardBoxView;
 import ua.jenshensoft.cardslayout.views.card.CardView;
+import ua.jenshensoft.cardslayout.views.updater.ViewUpdater;
 
 import static ua.jenshensoft.cardslayout.views.layout.CardsLayout.CardsDirection.LEFT_TO_RIGHT;
 import static ua.jenshensoft.cardslayout.views.layout.CardsLayout.CardsDirection.RIGHT_TO_LEFT;
@@ -69,6 +70,7 @@ public abstract class CardsLayout extends ViewGroup
     protected Interpolator interpolator;
     protected OnCreateAnimatorAction defaultAnimatorAction;
     protected ViewUpdateConfig viewUpdateConfig;
+    protected ViewUpdater viewUpdater;
     protected AnimatorHandler animationHandler;
     //listeners
     protected List<OnCardSwipedListener> onCardSwipedListeners;
@@ -143,6 +145,7 @@ public abstract class CardsLayout extends ViewGroup
         if (viewUpdateConfig.needUpdateViewOnLayout(changed)) {
             onLayoutCards();
         }
+        viewUpdater.onViewUpdated();
     }
 
     /* layout params */
@@ -194,18 +197,21 @@ public abstract class CardsLayout extends ViewGroup
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         animationHandler.cancel();
+        viewUpdater.clear();
     }
 
     @Override
     protected void onVisibilityChanged(@NonNull View changedView, int visibility) {
         super.onVisibilityChanged(changedView, visibility);
         animationHandler.onVisibilityChanged(visibility);
+        viewUpdater.ping();
     }
 
     @Override
     public void onWindowFocusChanged(boolean hasWindowFocus) {
         super.onWindowFocusChanged(hasWindowFocus);
         animationHandler.onWindowFocusChanged(hasWindowFocus);
+        viewUpdater.ping();
     }
 
     @SuppressWarnings("unchecked")
@@ -312,8 +318,15 @@ public abstract class CardsLayout extends ViewGroup
     public void invalidateCardsPosition(boolean withAnimation,
                                         @Nullable OnCreateAnimatorAction onCreateAnimatorAction,
                                         @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
-        setViewsCoordinatesToStartPosition(getViewsCoordinatesForStartPosition());
-        moveViewsToStartPosition(withAnimation, onCreateAnimatorAction, animatorListenerAdapter);
+        viewUpdater.addAction(calledInOnMeasure -> {
+            setViewsCoordinatesToStartPosition(getViewsCoordinatesForStartPosition());
+            animationHandler.cancel();
+            AnimatorSet animatorSet = moveViewsToStartPosition(withAnimation, onCreateAnimatorAction, animatorListenerAdapter);
+            if (animatorSet != null) {
+                animationHandler.addAnimator(animatorSet);
+                animatorSet.start();
+            }
+        });
     }
 
     public void addCardTranslationListener(OnCardTranslationListener cardTranslationListener) {
@@ -549,10 +562,10 @@ public abstract class CardsLayout extends ViewGroup
         }
     }
 
-    protected <CV extends View & Card> void moveViewsToStartPosition(boolean withAnimation,
-                                                                     @Nullable OnCreateAnimatorAction animationCreateAction,
-                                                                     @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
-        animationHandler.cancel(this);
+    @Nullable
+    protected <CV extends View & Card> AnimatorSet moveViewsToStartPosition(boolean withAnimation,
+                                                                            @Nullable OnCreateAnimatorAction animationCreateAction,
+                                                                            @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
         List<CV> cards = getValidatedCardViews();
         final List<Animator> animators = new ArrayList<>();
         for (CV card : cards) {
@@ -593,9 +606,9 @@ public abstract class CardsLayout extends ViewGroup
             if (animatorListenerAdapter != null) {
                 animatorSet.addListener(animatorListenerAdapter);
             }
-            animationHandler.addAnimator(animatorSet);
-            animatorSet.start();
+            return animatorSet;
         }
+        return null;
     }
 
     protected <T extends View> Config getXConfiguration(List<T> views) {
@@ -793,6 +806,7 @@ public abstract class CardsLayout extends ViewGroup
             }
         };
         viewUpdateConfig = new ViewUpdateConfig(this, false);
+        viewUpdater = new ViewUpdater<>(() -> !animationHandler.isOnCanceled() && !animationHandler.isOnPause(), null);
         onCardPercentageChangeListeners = new ArrayList<>();
         onCardSwipedListeners = new ArrayList<>();
         onCardTranslationListeners = new ArrayList<>();
