@@ -168,7 +168,7 @@ public abstract class GameTableLayout<
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        animationHandler.cancel();
+        animationHandler.onDestroy();
         viewUpdater.clear();
     }
 
@@ -480,7 +480,7 @@ public abstract class GameTableLayout<
     private void inflateLayout() {
         cardsLayouts = new ArrayList<>();
         viewUpdateConfig = new ViewUpdateConfig(this);
-        viewUpdater = new ViewUpdater<>(() -> !animationHandler.isOnCanceled() && !animationHandler.isOnPause(), this);
+        viewUpdater = new ViewUpdater<>(() -> !animationHandler.isOnDestroyed() && !animationHandler.isOnPause(), this);
         animationHandler = new AnimatorHandler();
         cardDeckGravity = new FlagManager(FlagManager.Gravity.CENTER);
         if (Math.abs(cardDeckCardOffsetX - (-1)) < EPSILON) {
@@ -650,7 +650,7 @@ public abstract class GameTableLayout<
         } else {
             card.setVisibility(VISIBLE);
         }
-        return layout.createAnimationOrMoveToPosition(true, creteAnimationForCardDistribution(layout, card));
+        return layout.createAnimationIfNeededForCards(true, creteAnimationForCardDistribution(layout, card));
     }
 
     private List<Card> getCardsForDistributions(final Layout cardsLayout,

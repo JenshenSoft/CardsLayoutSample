@@ -196,7 +196,7 @@ public abstract class CardsLayout extends ViewGroup
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        animationHandler.cancel();
+        animationHandler.onDestroy();
         viewUpdater.clear();
     }
 
@@ -318,17 +318,7 @@ public abstract class CardsLayout extends ViewGroup
     public void invalidateCardsPosition(boolean withAnimation,
                                         @Nullable OnCreateAnimatorAction onCreateAnimatorAction,
                                         @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
-        viewUpdater.addAction(calledInOnMeasure -> {
-            animationHandler.cancel();
-            AnimatorSet animatorSet = createAnimationOrMoveToPosition(withAnimation, onCreateAnimatorAction);
-            if (animatorSet != null) {
-                if (animatorListenerAdapter != null) {
-                    animatorSet.addListener(animatorListenerAdapter);
-                }
-                animationHandler.addAnimator(animatorSet);
-                animatorSet.start();
-            }
-        });
+        viewUpdater.addAction(calledInOnMeasure -> onInvalidateCardsPosition(withAnimation, onCreateAnimatorAction, animatorListenerAdapter));
     }
 
     public void addCardTranslationListener(OnCardTranslationListener cardTranslationListener) {
@@ -500,7 +490,7 @@ public abstract class CardsLayout extends ViewGroup
     }
 
     @Nullable
-    public <CV extends View & Card> AnimatorSet createAnimationOrMoveToPosition(boolean withAnimation,
+    public <CV extends View & Card> AnimatorSet createAnimationIfNeededForCards(boolean withAnimation,
                                                                                 @Nullable OnCreateAnimatorAction animationCreateAction) {
         final List<CV> cards = getValidatedCardViews();
         final List<CardCoordinates> cardsStartPositions = getViewsCoordinatesForStartPosition(cards);
@@ -509,10 +499,9 @@ public abstract class CardsLayout extends ViewGroup
         for (int i = 0; i < cards.size(); i++) {
             CV card = cards.get(i);
             CardCoordinates cardCoordinates = cardsStartPositions.get(i);
-            CardInfo cardInfo = card.getCardInfo();
-            if (Math.round(cardCoordinates.getX()) != cardInfo.getFirstPositionX()
-                    || Math.round(cardCoordinates.getY()) != cardInfo.getFirstPositionY()
-                    || Math.round(cardCoordinates.getAngle()) != cardInfo.getFirstRotation()) {
+            if (Math.round(cardCoordinates.getX()) != card.getX()
+                    || Math.round(cardCoordinates.getY()) != card.getY()
+                    || Math.round(cardCoordinates.getAngle()) != card.getRotation()) {
                 verifiedCards.add(card);
                 verifiedCardsStartPositions.add(cardCoordinates);
             }
@@ -532,6 +521,20 @@ public abstract class CardsLayout extends ViewGroup
     }
 
     /* protected methods */
+
+    protected void onInvalidateCardsPosition(boolean withAnimation,
+                                             @Nullable OnCreateAnimatorAction onCreateAnimatorAction,
+                                             @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
+        animationHandler.cancel();
+        AnimatorSet animatorSet = createAnimationIfNeededForCards(withAnimation, onCreateAnimatorAction);
+        if (animatorSet != null) {
+            if (animatorListenerAdapter != null) {
+                animatorSet.addListener(animatorListenerAdapter);
+            }
+            animationHandler.addAnimator(animatorSet);
+            animatorSet.start();
+        }
+    }
 
     @SuppressWarnings("unchecked")
     protected <CV extends View & Card> List<CardCoordinates> getViewsCoordinatesForStartPosition(List<CV> cards) {
@@ -595,7 +598,8 @@ public abstract class CardsLayout extends ViewGroup
     }
 
     @Nullable
-    protected <CV extends View & Card> AnimatorSet createAnimationsForCards(final List<CV> cards, @Nullable OnCreateAnimatorAction animationCreateAction) {
+    protected <CV extends View & Card> AnimatorSet createAnimationsForCards(final List<CV> cards,
+                                                                            @Nullable OnCreateAnimatorAction animationCreateAction) {
         final List<Animator> animators = new ArrayList<>();
         for (CV card : cards) {
             final Animator animator;
@@ -825,7 +829,7 @@ public abstract class CardsLayout extends ViewGroup
             }
         };
         viewUpdateConfig = new ViewUpdateConfig(this, false);
-        viewUpdater = new ViewUpdater<>(() -> !animationHandler.isOnCanceled() && !animationHandler.isOnPause(), null);
+        viewUpdater = new ViewUpdater<>(() -> !animationHandler.isOnDestroyed() && !animationHandler.isOnPause(), null);
         onCardPercentageChangeListeners = new ArrayList<>();
         onCardSwipedListeners = new ArrayList<>();
         onCardTranslationListeners = new ArrayList<>();

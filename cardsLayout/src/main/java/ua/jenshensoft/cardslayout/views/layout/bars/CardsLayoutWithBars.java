@@ -134,9 +134,9 @@ public abstract class CardsLayoutWithBars<
 
     @Nullable
     @Override
-    public <CV extends View & Card> AnimatorSet createAnimationOrMoveToPosition(boolean withAnimation,
+    public <CV extends View & Card> AnimatorSet createAnimationIfNeededForCards(boolean withAnimation,
                                                                                 @Nullable OnCreateAnimatorAction animationCreateAction) {
-        AnimatorSet animatorSet = super.createAnimationOrMoveToPosition(withAnimation, animationCreateAction);
+        AnimatorSet animatorSet = super.createAnimationIfNeededForCards(withAnimation, animationCreateAction);
         Iterator<CardCoordinates> cardCoordinates = getCoordinatesForBars().iterator();
         if (firstBarView != null && firstBarView.getVisibility() != GONE) {
             CardCoordinates coordinates = cardCoordinates.next();
@@ -167,21 +167,21 @@ public abstract class CardsLayoutWithBars<
     protected AnimatorSet moveFirstBarToPosition(int[] coordinatesForUserInfo,
                                                  boolean withAnimation,
                                                  @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
-        return moveViewToStartPosition(firstBarView, coordinatesForUserInfo, withAnimation, animatorListenerAdapter);
+        return createAnimationIfNeededForView(firstBarView, coordinatesForUserInfo, withAnimation, animatorListenerAdapter);
     }
 
     @Nullable
     protected AnimatorSet moveSecondBarToPosition(int[] coordinatesForGameInfoBar,
                                                   boolean withAnimation,
                                                   @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
-        return moveViewToStartPosition(secondBarView, coordinatesForGameInfoBar, withAnimation, animatorListenerAdapter);
+        return createAnimationIfNeededForView(secondBarView, coordinatesForGameInfoBar, withAnimation, animatorListenerAdapter);
     }
 
     @Nullable
-    protected <V extends View & ValidateViewBlocker> AnimatorSet moveViewToStartPosition(V view,
-                                                                                         int[] coordinates,
-                                                                                         boolean withAnimation,
-                                                                                         @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
+    protected <V extends View & ValidateViewBlocker> AnimatorSet createAnimationIfNeededForView(V view,
+                                                                                                int[] coordinates,
+                                                                                                boolean withAnimation,
+                                                                                                @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
         if (Math.abs(coordinates[0] - (view.getX())) < EPSILON && Math.abs(coordinates[1] - (view.getY())) < EPSILON) {
             return null;
         }
