@@ -15,6 +15,7 @@ import android.util.AttributeSet;
 import android.util.Pair;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Interpolator;
 
 import com.android.internal.util.Predicate;
 import com.jenshen.awesomeanimation.AwesomeAnimation;
@@ -60,6 +61,8 @@ public abstract class GameTableLayout<
     protected ViewUpdateConfig viewUpdateConfig;
     protected AnimatorHandler animationHandler;
     //attr
+    @Nullable
+    protected Interpolator interpolator;
     private int durationOfDistributeAnimation = 1000;
     private boolean isEnableSwipe;
     private boolean isEnableTransition;
@@ -280,6 +283,18 @@ public abstract class GameTableLayout<
         });
     }
 
+    @Nullable
+    public Interpolator getInterpolator() {
+        return interpolator;
+    }
+
+    public void setInterpolator(@NonNull Interpolator interpolator) {
+        for (Layout cardsLayout : cardsLayouts) {
+            cardsLayout.setInterpolator(interpolator);
+        }
+        this.interpolator = interpolator;
+    }
+
     public int getDurationOfDistributeAnimation() {
         return durationOfDistributeAnimation;
     }
@@ -406,11 +421,8 @@ public abstract class GameTableLayout<
                     AwesomeAnimation.Builder awesomeAnimation = new AwesomeAnimation.Builder(view)
                             .setX(AwesomeAnimation.CoordinationMode.COORDINATES, view.getX(), view.getCardInfo().getFirstPositionX())
                             .setY(AwesomeAnimation.CoordinationMode.COORDINATES, view.getY(), view.getCardInfo().getFirstPositionY())
-                            .setRotation(180, card.getCardInfo().getFirstRotation())
+                            .setRotation(180 + card.getRotation(), card.getCardInfo().getFirstRotation())
                             .setDuration(durationOfDistributeAnimation);
-                    if (cardsLayout.getInterpolator() != null) {
-                        awesomeAnimation.setInterpolator(cardsLayout.getInterpolator());
-                    }
                     return awesomeAnimation.build().getAnimatorSet();
                 } else {
                     return cardsLayout.getDefaultCreateAnimatorAction().createAnimation(view);
@@ -420,26 +432,21 @@ public abstract class GameTableLayout<
     }
 
     protected <CV extends View & Card> void onLayoutCardInCardDeck(CV card, ThreeDCardCoordinates coordinates) {
-        int x;
-        int y;
-        if (card.getCardInfo().isCardDistributed()) {
-            x = Math.round(card.getX());
-            y = Math.round(card.getY());
-        } else {
-            if ((Math.abs(coordinates.getX() - (card.getX())) < EPSILON) &&
-                    (Math.abs(coordinates.getY() - (card.getY())) < EPSILON)) {
-                return;
-            }
-            x = Math.round(coordinates.getX());
-            y = Math.round(coordinates.getY());
-            int angle = Math.round(coordinates.getAngle());
-            card.setRotation(angle);
-            card.setCardZ(coordinates.getZ());
-            card.setFirstX(x);
-            card.setFirstY(y);
-            card.setFirstRotation(angle);
-        }
+        int x = Math.round(coordinates.getX());
+        int y = Math.round(coordinates.getY());
+        int angle = Math.round(coordinates.getAngle());
+        card.setCardZ(coordinates.getZ());
+        card.setFirstX(x);
+        card.setFirstY(y);
+        card.setFirstRotation(angle);
+        card.setRotation(angle);
         card.layout(x, y, x + card.getMeasuredWidth(), y + card.getMeasuredHeight());
+        if (Math.abs(card.getX() - x) > EPSILON) {
+            card.setX(x);
+        }
+        if (Math.abs(card.getY() - y) > EPSILON) {
+            card.setY(y);
+        }
     }
 
     /* private methods */
@@ -492,83 +499,72 @@ public abstract class GameTableLayout<
         if (cardDeckCards.isEmpty()) {
             return;
         }
-        if (viewUpdateConfig.needUpdateViewOnLayout(changed)) {
-            float cardDeckX;
-            float cardDeckY;
-            float cardDeckZ;
-            if (cardDeckView != null && !cardDeckView.getCardsCoordinates().isEmpty()) {
-                List<ThreeDCardCoordinates> cardsCoordinates = cardDeckView.getCardsCoordinates();
-                if (cardsCoordinates == null) {
-                    throw new RuntimeException("Something went wrong, coordinates can't be null");
-                }
-                ThreeDCardCoordinates lastCardCoordinates = cardsCoordinates.get(cardsCoordinates.size() - 1);
-                cardDeckX = cardDeckView.getX() + lastCardCoordinates.getX() + cardDeckView.getPaddingLeft();
-                cardDeckY = cardDeckView.getY() + lastCardCoordinates.getY() + cardDeckView.getPaddingTop();
-                cardDeckZ = 0;
-                for (Card card : cardDeckCards) {
-                    float cardZ = card.getCardZ();
-                    if (cardZ > cardDeckZ) {
-                        cardDeckZ = cardZ;
-                    }
-                }
-            } else {
-                float maxWidth = 0;
-                float maxHeight = 0;
-                float maxElevation = 0;
-                for (Card card : cardDeckCards) {
-                    float cardWidth = card.getCardWidth();
-                    float cardHeight = card.getCardHeight();
-                    float cardZ = card.getCardZ();
-                    if (cardWidth > maxWidth) {
-                        maxWidth = cardWidth;
-                    }
-                    if (cardHeight > maxHeight) {
-                        maxHeight = cardHeight;
-                    }
-                    if (cardZ > maxElevation) {
-                        maxElevation = cardZ;
-                    }
-                }
-                cardDeckX = getXPositionForCardDeck(maxWidth, getMeasuredWidth());
-                cardDeckY = getYPositionForCardDeck(maxHeight, getMeasuredHeight());
-                cardDeckZ = maxElevation;
+        float cardDeckX;
+        float cardDeckY;
+        float cardDeckZ;
+        if (cardDeckView != null && !cardDeckView.getCardsCoordinates().isEmpty()) {
+            List<ThreeDCardCoordinates> cardsCoordinates = cardDeckView.getCardsCoordinates();
+            if (cardsCoordinates == null) {
+                throw new RuntimeException("Something went wrong, coordinates can't be null");
             }
-
-            @SuppressLint("DrawAllocation")
-            List<ThreeDCardCoordinates> cardsCoordinates = new CardDeckCoordinatesPattern(
-                    cardDeckCards.size(),
-                    cardDeckCardOffsetX,
-                    cardDeckCardOffsetY,
-                    cardDeckCardOffsetZ,
-                    cardDeckX,
-                    cardDeckY,
-                    cardDeckZ)
-                    .getCardsCoordinates();
-            Iterator<Card> validatedCardViews = cardDeckCards.iterator();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                for (int i = cardsCoordinates.size() - 1; i >= 0; i--) {
-                    CV card = (CV) validatedCardViews.next();
-                    if (card.getVisibility() != GONE) {
-                        ThreeDCardCoordinates coordinates = cardsCoordinates.get(i);
-                        onLayoutCardInCardDeck(card, coordinates);
-                    }
-                }
-            } else {
-                for (int i = 0; i < cardsCoordinates.size(); i++) {
-                    CV card = (CV) validatedCardViews.next();
-                    if (card.getVisibility() != GONE) {
-                        ThreeDCardCoordinates coordinates = cardsCoordinates.get(i);
-                        onLayoutCardInCardDeck(card, coordinates);
-                    }
+            ThreeDCardCoordinates lastCardCoordinates = cardsCoordinates.get(cardsCoordinates.size() - 1);
+            cardDeckX = cardDeckView.getX() + lastCardCoordinates.getX() + cardDeckView.getPaddingLeft();
+            cardDeckY = cardDeckView.getY() + lastCardCoordinates.getY() + cardDeckView.getPaddingTop();
+            cardDeckZ = 0;
+            for (Card card : cardDeckCards) {
+                float cardZ = card.getCardZ();
+                if (cardZ > cardDeckZ) {
+                    cardDeckZ = cardZ;
                 }
             }
         } else {
-            for (int i = 0; i < cardDeckCards.size(); i++) {
-                CV card = (CV) cardDeckCards.get(i);
+            float maxWidth = 0;
+            float maxHeight = 0;
+            float maxElevation = 0;
+            for (Card card : cardDeckCards) {
+                float cardWidth = card.getCardWidth();
+                float cardHeight = card.getCardHeight();
+                float cardZ = card.getCardZ();
+                if (cardWidth > maxWidth) {
+                    maxWidth = cardWidth;
+                }
+                if (cardHeight > maxHeight) {
+                    maxHeight = cardHeight;
+                }
+                if (cardZ > maxElevation) {
+                    maxElevation = cardZ;
+                }
+            }
+            cardDeckX = getXPositionForCardDeck(maxWidth, getMeasuredWidth());
+            cardDeckY = getYPositionForCardDeck(maxHeight, getMeasuredHeight());
+            cardDeckZ = maxElevation;
+        }
+
+        @SuppressLint("DrawAllocation")
+        List<ThreeDCardCoordinates> cardsCoordinates = new CardDeckCoordinatesPattern(
+                cardDeckCards.size(),
+                cardDeckCardOffsetX,
+                cardDeckCardOffsetY,
+                cardDeckCardOffsetZ,
+                cardDeckX,
+                cardDeckY,
+                cardDeckZ)
+                .getCardsCoordinates();
+        Iterator<Card> validatedCardViews = cardDeckCards.iterator();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            for (int i = cardsCoordinates.size() - 1; i >= 0; i--) {
+                CV card = (CV) validatedCardViews.next();
                 if (card.getVisibility() != GONE) {
-                    int x = Math.round(card.getX());
-                    int y = Math.round(card.getY());
-                    card.layout(x, y, x + card.getMeasuredWidth(), y + card.getMeasuredHeight());
+                    ThreeDCardCoordinates coordinates = cardsCoordinates.get(i);
+                    onLayoutCardInCardDeck(card, coordinates);
+                }
+            }
+        } else {
+            for (int i = 0; i < cardsCoordinates.size(); i++) {
+                CV card = (CV) validatedCardViews.next();
+                if (card.getVisibility() != GONE) {
+                    ThreeDCardCoordinates coordinates = cardsCoordinates.get(i);
+                    onLayoutCardInCardDeck(card, coordinates);
                 }
             }
         }
@@ -621,12 +617,14 @@ public abstract class GameTableLayout<
         if (entitiesByWaves.hasNext()) {
             List<Pair<Card, Layout>> cardLayoutPair = entitiesByWaves.next();
             List<Card> cards = new ArrayList<>();
-            List<Animator> animators = new ArrayList<>();
             for (Pair<Card, Layout> pair : cardLayoutPair) {
                 cards.add(pair.first);
-                animators.add(createAnimationForCard(pair.first, pair.second));
             }
             onStartDistributedCardWave(cards);
+            List<Animator> animators = new ArrayList<>();
+            for (Pair<Card, Layout> pair : cardLayoutPair) {
+                animators.add(createAnimationForCard(pair.first, pair.second));
+            }
             AnimatorSet animatorSet = new AnimatorSet();
             animatorSet.playTogether(animators);
             animatorSet.addListener(new AnimatorListenerAdapter() {
@@ -636,6 +634,9 @@ public abstract class GameTableLayout<
                     post(() -> distributeWave(entitiesByWaves));
                 }
             });
+            if (interpolator != null) {
+                animatorSet.setInterpolator(interpolator);
+            }
             animationHandler.addAnimator(animatorSet);
             animatorSet.start();
         } else {

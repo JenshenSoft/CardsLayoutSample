@@ -624,6 +624,9 @@ public abstract class CardsLayout extends ViewGroup
                     }
                 }
             });
+            if (interpolator != null) {
+                animatorSet.setInterpolator(interpolator);
+            }
             return animatorSet;
         }
         return null;
@@ -818,8 +821,6 @@ public abstract class CardsLayout extends ViewGroup
                         .setY(AwesomeAnimation.CoordinationMode.COORDINATES, cardView.getY(), cardView.getCardInfo().getFirstPositionY())
                         .setRotation(cardView.getRotation(), cardView.getCardInfo().getFirstRotation())
                         .setDuration(durationOfAnimation);
-                if (interpolator != null)
-                    awesomeAnimation.setInterpolator(interpolator);
                 return awesomeAnimation.build().getAnimatorSet();
             }
         };

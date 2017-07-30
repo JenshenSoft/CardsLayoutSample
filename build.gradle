@@ -11,7 +11,7 @@ ext {
     ]
 
     libraries = [
-            supportVersion: "25.4.0"
+            supportVersion: "26.0.0"
     ]
 
     testingLibraries = [
