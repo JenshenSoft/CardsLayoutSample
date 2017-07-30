@@ -319,28 +319,6 @@ public abstract class GameTableLayout<
         }
     }
 
-    private void setCardDeckCard(Card card, Predicate<Card> predicateForCardsOnTheHands) {
-        if (predicateForCardsOnTheHands.apply(card)) {
-            if (deskOfCardsEnable) {
-                card.getCardInfo().setCardDistributed(true);
-            } else {
-                card.setVisibility(VISIBLE);
-            }
-        } else {
-            if (deskOfCardsEnable) {
-                CardInfo cardInfo = card.getCardInfo();
-                cardInfo.setCardDistributed(false);
-            } else {
-                card.setVisibility(INVISIBLE);
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                cardDeckCards.add(0, card);
-            } else {
-                cardDeckCards.add(card);
-            }
-        }
-    }
-
     public void setCardDeckCards(Predicate<Card> predicateForCardsOnTheHands) {
         for (Layout layout : cardsLayouts) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -663,5 +641,27 @@ public abstract class GameTableLayout<
             }
         }
         return filteredCardsViews;
+    }
+
+    private void setCardDeckCard(Card card, Predicate<Card> predicateForCardsOnTheHands) {
+        if (predicateForCardsOnTheHands.apply(card)) {
+            if (deskOfCardsEnable) {
+                card.getCardInfo().setCardDistributed(true);
+            } else {
+                card.setVisibility(VISIBLE);
+            }
+        } else {
+            if (deskOfCardsEnable) {
+                CardInfo cardInfo = card.getCardInfo();
+                cardInfo.setCardDistributed(false);
+            } else {
+                card.setVisibility(INVISIBLE);
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                cardDeckCards.add(0, card);
+            } else {
+                cardDeckCards.add(card);
+            }
+        }
     }
 }
