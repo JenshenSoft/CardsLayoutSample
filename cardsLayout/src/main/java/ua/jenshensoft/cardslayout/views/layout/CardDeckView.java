@@ -5,6 +5,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -120,49 +121,18 @@ public abstract class CardDeckView extends ViewGroup {
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         if (viewUpdateConfig.needUpdateViewOnLayout(changed)) {
             List<Card> validatedCards = getValidatedCards();
-            float startX = getMeasuredWidth() / 2;
-            float startY = getMeasuredHeight() / 2;
-            float startZ = 0;
             if (!validatedCards.isEmpty()) {
-                float maxWidth = 0;
-                float maxHeight = 0;
-                float maxElevation = 0;
-                for (Card card : validatedCards) {
-                    float cardWidth = card.getCardWidth();
-                    float cardHeight = card.getCardHeight();
-                    float cardZ = card.getCardZ();
-                    if (cardWidth > maxWidth) {
-                        maxWidth = cardWidth;
-                    }
-                    if (cardHeight > maxHeight) {
-                        maxHeight = cardHeight;
-                    }
-                    if (cardZ > maxElevation) {
-                        maxElevation = cardZ;
-                    }
-                }
-                startX -= maxWidth / 2f;
-                startY -= maxHeight / 2f;
-                startZ = maxElevation;
-            }
-            cardsCoordinates = new CardDeckCoordinatesPattern(
-                    validatedCards.size(),
-                    cardDeckCardOffsetX,
-                    cardDeckCardOffsetY,
-                    cardDeckCardOffsetZ,
-                    startX,
-                    startY,
-                    startZ)
-                    .getCardsCoordinates();
-            Iterator<Card> validatedCardViews = validatedCards.iterator();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                for (int i = cardsCoordinates.size() - 1; i >= 0; i--) {
-                    onLayoutCardInCardDeck((View & Card) validatedCardViews.next(), cardsCoordinates.get(i));
-                }
-            } else {
-                for (int i = 0; i < cardsCoordinates.size(); i++) {
-                    onLayoutCardInCardDeck((View & Card) validatedCardViews.next(), cardsCoordinates.get(i));
-                }
+                ThreeDCardCoordinates cardDeckPosition = getCardDeckPosition(validatedCards);
+                cardsCoordinates = new CardDeckCoordinatesPattern(
+                        validatedCards.size(),
+                        cardDeckCardOffsetX,
+                        cardDeckCardOffsetY,
+                        cardDeckCardOffsetZ,
+                        cardDeckPosition.getX(),
+                        cardDeckPosition.getY(),
+                        cardDeckPosition.getZ())
+                        .getCardsCoordinates();
+                onLayoutCardsInCardDeck(cardsCoordinates, validatedCards.iterator());
             }
         }
     }
@@ -183,12 +153,38 @@ public abstract class CardDeckView extends ViewGroup {
         return cards;
     }
 
+    @Nullable
     public List<ThreeDCardCoordinates> getCardsCoordinates() {
         return cardsCoordinates;
     }
 
-    protected  <CV extends View & Card> void onLayoutCardInCardDeck(CV cardView,
-                                                                            ThreeDCardCoordinates coordinates) {
+    protected ThreeDCardCoordinates getCardDeckPosition(List<Card> cards) {
+        float maxWidth = 0;
+        float maxHeight = 0;
+        float maxElevation = 0;
+        for (Card card : cards) {
+            float cardWidth = card.getCardWidth();
+            float cardHeight = card.getCardHeight();
+            float cardZ = card.getCardZ();
+            if (cardWidth > maxWidth) {
+                maxWidth = cardWidth;
+            }
+            if (cardHeight > maxHeight) {
+                maxHeight = cardHeight;
+            }
+            if (cardZ > maxElevation) {
+                maxElevation = cardZ;
+            }
+        }
+        return new ThreeDCardCoordinates(
+                getMeasuredWidth() / 2 - maxWidth / 2f,
+                getMeasuredHeight() / 2 - maxHeight / 2f,
+                maxElevation,
+                0);
+    }
+
+    protected <CV extends View & Card> void onLayoutCardInCardDeck(CV cardView,
+                                                                   ThreeDCardCoordinates coordinates) {
         int x = Math.round(coordinates.getX());
         int y = Math.round(coordinates.getY());
         float z = coordinates.getZ();
@@ -252,6 +248,28 @@ public abstract class CardDeckView extends ViewGroup {
     }
 
     /* card view methods */
+
+    @SuppressWarnings("unchecked")
+    private <CV extends View & Card> void onLayoutCardsInCardDeck(List<ThreeDCardCoordinates> cardsCoordinates,
+                                                                  Iterator<Card> validatedCardViews) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            for (int i = cardsCoordinates.size() - 1; i >= 0; i--) {
+                CV card = (CV) validatedCardViews.next();
+                if (card.getVisibility() != GONE) {
+                    ThreeDCardCoordinates coordinates = cardsCoordinates.get(i);
+                    onLayoutCardInCardDeck(card, coordinates);
+                }
+            }
+        } else {
+            for (int i = 0; i < cardsCoordinates.size(); i++) {
+                CV card = (CV) validatedCardViews.next();
+                if (card.getVisibility() != GONE) {
+                    ThreeDCardCoordinates coordinates = cardsCoordinates.get(i);
+                    onLayoutCardInCardDeck(card, coordinates);
+                }
+            }
+        }
+    }
 
     private void setUpCard(Card card) {
         CardInfo cardInfo = card.getCardInfo();

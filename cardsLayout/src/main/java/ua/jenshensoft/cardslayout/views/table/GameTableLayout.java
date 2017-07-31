@@ -409,6 +409,30 @@ public abstract class GameTableLayout<
         };
     }
 
+    protected ThreeDCardCoordinates getCardDeckPosition(List<Card> cards) {
+        float maxWidth = 0;
+        float maxHeight = 0;
+        float maxElevation = 0;
+        for (Card card : cards) {
+            float cardWidth = card.getCardWidth();
+            float cardHeight = card.getCardHeight();
+            float cardZ = card.getCardZ();
+            if (cardWidth > maxWidth) {
+                maxWidth = cardWidth;
+            }
+            if (cardHeight > maxHeight) {
+                maxHeight = cardHeight;
+            }
+            if (cardZ > maxElevation) {
+                maxElevation = cardZ;
+            }
+        }
+        return new ThreeDCardCoordinates(
+                getXPositionForCardDeck(maxWidth, getMeasuredWidth()),
+                getYPositionForCardDeck(maxHeight, getMeasuredHeight()),
+                maxElevation, 0);
+    }
+
     protected <CV extends View & Card> void onLayoutCardInCardDeck(CV card, ThreeDCardCoordinates coordinates) {
         int x = Math.round(coordinates.getX());
         int y = Math.round(coordinates.getY());
@@ -477,45 +501,26 @@ public abstract class GameTableLayout<
         if (cardDeckCards.isEmpty()) {
             return;
         }
-        float cardDeckX;
-        float cardDeckY;
-        float cardDeckZ;
-        if (cardDeckView != null && !cardDeckView.getCardsCoordinates().isEmpty()) {
+        ThreeDCardCoordinates cardDeckPosition;
+        if (cardDeckView != null
+                && cardDeckView.getCardsCoordinates() != null
+                && !cardDeckView.getCardsCoordinates().isEmpty()) {
             List<ThreeDCardCoordinates> cardsCoordinates = cardDeckView.getCardsCoordinates();
-            if (cardsCoordinates == null) {
-                throw new RuntimeException("Something went wrong, coordinates can't be null");
-            }
             ThreeDCardCoordinates lastCardCoordinates = cardsCoordinates.get(cardsCoordinates.size() - 1);
-            cardDeckX = cardDeckView.getX() + lastCardCoordinates.getX() + cardDeckView.getPaddingLeft();
-            cardDeckY = cardDeckView.getY() + lastCardCoordinates.getY() + cardDeckView.getPaddingTop();
-            cardDeckZ = 0;
+            float cardDeckZ = 0;
             for (Card card : cardDeckCards) {
                 float cardZ = card.getCardZ();
                 if (cardZ > cardDeckZ) {
                     cardDeckZ = cardZ;
                 }
             }
+            cardDeckPosition = new ThreeDCardCoordinates(
+                    cardDeckView.getX() + lastCardCoordinates.getX() + cardDeckView.getPaddingLeft(),
+                    cardDeckView.getY() + lastCardCoordinates.getY() + cardDeckView.getPaddingTop(),
+                    cardDeckZ,
+                    0);
         } else {
-            float maxWidth = 0;
-            float maxHeight = 0;
-            float maxElevation = 0;
-            for (Card card : cardDeckCards) {
-                float cardWidth = card.getCardWidth();
-                float cardHeight = card.getCardHeight();
-                float cardZ = card.getCardZ();
-                if (cardWidth > maxWidth) {
-                    maxWidth = cardWidth;
-                }
-                if (cardHeight > maxHeight) {
-                    maxHeight = cardHeight;
-                }
-                if (cardZ > maxElevation) {
-                    maxElevation = cardZ;
-                }
-            }
-            cardDeckX = getXPositionForCardDeck(maxWidth, getMeasuredWidth());
-            cardDeckY = getYPositionForCardDeck(maxHeight, getMeasuredHeight());
-            cardDeckZ = maxElevation;
+            cardDeckPosition = getCardDeckPosition(cardDeckCards);
         }
 
         @SuppressLint("DrawAllocation")
@@ -524,11 +529,16 @@ public abstract class GameTableLayout<
                 cardDeckCardOffsetX,
                 cardDeckCardOffsetY,
                 cardDeckCardOffsetZ,
-                cardDeckX,
-                cardDeckY,
-                cardDeckZ)
+                cardDeckPosition.getX(),
+                cardDeckPosition.getY(),
+                cardDeckPosition.getZ())
                 .getCardsCoordinates();
-        Iterator<Card> validatedCardViews = cardDeckCards.iterator();
+        onLayoutCardsInCardDeck(cardsCoordinates, cardDeckCards.iterator());
+    }
+
+    @SuppressWarnings("unchecked")
+    private <CV extends View & Card> void onLayoutCardsInCardDeck(List<ThreeDCardCoordinates> cardsCoordinates,
+                                                                  Iterator<Card> validatedCardViews) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             for (int i = cardsCoordinates.size() - 1; i >= 0; i--) {
                 CV card = (CV) validatedCardViews.next();
