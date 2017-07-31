@@ -434,14 +434,21 @@ public abstract class GameTableLayout<
     }
 
     protected <CV extends View & Card> void onLayoutCardInCardDeck(CV card, ThreeDCardCoordinates coordinates) {
-        int x = Math.round(coordinates.getX());
-        int y = Math.round(coordinates.getY());
-        int angle = Math.round(coordinates.getAngle());
-        card.setCardZ(coordinates.getZ());
-        card.setFirstX(x);
-        card.setFirstY(y);
-        card.setFirstRotation(angle);
-        card.setRotation(angle);
+        int x;
+        int y;
+        if (card.isInAnimation()) {
+            x = Math.round(card.getX());
+            y = Math.round(card.getY());
+        } else {
+            int angle = Math.round(coordinates.getAngle());
+            x = Math.round(coordinates.getX());
+            y = Math.round(coordinates.getY());
+            card.setCardZ(coordinates.getZ());
+            card.setFirstX(x);
+            card.setFirstY(y);
+            card.setFirstRotation(angle);
+            card.setRotation(angle);
+        }
         card.layout(x, y, x + card.getMeasuredWidth(), y + card.getMeasuredHeight());
         if (Math.abs(card.getX() - x) > EPSILON) {
             card.setX(x);
@@ -450,6 +457,33 @@ public abstract class GameTableLayout<
             card.setY(y);
         }
     }
+
+    protected float getXPositionForCardDeck(float widthOfCardDeck, float rootWidth) {
+        float cardPositionX = 0;
+        if (cardDeckGravity.containsFlag(FlagManager.Gravity.LEFT)) {
+            cardPositionX = 0;
+        } else if (cardDeckGravity.containsFlag(FlagManager.Gravity.RIGHT)) {
+            cardPositionX = rootWidth - widthOfCardDeck;
+        } else if (cardDeckGravity.containsFlag(FlagManager.Gravity.CENTER_HORIZONTAL)
+                || cardDeckGravity.containsFlag(FlagManager.Gravity.CENTER)) {
+            cardPositionX = rootWidth / 2f - widthOfCardDeck / 2f;
+        }
+        return cardPositionX;
+    }
+
+    protected float getYPositionForCardDeck(float heightOfCardDeck, float rootHeight) {
+        float cardPositionY = 0;
+        if (cardDeckGravity.containsFlag(FlagManager.Gravity.TOP)) {
+            cardPositionY = 0;
+        } else if (cardDeckGravity.containsFlag(FlagManager.Gravity.BOTTOM)) {
+            cardPositionY = rootHeight - heightOfCardDeck;
+        } else if (cardDeckGravity.containsFlag(FlagManager.Gravity.CENTER_VERTICAL)
+                || cardDeckGravity.containsFlag(FlagManager.Gravity.CENTER)) {
+            cardPositionY = rootHeight / 2f - heightOfCardDeck / 2f;
+        }
+        return cardPositionY;
+    }
+
 
     /* private methods */
 
@@ -564,32 +598,6 @@ public abstract class GameTableLayout<
         }
     }
 
-    private float getXPositionForCardDeck(float widthOfCardDeck, float rootWidth) {
-        float cardPositionX = 0;
-        if (cardDeckGravity.containsFlag(FlagManager.Gravity.LEFT)) {
-            cardPositionX = 0;
-        } else if (cardDeckGravity.containsFlag(FlagManager.Gravity.RIGHT)) {
-            cardPositionX = rootWidth - widthOfCardDeck;
-        } else if (cardDeckGravity.containsFlag(FlagManager.Gravity.CENTER_HORIZONTAL)
-                || cardDeckGravity.containsFlag(FlagManager.Gravity.CENTER)) {
-            cardPositionX = rootWidth / 2f - widthOfCardDeck / 2f;
-        }
-        return cardPositionX;
-    }
-
-    private float getYPositionForCardDeck(float heightOfCardDeck, float rootHeight) {
-        float cardPositionY = 0;
-        if (cardDeckGravity.containsFlag(FlagManager.Gravity.TOP)) {
-            cardPositionY = 0;
-        } else if (cardDeckGravity.containsFlag(FlagManager.Gravity.BOTTOM)) {
-            cardPositionY = rootHeight - heightOfCardDeck;
-        } else if (cardDeckGravity.containsFlag(FlagManager.Gravity.CENTER_VERTICAL)
-                || cardDeckGravity.containsFlag(FlagManager.Gravity.CENTER)) {
-            cardPositionY = rootHeight / 2f - heightOfCardDeck / 2f;
-        }
-        return cardPositionY;
-    }
-
     private boolean hasDistributionState() {
         return viewUpdater.getParams() != null && viewUpdater.getParams().getDistributionState() != null;
     }
@@ -605,14 +613,12 @@ public abstract class GameTableLayout<
         if (entitiesByWaves.hasNext()) {
             List<Pair<Card, Layout>> cardLayoutPair = entitiesByWaves.next();
             List<Card> cards = new ArrayList<>();
-            for (Pair<Card, Layout> pair : cardLayoutPair) {
-                cards.add(pair.first);
-            }
-            onStartDistributedCardWave(cards);
             List<Animator> animators = new ArrayList<>();
             for (Pair<Card, Layout> pair : cardLayoutPair) {
+                cards.add(pair.first);
                 animators.add(createAnimationForCard(pair.first, pair.second));
             }
+            onStartDistributedCardWave(cards);
             AnimatorSet animatorSet = new AnimatorSet();
             animatorSet.playTogether(animators);
             animatorSet.addListener(new AnimatorListenerAdapter() {

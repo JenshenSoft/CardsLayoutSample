@@ -105,28 +105,31 @@ public abstract class CardsLayoutWithBars<
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
         Iterator<CardCoordinates> cardCoordinates = getCoordinatesForBars().iterator();
-        if (cardCoordinates.hasNext()) {
+        if (firstBarView != null && cardCoordinates.hasNext() && firstBarView.getVisibility() != GONE) {
             onLayoutAdditionView(firstBarView, cardCoordinates::next);
         }
-        if (cardCoordinates.hasNext()) {
+        if (secondBarView != null && cardCoordinates.hasNext() && secondBarView.getVisibility() != GONE) {
             onLayoutAdditionView(secondBarView, cardCoordinates::next);
         }
     }
 
     protected <V extends View & ValidateViewBlocker> void onLayoutAdditionView(V view, CoordinatesProvider coordinatesProvider) {
-        if (view != null
-                && !view.isInAnimation()
-                && view.getVisibility() != GONE) {
+        int x;
+        int y;
+        if (view.isInAnimation()) {
+            x = Math.round(view.getX());
+            y = Math.round(view.getY());
+        } else {
             CardCoordinates coordinates = coordinatesProvider.get();
-            int x = Math.round(coordinates.getX());
-            int y = Math.round(coordinates.getY());
-            view.layout(x, y, x + view.getMeasuredWidth(), y + view.getMeasuredHeight());
-            if (Math.abs(view.getX() - x) > EPSILON) {
-                view.setX(x);
-            }
-            if (Math.abs(view.getY() - y) > EPSILON) {
-                view.setY(y);
-            }
+            x = Math.round(coordinates.getX());
+            y = Math.round(coordinates.getY());
+        }
+        view.layout(x, y, x + view.getMeasuredWidth(), y + view.getMeasuredHeight());
+        if (Math.abs(view.getX() - x) > EPSILON) {
+            view.setX(x);
+        }
+        if (Math.abs(view.getY() - y) > EPSILON) {
+            view.setY(y);
         }
     }
 
@@ -143,10 +146,12 @@ public abstract class CardsLayoutWithBars<
             int x = Math.round(coordinates.getX());
             int y = Math.round(coordinates.getY());
             AnimatorSet firstBarAnimation = moveFirstBarToPosition(new int[]{x, y}, withAnimation, null);
-            if (animatorSet == null) {
-                animatorSet = firstBarAnimation;
-            } else {
-                animatorSet.playTogether(firstBarAnimation);
+            if (firstBarAnimation != null) {
+                if (animatorSet == null) {
+                    animatorSet = firstBarAnimation;
+                } else {
+                    animatorSet.playTogether(firstBarAnimation);
+                }
             }
         }
         if (secondBarView != null && secondBarView.getVisibility() != GONE) {
@@ -154,10 +159,12 @@ public abstract class CardsLayoutWithBars<
             int x = Math.round(coordinates.getX());
             int y = Math.round(coordinates.getY());
             AnimatorSet secondBarAnimation = moveSecondBarToPosition(new int[]{x, y}, withAnimation, null);
-            if (animatorSet == null) {
-                animatorSet = secondBarAnimation;
-            } else {
-                animatorSet.playTogether(secondBarAnimation);
+            if (secondBarAnimation != null) {
+                if (animatorSet == null) {
+                    animatorSet = secondBarAnimation;
+                } else {
+                    animatorSet.playTogether(secondBarAnimation);
+                }
             }
         }
         return animatorSet;
