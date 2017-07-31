@@ -434,21 +434,14 @@ public abstract class GameTableLayout<
     }
 
     protected <CV extends View & Card> void onLayoutCardInCardDeck(CV card, ThreeDCardCoordinates coordinates) {
-        int x;
-        int y;
-        if (card.isInAnimation()) {
-            x = Math.round(card.getX());
-            y = Math.round(card.getY());
-        } else {
-            int angle = Math.round(coordinates.getAngle());
-            x = Math.round(coordinates.getX());
-            y = Math.round(coordinates.getY());
-            card.setCardZ(coordinates.getZ());
-            card.setFirstX(x);
-            card.setFirstY(y);
-            card.setFirstRotation(angle);
-            card.setRotation(angle);
-        }
+        int angle = Math.round(coordinates.getAngle());
+        int x = Math.round(coordinates.getX());
+        int y = Math.round(coordinates.getY());
+        card.setCardZ(coordinates.getZ());
+        card.setFirstX(x);
+        card.setFirstY(y);
+        card.setFirstRotation(angle);
+        card.setRotation(angle);
         card.layout(x, y, x + card.getMeasuredWidth(), y + card.getMeasuredHeight());
         if (Math.abs(card.getX() - x) > EPSILON) {
             card.setX(x);
@@ -613,12 +606,14 @@ public abstract class GameTableLayout<
         if (entitiesByWaves.hasNext()) {
             List<Pair<Card, Layout>> cardLayoutPair = entitiesByWaves.next();
             List<Card> cards = new ArrayList<>();
-            List<Animator> animators = new ArrayList<>();
             for (Pair<Card, Layout> pair : cardLayoutPair) {
                 cards.add(pair.first);
-                animators.add(createAnimationForCard(pair.first, pair.second));
             }
             onStartDistributedCardWave(cards);
+            List<Animator> animators = new ArrayList<>();
+            for (Pair<Card, Layout> pair : cardLayoutPair) {
+                animators.add(createAnimationForCard(pair.first, pair.second));
+            }
             AnimatorSet animatorSet = new AnimatorSet();
             animatorSet.playTogether(animators);
             animatorSet.addListener(new AnimatorListenerAdapter() {
