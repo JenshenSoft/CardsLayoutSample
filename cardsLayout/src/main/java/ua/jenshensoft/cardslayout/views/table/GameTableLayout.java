@@ -378,11 +378,13 @@ public abstract class GameTableLayout<
     }
 
     protected void onEndDistributeCardWave(List<Card> cards) {
-        //set elevation
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            for (Card card : cards) {
+        for (Card card : cards) {
+            //set elevation
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 card.setCardZ(card.getNormalElevation());
             }
+            card.setX(card.getCardInfo().getFirstPositionX());
+            card.setY(card.getCardInfo().getFirstPositionY());
         }
         cardDeckCards.removeAll(cards);
         if (GameTableLayout.this.onDistributedCardsListener != null) {
@@ -434,14 +436,21 @@ public abstract class GameTableLayout<
     }
 
     protected <CV extends View & Card> void onLayoutCardInCardDeck(CV card, ThreeDCardCoordinates coordinates) {
-        int angle = Math.round(coordinates.getAngle());
-        int x = Math.round(coordinates.getX());
-        int y = Math.round(coordinates.getY());
-        card.setCardZ(coordinates.getZ());
-        card.setFirstX(x);
-        card.setFirstY(y);
-        card.setFirstRotation(angle);
-        card.setRotation(angle);
+        int x;
+        int y;
+        if (card.isInAnimation()) {
+            x = Math.round(card.getX());
+            y = Math.round(card.getY());
+        } else {
+            int angle = Math.round(coordinates.getAngle());
+            x = Math.round(coordinates.getX());
+            y = Math.round(coordinates.getY());
+            card.setCardZ(coordinates.getZ());
+            card.setFirstX(x);
+            card.setFirstY(y);
+            card.setFirstRotation(angle);
+            card.setRotation(angle);
+        }
         card.layout(x, y, x + card.getMeasuredWidth(), y + card.getMeasuredHeight());
         if (Math.abs(card.getX() - x) > EPSILON) {
             card.setX(x);
