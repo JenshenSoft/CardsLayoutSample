@@ -35,7 +35,6 @@ import ua.jenshensoft.cardslayout.pattern.models.ThreeDCardCoordinates;
 import ua.jenshensoft.cardslayout.util.CardsUtil;
 import ua.jenshensoft.cardslayout.util.DistributionState;
 import ua.jenshensoft.cardslayout.util.FlagManager;
-import ua.jenshensoft.cardslayout.views.ViewUpdateConfig;
 import ua.jenshensoft.cardslayout.views.card.Card;
 import ua.jenshensoft.cardslayout.views.layout.CardDeckView;
 import ua.jenshensoft.cardslayout.views.layout.CardsLayout;
@@ -58,7 +57,6 @@ public abstract class GameTableLayout<
     protected CardDeckView cardDeckView;
     //updaters
     protected ViewUpdater<GameTableParams> viewUpdater;
-    protected ViewUpdateConfig viewUpdateConfig;
     protected AnimatorHandler animationHandler;
     //attr
     @Nullable
@@ -383,8 +381,6 @@ public abstract class GameTableLayout<
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 card.setCardZ(card.getNormalElevation());
             }
-            card.setX(card.getCardInfo().getFirstPositionX());
-            card.setY(card.getCardInfo().getFirstPositionY());
         }
         cardDeckCards.removeAll(cards);
         if (GameTableLayout.this.onDistributedCardsListener != null) {
@@ -436,14 +432,21 @@ public abstract class GameTableLayout<
     }
 
     protected <CV extends View & Card> void onLayoutCardInCardDeck(CV card, ThreeDCardCoordinates coordinates) {
-        int angle = Math.round(coordinates.getAngle());
-        int x = Math.round(coordinates.getX());
-        int y = Math.round(coordinates.getY());
-        card.setCardZ(coordinates.getZ());
-        card.setFirstX(x);
-        card.setFirstY(y);
-        card.setFirstRotation(angle);
-        card.setRotation(angle);
+        int x;
+        int y;
+        if (card.isInAnimation()) {
+            x = Math.round(card.getX());
+            y = Math.round(card.getY());
+        } else {
+            int angle = Math.round(coordinates.getAngle());
+            x = Math.round(coordinates.getX());
+            y = Math.round(coordinates.getY());
+            card.setCardZ(coordinates.getZ());
+            card.setFirstX(x);
+            card.setFirstY(y);
+            card.setFirstRotation(angle);
+            card.setRotation(angle);
+        }
         card.layout(x, y, x + card.getMeasuredWidth(), y + card.getMeasuredHeight());
         if (Math.abs(card.getX() - x) > EPSILON) {
             card.setX(x);
@@ -510,7 +513,6 @@ public abstract class GameTableLayout<
 
     private void inflateLayout() {
         cardsLayouts = new ArrayList<>();
-        viewUpdateConfig = new ViewUpdateConfig(this);
         viewUpdater = new ViewUpdater<>(() -> !animationHandler.isOnDestroyed() && !animationHandler.isOnPause(), this);
         animationHandler = new AnimatorHandler();
         cardDeckGravity = new FlagManager(FlagManager.Gravity.CENTER);
@@ -527,7 +529,8 @@ public abstract class GameTableLayout<
 
     @SuppressWarnings("unchecked")
     private <CV extends View & Card> void onLayoutCardDeck(boolean changed) {
-        if (cardDeckCards.isEmpty()) {
+        List<Card> validatedCardDeckCards = getValidatedCardDeckCards();
+        if (validatedCardDeckCards == null) {
             return;
         }
         ThreeDCardCoordinates cardDeckPosition;
@@ -537,7 +540,7 @@ public abstract class GameTableLayout<
             List<ThreeDCardCoordinates> cardsCoordinates = cardDeckView.getCardsCoordinates();
             ThreeDCardCoordinates lastCardCoordinates = cardsCoordinates.get(cardsCoordinates.size() - 1);
             float cardDeckZ = 0;
-            for (Card card : cardDeckCards) {
+            for (Card card : validatedCardDeckCards) {
                 float cardZ = card.getCardZ();
                 if (cardZ > cardDeckZ) {
                     cardDeckZ = cardZ;
@@ -549,12 +552,12 @@ public abstract class GameTableLayout<
                     cardDeckZ,
                     0);
         } else {
-            cardDeckPosition = getCardDeckPosition(cardDeckCards);
+            cardDeckPosition = getCardDeckPosition(validatedCardDeckCards);
         }
 
         @SuppressLint("DrawAllocation")
         List<ThreeDCardCoordinates> cardsCoordinates = new CardDeckCoordinatesPattern(
-                cardDeckCards.size(),
+                validatedCardDeckCards.size(),
                 cardDeckCardOffsetX,
                 cardDeckCardOffsetY,
                 cardDeckCardOffsetZ,
@@ -562,7 +565,7 @@ public abstract class GameTableLayout<
                 cardDeckPosition.getY(),
                 cardDeckPosition.getZ())
                 .getCardsCoordinates();
-        onLayoutCardsInCardDeck(cardsCoordinates, cardDeckCards.iterator());
+        onLayoutCardsInCardDeck(cardsCoordinates, validatedCardDeckCards.iterator());
     }
 
     @SuppressWarnings("unchecked")
@@ -676,5 +679,19 @@ public abstract class GameTableLayout<
                 cardDeckCards.add(card);
             }
         }
+    }
+
+    @Nullable
+    private List<Card> getValidatedCardDeckCards() {
+        if (cardDeckCards == null || cardDeckCards.isEmpty()) {
+            return null;
+        }
+        final List<Card> validatedCards = new ArrayList<>();
+        for (Card card : cardDeckCards) {
+            if (!card.getCardInfo().isCardDistributed() && card.getVisibility() != GONE) {
+                validatedCards.add(card);
+            }
+        }
+        return validatedCards;
     }
 }

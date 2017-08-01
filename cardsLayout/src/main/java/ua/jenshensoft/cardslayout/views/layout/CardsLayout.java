@@ -41,7 +41,6 @@ import ua.jenshensoft.cardslayout.pattern.models.CardCoordinates;
 import ua.jenshensoft.cardslayout.util.DrawableUtils;
 import ua.jenshensoft.cardslayout.util.FlagManager;
 import ua.jenshensoft.cardslayout.util.SwipeGestureManager;
-import ua.jenshensoft.cardslayout.views.ViewUpdateConfig;
 import ua.jenshensoft.cardslayout.views.card.Card;
 import ua.jenshensoft.cardslayout.views.card.CardBoxView;
 import ua.jenshensoft.cardslayout.views.card.CardView;
@@ -69,7 +68,6 @@ public abstract class CardsLayout extends ViewGroup
     @Nullable
     protected Interpolator interpolator;
     protected OnCreateAnimatorAction defaultAnimatorAction;
-    protected ViewUpdateConfig viewUpdateConfig;
     protected ViewUpdater viewUpdater;
     protected AnimatorHandler animationHandler;
     //listeners
@@ -142,9 +140,7 @@ public abstract class CardsLayout extends ViewGroup
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        if (viewUpdateConfig.needUpdateViewOnLayout(changed)) {
-            onLayoutCards(getValidatedCardViews());
-        }
+        onLayoutCards(getValidatedCardViews());
         viewUpdater.onViewUpdated();
     }
 
@@ -577,9 +573,8 @@ public abstract class CardsLayout extends ViewGroup
     @SuppressWarnings("unchecked")
     protected <CV extends View & Card> void onLayoutCards(List<CV> cards) {
         List<CardCoordinates> startPositions = getViewsCoordinatesForStartPosition(cards);
-        List<CV> validatedCardViews = getValidatedCardViews();
-        for (int i = 0; i < validatedCardViews.size(); i++) {
-            CV child = validatedCardViews.get(i);
+        for (int i = 0; i < cards.size(); i++) {
+            CV child = cards.get(i);
             if (child.getVisibility() != GONE) {
                 CardCoordinates coordinates = startPositions.get(i);
                 onLayoutCard(child, coordinates);
@@ -828,7 +823,6 @@ public abstract class CardsLayout extends ViewGroup
                 return awesomeAnimation.build().getAnimatorSet();
             }
         };
-        viewUpdateConfig = new ViewUpdateConfig(this, false);
         viewUpdater = new ViewUpdater<>(() -> !animationHandler.isOnDestroyed() && !animationHandler.isOnPause(), null);
         onCardPercentageChangeListeners = new ArrayList<>();
         onCardSwipedListeners = new ArrayList<>();
@@ -881,15 +875,21 @@ public abstract class CardsLayout extends ViewGroup
             x = Math.round(card.getX());
             y = Math.round(card.getY());
         } else {
+            int angle = Math.round(coordinates.getAngle());
             x = Math.round(coordinates.getX());
             y = Math.round(coordinates.getY());
-            int angle = Math.round(coordinates.getAngle());
-            card.setRotation(angle);
             card.setFirstX(x);
             card.setFirstY(y);
             card.setFirstRotation(angle);
+            card.setRotation(angle);
         }
         card.layout(x, y, x + card.getMeasuredWidth(), y + card.getMeasuredHeight());
+        if (Math.abs(card.getX() - x) > EPSILON) {
+            card.setX(x);
+        }
+        if (Math.abs(card.getY() - y) > EPSILON) {
+            card.setY(y);
+        }
     }
 
 
