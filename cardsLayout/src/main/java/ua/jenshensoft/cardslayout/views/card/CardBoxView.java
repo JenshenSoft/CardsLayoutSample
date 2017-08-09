@@ -56,24 +56,22 @@ public class CardBoxView extends FrameLayout implements Card {
     }
 
     @Override
-    public void setEnabled(boolean enabled) {
-        super.setEnabled(enabled);
-        setScrollAndClickableState(enabled);
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (Card.class.isInstance(o)) {
-            Card card = (Card) o;
-            return cardInfo.equals(card.getCardInfo());
-        }
-        return false;
+        if (!(o instanceof CardBoxView)) return false;
+        CardBoxView that = (CardBoxView) o;
+        return cardInfo != null ? cardInfo.equals(that.cardInfo) : that.cardInfo == null;
     }
 
     @Override
     public int hashCode() {
-        return cardInfo.hashCode();
+        return cardInfo != null ? cardInfo.hashCode() : 0;
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        setScrollAndClickableState(enabled);
     }
 
     @Override
