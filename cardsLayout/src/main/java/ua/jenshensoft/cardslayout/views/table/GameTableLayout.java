@@ -624,8 +624,10 @@ public abstract class GameTableLayout<
             animatorSet.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    onEndDistributeCardWave(cards);
-                    post(() -> distributeWave(entitiesByWaves));
+                    post(() -> {
+                        onEndDistributeCardWave(cards);
+                        distributeWave(entitiesByWaves);
+                    });
                 }
             });
             if (interpolator != null) {
