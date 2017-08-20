@@ -9,6 +9,7 @@
 
     <ua.jenshensoft.cardslayoutsample.views.debertz.DebertzGameTableLayout
         android:layout_width="match_parent"
+        android:id="@+id/debertzTable"
         android:layout_height="match_parent"
         style="@style/Widget.TableLayout" />
 </FrameLayout>

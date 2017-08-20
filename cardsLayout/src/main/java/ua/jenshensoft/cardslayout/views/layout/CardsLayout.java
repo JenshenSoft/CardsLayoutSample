@@ -317,12 +317,12 @@ public abstract class CardsLayout extends ViewGroup
         viewUpdater.addAction(calledInOnMeasure -> onInvalidateCardsPosition(withAnimation, onCreateAnimatorAction, animatorListenerAdapter));
     }
 
+
+    /* listeners */
+
     public void addCardTranslationListener(OnCardTranslationListener cardTranslationListener) {
         this.onCardTranslationListeners.add(cardTranslationListener);
     }
-
-    
-    /* listeners */
 
     public void addCardPercentageChangeListener(OnCardPercentageChangeListener onCardPercentageChangeListener) {
         this.onCardPercentageChangeListeners.add(onCardPercentageChangeListener);

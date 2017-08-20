@@ -78,6 +78,7 @@ public abstract class GameTableLayout<
     @Nullable
     private OnDistributedCardsListener onDistributedCardsListener;
     private boolean onDistributeAnimation;
+    private boolean cardTriggered;
 
     public GameTableLayout(Context context) {
         super(context);
@@ -124,7 +125,7 @@ public abstract class GameTableLayout<
                     setSwipeValidatorEnabled(layout);
                 }
                 if (isEnableTransition) {
-                    setPercentageValidatorEnabled(layout);
+                    setPercentageValidator(layout);
                 }
             }
         } else if (child instanceof CardDeckView) {
@@ -264,7 +265,7 @@ public abstract class GameTableLayout<
         });
     }
 
-    public void setPercentageValidatorEnabled(final Layout cardsLayout) {
+    public void setPercentageValidator(final Layout cardsLayout) {
         cardsLayout.addCardPercentageChangeListener((percentageX, percentageY, cardInfo, isTouched) -> {
             if (!isTouched) {
                 if (!cardsLayout.isEnabled()) {
@@ -277,6 +278,7 @@ public abstract class GameTableLayout<
                 if (cardsLayout.isEnabled()) {
                     cardsLayout.setEnabledCards(false, Collections.singletonList(cardInfo.getCardPositionInLayout()));
                 }
+                cardTriggered = false;
             }
         });
     }
@@ -591,9 +593,13 @@ public abstract class GameTableLayout<
     }
 
     private void onActionWithCard(CardInfo cardInfo) {
+        if (cardTriggered) {
+            return;
+        }
         if (onCardClickListener != null) {
             onCardClickListener.onCardAction(cardInfo);
         }
+        cardTriggered = true;
     }
 
     private boolean hasDistributionState() {
