@@ -83,6 +83,21 @@ public class FlagManager implements Cloneable {
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof FlagManager)) return false;
+
+        FlagManager that = (FlagManager) o;
+
+        return flagSet == that.flagSet;
+    }
+
+    @Override
+    public int hashCode() {
+        return flagSet;
+    }
+
     @IntDef(value = {RIGHT, LEFT, TOP, BOTTOM, CENTER, CENTER_HORIZONTAL, CENTER_VERTICAL, EMPTY}, flag = true)
     @Retention(RetentionPolicy.SOURCE)
     public @interface Gravity {
