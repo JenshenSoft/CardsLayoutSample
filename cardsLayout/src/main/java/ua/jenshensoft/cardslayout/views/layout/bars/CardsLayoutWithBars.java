@@ -135,6 +135,14 @@ public abstract class CardsLayoutWithBars<
         }
     }
 
+    public int getBarsMargin() {
+        return barsMargin;
+    }
+
+    public void setBarsMargin(int barsMargin) {
+        this.barsMargin = barsMargin;
+    }
+
     /* protected methods */
 
     @Nullable

@@ -1,6 +1,6 @@
 package ua.jenshensoft.cardslayout.views.layout.bars;
 
-class AnchorViewInfo {
+public class AnchorViewInfo {
     private int firstPositionX;
     private int firstPositionY;
     private int cardsLayoutWidth;
@@ -13,19 +13,19 @@ class AnchorViewInfo {
         this.cardsLayoutHeight = cardsLayoutHeight;
     }
 
-    int getFirstPositionX() {
+    public int getFirstPositionX() {
         return firstPositionX;
     }
 
-    int getFirstPositionY() {
+    public int getFirstPositionY() {
         return firstPositionY;
     }
 
-    int getCardsLayoutWidth() {
+    public int getCardsLayoutWidth() {
         return cardsLayoutWidth;
     }
 
-    int getCardsLayoutHeight() {
+    public int getCardsLayoutHeight() {
         return cardsLayoutHeight;
     }
 }
