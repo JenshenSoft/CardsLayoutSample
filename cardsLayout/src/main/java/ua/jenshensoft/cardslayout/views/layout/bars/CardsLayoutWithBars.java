@@ -316,19 +316,13 @@ public abstract class CardsLayoutWithBars<
         }
 
         if (firstBarView != null) {
-            final int[] coordinatesFirstBar = getBarCoordinates(firstBarGravity, getAnchorViewInfo(firstBarAnchorPosition), firstBarView);
-            barCoordinates.add(new BarCoordinates(
-                    coordinatesFirstBar[0],
-                    coordinatesFirstBar[1],
-                    !this.firstBarAnchorGravity.equals(firstBarGravity)));
+            boolean spread = !this.firstBarAnchorGravity.equals(firstBarGravity);
+            barCoordinates.add(getBarCoordinates(firstBarGravity, getAnchorViewInfo(firstBarAnchorPosition), firstBarView, spread));
         }
 
         if (secondBarView != null) {
-            int[] coordinatesSecondBar = getBarCoordinates(secondBarGravity, getAnchorViewInfo(secondBarAnchorPosition), secondBarView);
-            barCoordinates.add(new BarCoordinates(
-                    coordinatesSecondBar[0],
-                    coordinatesSecondBar[1],
-                    !this.secondBarAnchorGravity.equals(secondBarGravity)));
+            boolean spread = !this.secondBarAnchorGravity.equals(secondBarGravity);
+            barCoordinates.add(getBarCoordinates(secondBarGravity, getAnchorViewInfo(secondBarAnchorPosition), secondBarView, spread));
         }
         return barCoordinates;
     }
@@ -418,13 +412,13 @@ public abstract class CardsLayoutWithBars<
         return positionsForBars;
     }
 
-    private int[] getBarCoordinates(FlagManager flagManager, AnchorViewInfo anchorViewInfo, View view) {
-        int x = getXPositionForBar(flagManager, anchorViewInfo, view);
-        int y = getYPositionForBar(flagManager, anchorViewInfo, view);
-        return new int[]{x, y};
+    private BarCoordinates getBarCoordinates(FlagManager flagManager, AnchorViewInfo anchorViewInfo, View view, boolean spread) {
+        int x = getXPositionForBar(flagManager, anchorViewInfo, view, spread);
+        int y = getYPositionForBar(flagManager, anchorViewInfo, view, spread);
+        return new BarCoordinates(x, y, spread);
     }
 
-    protected int getXPositionForBar(FlagManager gravityFlag, AnchorViewInfo anchorViewInfo, View barView) {
+    protected int getXPositionForBar(FlagManager gravityFlag, AnchorViewInfo anchorViewInfo, View barView, boolean spread) {
         int firstPositionX = anchorViewInfo.getFirstPositionX();
         int cardsLayoutWidth = anchorViewInfo.getCardsLayoutWidth();
         if (gravityFlag.containsFlag(FlagManager.Gravity.LEFT)) {
@@ -439,7 +433,7 @@ public abstract class CardsLayoutWithBars<
         }
     }
 
-    protected int getYPositionForBar(FlagManager gravityFlag, AnchorViewInfo anchorViewInfo, View barView) {
+    protected int getYPositionForBar(FlagManager gravityFlag, AnchorViewInfo anchorViewInfo, View barView, boolean spread) {
         int firstPositionY = anchorViewInfo.getFirstPositionY();
         int cardsLayoutHeight = anchorViewInfo.getCardsLayoutHeight();
         if (gravityFlag.containsFlag(FlagManager.Gravity.TOP)) {
