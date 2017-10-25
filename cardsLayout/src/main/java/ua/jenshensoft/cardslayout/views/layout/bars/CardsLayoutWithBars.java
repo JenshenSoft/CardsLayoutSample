@@ -254,45 +254,7 @@ public abstract class CardsLayoutWithBars<
         return cardCoordinates;
     }
 
-
-    /* private methods */
-
-    @SuppressWarnings({"unchecked", "WrongConstant"})
-    private void inflateAttributesWithAdditional(AttributeSet attrs) {
-        if (attrs != null) {
-            TypedArray attributes = getContext().obtainStyledAttributes(attrs, R.styleable.CardsLayoutAV);
-            try {
-                firstBarAnchorGravity = new FlagManager(attributes.getInt(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_cardsLayoutAV_firstBar_anchorGravity, FlagManager.Gravity.LEFT | FlagManager.Gravity.CENTER_VERTICAL));
-                secondBarAnchorGravity = new FlagManager(attributes.getInt(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_cardsLayoutAV_secondBar_anchorGravity, FlagManager.Gravity.RIGHT | FlagManager.Gravity.CENTER_VERTICAL));
-                firstBarAnchorPosition = attributes.getInt(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_cardsLayoutAV_firstBar_anchorPosition, VIEW_POSITION_START);
-                secondBarAnchorPosition = attributes.getInt(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_cardsLayoutAV_secondBar_anchorPosition, VIEW_POSITION_END);
-                distributeBarsByWidth = attributes.getBoolean(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_cardsLayoutAV_distributeBars_byWidth, false);
-                distributeBarsByHeight = attributes.getBoolean(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_cardsLayoutAV_distributeBars_byHeight, false);
-                barsMargin = attributes.getDimensionPixelOffset(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_cardsLayoutAV_barsMargin, 0);
-                try {
-                    String userBarClassName = attributes.getString(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_cardsLayoutAV_firstBarViewClass);
-                    if (userBarClassName != null) {
-                        this.firstBarClassName = (Class<FirstBarView>) Class.forName(userBarClassName);
-                    }
-                    String gamInfoBarClassName = attributes.getString(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_cardsLayoutAV_secondBarViewClass);
-                    if (gamInfoBarClassName != null) {
-                        this.secondBarClassName = (Class<SecondBarView>) Class.forName(gamInfoBarClassName);
-                    }
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                    Log.e(getContext().getString(ua.jenshensoft.cardslayout.R.string.cardsLayout_app_name), "You need to set your class name in layout attr!");
-                }
-
-                if (distributeBarsByHeight && distributeBarsByWidth) {
-                    throw new RuntimeException("You can't use both of distribute attr, use only distributeBarsByHeight or distributeBarsByWidth");
-                }
-            } finally {
-                attributes.recycle();
-            }
-        }
-    }
-
-    private List<BarCoordinates> getCoordinatesForBars() {
+    protected List<BarCoordinates> getCoordinatesForBars() {
         List<Card> cardViews = getCards();
         List<BarCoordinates> barCoordinates = new ArrayList<>();
 
@@ -333,6 +295,44 @@ public abstract class CardsLayoutWithBars<
             barCoordinates.add(getBarCoordinates(secondBarGravity, getAnchorViewInfo(secondBarAnchorPosition), secondBarView, spread));
         }
         return barCoordinates;
+    }
+
+
+    /* private methods */
+
+    @SuppressWarnings({"unchecked", "WrongConstant"})
+    private void inflateAttributesWithAdditional(AttributeSet attrs) {
+        if (attrs != null) {
+            TypedArray attributes = getContext().obtainStyledAttributes(attrs, R.styleable.CardsLayoutAV);
+            try {
+                firstBarAnchorGravity = new FlagManager(attributes.getInt(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_cardsLayoutAV_firstBar_anchorGravity, FlagManager.Gravity.LEFT | FlagManager.Gravity.CENTER_VERTICAL));
+                secondBarAnchorGravity = new FlagManager(attributes.getInt(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_cardsLayoutAV_secondBar_anchorGravity, FlagManager.Gravity.RIGHT | FlagManager.Gravity.CENTER_VERTICAL));
+                firstBarAnchorPosition = attributes.getInt(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_cardsLayoutAV_firstBar_anchorPosition, VIEW_POSITION_START);
+                secondBarAnchorPosition = attributes.getInt(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_cardsLayoutAV_secondBar_anchorPosition, VIEW_POSITION_END);
+                distributeBarsByWidth = attributes.getBoolean(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_cardsLayoutAV_distributeBars_byWidth, false);
+                distributeBarsByHeight = attributes.getBoolean(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_cardsLayoutAV_distributeBars_byHeight, false);
+                barsMargin = attributes.getDimensionPixelOffset(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_cardsLayoutAV_barsMargin, 0);
+                try {
+                    String userBarClassName = attributes.getString(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_cardsLayoutAV_firstBarViewClass);
+                    if (userBarClassName != null) {
+                        this.firstBarClassName = (Class<FirstBarView>) Class.forName(userBarClassName);
+                    }
+                    String gamInfoBarClassName = attributes.getString(ua.jenshensoft.cardslayout.R.styleable.CardsLayoutAV_cardsLayoutAV_secondBarViewClass);
+                    if (gamInfoBarClassName != null) {
+                        this.secondBarClassName = (Class<SecondBarView>) Class.forName(gamInfoBarClassName);
+                    }
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                    Log.e(getContext().getString(ua.jenshensoft.cardslayout.R.string.cardsLayout_app_name), "You need to set your class name in layout attr!");
+                }
+
+                if (distributeBarsByHeight && distributeBarsByWidth) {
+                    throw new RuntimeException("You can't use both of distribute attr, use only distributeBarsByHeight or distributeBarsByWidth");
+                }
+            } finally {
+                attributes.recycle();
+            }
+        }
     }
 
     private <CV extends View & Card> AnchorViewInfo getAnchorViewInfo(@AnchorPosition int position) {
