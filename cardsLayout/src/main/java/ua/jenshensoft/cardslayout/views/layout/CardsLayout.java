@@ -200,14 +200,18 @@ public abstract class CardsLayout extends ViewGroup
     protected void onVisibilityChanged(@NonNull View changedView, int visibility) {
         super.onVisibilityChanged(changedView, visibility);
         animationHandler.onVisibilityChanged(visibility);
-        viewUpdater.ping();
+        if (visibility == VISIBLE) {
+            viewUpdater.ping();
+        }
     }
 
     @Override
     public void onWindowFocusChanged(boolean hasWindowFocus) {
         super.onWindowFocusChanged(hasWindowFocus);
         animationHandler.onWindowFocusChanged(hasWindowFocus);
-        viewUpdater.ping();
+        if (hasWindowFocus) {
+            viewUpdater.ping();
+        }
     }
 
     @SuppressWarnings("unchecked")
