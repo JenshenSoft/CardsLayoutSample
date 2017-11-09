@@ -18,9 +18,9 @@ import ua.jenshensoft.cardslayout.views.updater.model.ViewUpdaterParams;
 public class ViewUpdater<P extends ViewUpdaterParams> {
 
     @Nullable
-    private final MeasurePredicate predicate;
-    @Nullable
     private final OnViewParamsUpdate<P> viewParamsUpdate;
+    @Nullable
+    private MeasurePredicate predicate;
     @Nullable
     private P params;
     private boolean updated;
@@ -63,6 +63,10 @@ public class ViewUpdater<P extends ViewUpdaterParams> {
         return params;
     }
 
+    public void setParams(@NonNull P params) {
+        setParams(params, true);
+    }
+
     public void addActionToQueue(@NonNull ViewUpdaterQueueAction params) {
         addActionToQueue(params, true);
     }
@@ -89,10 +93,6 @@ public class ViewUpdater<P extends ViewUpdaterParams> {
         }
     }
 
-    public void setParams(@NonNull P params) {
-        setParams(params, true);
-    }
-
     public void setParams(@NonNull P params, boolean update) {
         this.params = params;
         if (update) {
@@ -115,6 +115,7 @@ public class ViewUpdater<P extends ViewUpdaterParams> {
     }
 
     public void clear() {
+        predicate = null;
         updated = false;
         isPassingOnQueue = false;
         params = null;
@@ -153,10 +154,11 @@ public class ViewUpdater<P extends ViewUpdaterParams> {
             ViewUpdaterQueueAction queueAction = queueActions.element();
             OnQueueActionFinished actionFinished = new OnQueueActionFinished();
             actionFinished.addAction(() -> {
+                queueActions.remove(queueAction);
+                actionFinished.clear();
                 if (!isPassingOnQueue) {
                     return;
                 }
-                queueActions.remove(queueAction);
                 invokeQueueActions(calledInOnMeasure, queueActions);
             });
             queueAction.onAction(actionFinished, calledInOnMeasure);

@@ -1,5 +1,7 @@
 package ua.jenshensoft.cardslayout.views.updater.callback;
 
+import android.support.annotation.Nullable;
+
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -9,6 +11,8 @@ public class OnQueueActionFinished {
 
     private boolean finished;
     private List<Action> actions;
+    @Nullable
+    private HandlerTimer handlerTimer;
 
     public void addAction(Action action) {
         if (finished) {
@@ -23,7 +27,8 @@ public class OnQueueActionFinished {
 
     public void finishWithDelay(final long delay) {
         if (delay > 0) {
-            HandlerTimer handlerTimer = new HandlerTimer();
+            clearTimer();
+            handlerTimer = new HandlerTimer();
             handlerTimer.schedule(() -> {
                 handlerTimer.cancel();
                 if (!finished) {
@@ -43,6 +48,18 @@ public class OnQueueActionFinished {
             }
             actions.clear();
             actions = null;
+        }
+    }
+
+    public void clear() {
+        clearTimer();
+        actions.clear();
+    }
+
+    private void clearTimer() {
+        if (handlerTimer != null) {
+            handlerTimer.cancel();
+            handlerTimer = null;
         }
     }
 
