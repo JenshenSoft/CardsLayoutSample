@@ -276,13 +276,15 @@ public abstract class CardsLayoutWithBars<
         FlagManager secondBarGravity = this.secondBarAnchorGravity;
 
         if (distributeBarsByWidth) {
-            firstBarGravity = validateAnchorGravityByWidthDistribution(firstBarAnchorPosition);
-            secondBarGravity = validateAnchorGravityByWidthDistribution(secondBarAnchorPosition);
+            boolean canDistributeByWidth = canDistributeByWidth();
+            firstBarGravity = validateAnchorGravityByWidthDistribution(canDistributeByWidth, firstBarAnchorPosition);
+            secondBarGravity = validateAnchorGravityByWidthDistribution(canDistributeByWidth, secondBarAnchorPosition);
         }
 
         if (distributeBarsByHeight) {
-            firstBarGravity = validateAnchorGravityByHeightDistribution(firstBarAnchorPosition);
-            secondBarGravity = validateAnchorGravityByHeightDistribution(secondBarAnchorPosition);
+            boolean canDistributeByHeight = canDistributeByHeight();
+            firstBarGravity = validateAnchorGravityByHeightDistribution(canDistributeByHeight, firstBarAnchorPosition);
+            secondBarGravity = validateAnchorGravityByHeightDistribution(canDistributeByHeight, secondBarAnchorPosition);
         }
 
         if (firstBarView != null) {
@@ -420,7 +422,7 @@ public abstract class CardsLayoutWithBars<
         return positionsForBars;
     }
 
-    private BarCoordinates getBarCoordinates(FlagManager flagManager, AnchorViewInfo anchorViewInfo, View view, boolean spread) {
+    protected BarCoordinates getBarCoordinates(FlagManager flagManager, AnchorViewInfo anchorViewInfo, View view, boolean spread) {
         int x = getXPositionForBar(flagManager, anchorViewInfo, view, spread);
         int y = getYPositionForBar(flagManager, anchorViewInfo, view, spread);
         return new BarCoordinates(x, y, spread);
@@ -488,9 +490,9 @@ public abstract class CardsLayoutWithBars<
         return difference >= additionalViewsHeight;
     }
 
-    private FlagManager validateAnchorGravityByWidthDistribution(@AnchorPosition int position) {
+    protected FlagManager validateAnchorGravityByWidthDistribution(boolean canDistributeByWidth, @AnchorPosition int position) {
         FlagManager flagManager = new FlagManager();
-        if (canDistributeByWidth()) {
+        if (canDistributeByWidth) {
             if (position == VIEW_POSITION_START) {
                 flagManager.addFlag(FlagManager.Gravity.LEFT);
                 flagManager.addFlag(FlagManager.Gravity.CENTER_VERTICAL);
@@ -514,9 +516,9 @@ public abstract class CardsLayoutWithBars<
         return flagManager;
     }
 
-    private FlagManager validateAnchorGravityByHeightDistribution(@AnchorPosition int position) {
+    protected FlagManager validateAnchorGravityByHeightDistribution(boolean canDistributeByHeight, @AnchorPosition int position) {
         FlagManager flagManager = new FlagManager();
-        if (canDistributeByHeight()) {
+        if (canDistributeByHeight) {
             if (position == VIEW_POSITION_START) {
                 flagManager.addFlag(FlagManager.Gravity.TOP);
                 flagManager.addFlag(FlagManager.Gravity.CENTER_HORIZONTAL);
