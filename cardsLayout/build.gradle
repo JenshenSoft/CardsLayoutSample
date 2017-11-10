@@ -13,7 +13,7 @@ def gitUrl = 'https://github.com/JenshenSoft/CardsLayoutSample.git'
 def libDesc = 'CardsLayout android library'
 
 group = "ua.jenshensoft"
-version = "0.9220"
+version = "0.9221"
 
 allprojects {
     repositories {

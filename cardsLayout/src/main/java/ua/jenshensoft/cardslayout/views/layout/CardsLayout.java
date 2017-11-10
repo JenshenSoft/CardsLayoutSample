@@ -199,18 +199,22 @@ public abstract class CardsLayout extends ViewGroup
     @Override
     protected void onVisibilityChanged(@NonNull View changedView, int visibility) {
         super.onVisibilityChanged(changedView, visibility);
-        animationHandler.onVisibilityChanged(visibility);
-        if (visibility == VISIBLE) {
-            viewUpdater.ping();
+        if (animationHandler != null) {
+            animationHandler.onVisibilityChanged(visibility);
+            if (visibility == VISIBLE) {
+                viewUpdater.ping();
+            }
         }
     }
 
     @Override
     public void onWindowFocusChanged(boolean hasWindowFocus) {
         super.onWindowFocusChanged(hasWindowFocus);
-        animationHandler.onWindowFocusChanged(hasWindowFocus);
-        if (hasWindowFocus) {
-            viewUpdater.ping();
+        if (animationHandler != null) {
+            animationHandler.onWindowFocusChanged(hasWindowFocus);
+            if (hasWindowFocus) {
+                viewUpdater.ping();
+            }
         }
     }
 
