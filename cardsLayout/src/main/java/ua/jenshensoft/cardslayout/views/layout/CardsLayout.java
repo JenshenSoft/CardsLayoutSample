@@ -993,6 +993,15 @@ public abstract class CardsLayout extends ViewGroup
         return validatedCards;
     }
 
+    @Override
+    public String toString() {
+        return "CardsLayout{" +
+                "childListOrientation=" + childListOrientation +
+                ", childList_distributeCardsBy=" + childList_distributeCardsBy +
+                ", cards=" + cards +
+                '}';
+    }
+
     @FunctionalInterface
     public interface OnCreateAnimatorAction {
         <CV extends View & Card> Animator createAnimation(CV cardView);

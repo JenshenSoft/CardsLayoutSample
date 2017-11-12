@@ -257,4 +257,11 @@ public class CardBoxView extends FrameLayout implements Card {
         swipeManager = builder.create();
         setOnTouchListener(swipeManager);
     }
+
+    @Override
+    public String toString() {
+        return "CardBoxView{" +
+                "cardInfo=" + cardInfo +
+                '}';
+    }
 }

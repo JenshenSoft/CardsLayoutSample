@@ -257,4 +257,11 @@ public class CardView extends AppCompatImageView implements Card {
         swipeManager = builder.create();
         setOnTouchListener(swipeManager);
     }
+
+    @Override
+    public String toString() {
+        return "CardView{" +
+                "cardInfo=" + cardInfo +
+                '}';
+    }
 }

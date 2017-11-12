@@ -91,6 +91,19 @@ public class CardInfo {
         result = 31 * result + (entity != null ? entity.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "CardInfo{" +
+                "cardPositionInLayout=" + cardPositionInLayout +
+                ", firstPositionX=" + firstPositionX +
+                ", firstPositionY=" + firstPositionY +
+                ", firstRotation=" + firstRotation +
+                ", hasFilter=" + hasFilter +
+                ", cardDistributed=" + cardDistributed +
+                ", entity=" + entity +
+                '}';
+    }
 }
 
 
