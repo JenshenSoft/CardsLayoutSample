@@ -130,20 +130,6 @@ public abstract class CardsLayout extends ViewGroup
         }
     }
 
-    /* lifecycle */
-
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        measureChildren(widthMeasureSpec, heightMeasureSpec);
-    }
-
-    @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        onLayoutCards(getValidatedCardViews());
-        viewUpdater.onViewUpdated();
-    }
-
     /* layout params */
 
     @Override
@@ -216,6 +202,20 @@ public abstract class CardsLayout extends ViewGroup
                 viewUpdater.ping();
             }
         }
+    }
+
+    /* lifecycle */
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        measureChildren(widthMeasureSpec, heightMeasureSpec);
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        onLayoutCards(getValidatedCardViews());
+        viewUpdater.onViewUpdated();
     }
 
     @SuppressWarnings("unchecked")

@@ -11,15 +11,6 @@ public class CardCoordinates {
         this.angle = angle;
     }
 
-    @Override
-    public String toString() {
-        return "CardCoordinates{" +
-                "x=" + x +
-                ", y=" + y +
-                ", angle=" + angle +
-                '}';
-    }
-
     public float getAngle() {
         return angle;
     }
@@ -42,5 +33,14 @@ public class CardCoordinates {
 
     public void setY(float y) {
         this.y = y;
+    }
+
+    @Override
+    public String toString() {
+        return "CardCoordinates{" +
+                "x=" + x +
+                ", y=" + y +
+                ", angle=" + angle +
+                '}';
     }
 }

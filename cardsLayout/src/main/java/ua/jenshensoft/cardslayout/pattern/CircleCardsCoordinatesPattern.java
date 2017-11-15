@@ -76,7 +76,7 @@ public class CircleCardsCoordinatesPattern implements CardCoordinatesPattern {
     public List<CardCoordinates> getCardsCoordinates() {
         List<CardCoordinates> cardsCoordinates = new ArrayList<>();
         boolean isLeftArc = true;
-        float fault = 0.0001f;
+        float fault = 0.001f;
         float angle = 0f;
         for (int i = 0; i < cardsCount; i++) {
             if (i == 0) {// for first card
@@ -91,13 +91,21 @@ public class CircleCardsCoordinatesPattern implements CardCoordinatesPattern {
                         angle -= 90f;
                         angle = 90f - angle;
                     } else {
-                        throw new RuntimeException("Something went wrong");
+                        throw new RuntimeException("Something went wrong, angle = " + angle
+                                + ", startAngle: " + startAngle
+                                + ", endAngle: " + endAngle
+                                + ", cardSectorAngle: " + cardSectorAngle
+                                + ", cardsCoordinates: " + cardsCoordinates);
                     }
                 } else {
                     if (angle - cardSectorAngle + fault >= endAngle && angle - cardSectorAngle - fault <= 90) {
                         angle -= cardSectorAngle;
                     } else {
-                        throw new RuntimeException("Something went wrong");
+                        throw new RuntimeException("Something went wrong, angle = " + angle
+                                + ", startAngle: " + startAngle
+                                + ", endAngle: " + endAngle
+                                + ", cardSectorAngle: " + cardSectorAngle
+                                + ", cardsCoordinates: " + cardsCoordinates);
                     }
                 }
             }
