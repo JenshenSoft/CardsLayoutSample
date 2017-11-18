@@ -279,6 +279,12 @@ public abstract class CardsLayout extends ViewGroup
         invalidateCardsPosition(true);
     }
 
+    @Override
+    public void removeAllViews() {
+        super.removeAllViews();
+        cards.clear();
+    }
+
     public void setIsTestMode() {
         if (childList_height != EMPTY) {
             childList_height += getContext().getResources().getDimensionPixelOffset(R.dimen.cardsLayout_test_card_offset);
