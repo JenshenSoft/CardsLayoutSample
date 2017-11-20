@@ -100,7 +100,7 @@
         <!-- card deck -->
         <attr name="gameTableLayout_canAutoDistribute" format="boolean" />
         <attr name="gameTableLayout_cardDeckEnable" format="boolean" />
-        <attr name="gameTableLayout_cardDeckGravity">
+        <attr name="gameTableLayout_cardDeck_layoutGravity">
             <flag name="right" value="1" />
             <flag name="left" value="2" />
             <flag name="top" value="4" />
@@ -119,5 +119,14 @@
         <attr name="cardDeck_cardDeck_cardOffset_x" format="dimension" />
         <attr name="cardDeck_cardDeck_cardOffset_y" format="dimension" />
         <attr name="cardDeck_cardDeck_cardOffset_z" format="dimension" />
+        <attr name="cardDeck_gravity">
+            <flag name="right" value="1" />
+            <flag name="left" value="2" />
+            <flag name="top" value="4" />
+            <flag name="bottom" value="8" />
+            <flag name="center" value="16" />
+            <flag name="center_horizontal" value="32" />
+            <flag name="center_vertical" value="64" />
+        </attr>
     </declare-styleable>
 </resources>

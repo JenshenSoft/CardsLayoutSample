@@ -18,6 +18,7 @@ import ua.jenshensoft.cardslayout.CardInfo;
 import ua.jenshensoft.cardslayout.R;
 import ua.jenshensoft.cardslayout.pattern.CardDeckCoordinatesPattern;
 import ua.jenshensoft.cardslayout.pattern.models.ThreeDCardCoordinates;
+import ua.jenshensoft.cardslayout.util.FlagManager;
 import ua.jenshensoft.cardslayout.views.ViewUpdateConfig;
 import ua.jenshensoft.cardslayout.views.card.Card;
 import ua.jenshensoft.cardslayout.views.card.CardBoxView;
@@ -38,6 +39,7 @@ public abstract class CardDeckView extends ViewGroup {
     private float offsetRight = -1;
     private float offsetTop = -1;
     private float offsetBottom = -1;
+    private FlagManager cardDeckGravity;
 
     private List<ThreeDCardCoordinates> cardsCoordinates;
 
@@ -177,8 +179,8 @@ public abstract class CardDeckView extends ViewGroup {
             }
         }
         return new ThreeDCardCoordinates(
-                getMeasuredWidth() / 2 - maxWidth / 2f,
-                getMeasuredHeight() / 2 - maxHeight / 2f,
+                getXPositionForCardDeck(maxWidth, getMeasuredWidth()),
+                getYPositionForCardDeck(maxHeight, getMeasuredHeight()),
                 maxElevation,
                 0);
     }
@@ -212,6 +214,10 @@ public abstract class CardDeckView extends ViewGroup {
                 offsetRight = attributes.getDimension(R.styleable.CardDeckView_cardDeck_offsetRight, offsetRight);
                 offsetTop = attributes.getDimension(R.styleable.CardDeckView_cardDeck_offsetTop, offsetTop);
                 offsetBottom = attributes.getDimension(R.styleable.CardDeckView_cardDeck_offsetBottom, offsetBottom);
+               int flagSet = attributes.getInt(R.styleable.CardDeckView_cardDeck_gravity, -1);
+                if (flagSet != -1) {
+                    cardDeckGravity = new FlagManager(flagSet);
+                }
             } finally {
                 attributes.recycle();
             }
@@ -222,7 +228,9 @@ public abstract class CardDeckView extends ViewGroup {
         cards = new ArrayList<>();
         viewUpdater = new ViewUpdater<>();
         viewUpdateConfig = new ViewUpdateConfig(this);
-
+        if (cardDeckGravity == null) {
+            cardDeckGravity = new FlagManager(FlagManager.Gravity.CENTER);
+        }
         if (Math.abs(cardDeckCardOffsetX - (-1)) < EPSILON) {
             cardDeckCardOffsetX = getResources().getDimension(R.dimen.cardsLayout_shadow_desk_offset);
         }
@@ -246,6 +254,33 @@ public abstract class CardDeckView extends ViewGroup {
             offsetBottom = getResources().getDimension(R.dimen.cardsLayout_cardDeck_offset);
         }
     }
+
+    protected float getXPositionForCardDeck(float widthOfCardDeck, float rootWidth) {
+        float cardPositionX = 0;
+        if (cardDeckGravity.containsFlag(FlagManager.Gravity.LEFT)) {
+            cardPositionX = offsetLeft;
+        } else if (cardDeckGravity.containsFlag(FlagManager.Gravity.RIGHT)) {
+            cardPositionX = rootWidth - widthOfCardDeck - offsetRight;
+        } else if (cardDeckGravity.containsFlag(FlagManager.Gravity.CENTER_HORIZONTAL)
+                || cardDeckGravity.containsFlag(FlagManager.Gravity.CENTER)) {
+            cardPositionX = rootWidth / 2f - widthOfCardDeck / 2f;
+        }
+        return cardPositionX;
+    }
+
+    protected float getYPositionForCardDeck(float heightOfCardDeck, float rootHeight) {
+        float cardPositionY = 0;
+        if (cardDeckGravity.containsFlag(FlagManager.Gravity.TOP)) {
+            cardPositionY = offsetTop;
+        } else if (cardDeckGravity.containsFlag(FlagManager.Gravity.BOTTOM)) {
+            cardPositionY = rootHeight - heightOfCardDeck - offsetBottom;
+        } else if (cardDeckGravity.containsFlag(FlagManager.Gravity.CENTER_VERTICAL)
+                || cardDeckGravity.containsFlag(FlagManager.Gravity.CENTER)) {
+            cardPositionY = rootHeight / 2f - heightOfCardDeck / 2f;
+        }
+        return cardPositionY;
+    }
+
 
     /* card view methods */
 

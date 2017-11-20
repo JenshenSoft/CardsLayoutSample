@@ -84,7 +84,7 @@
         <!--carddeck-->
         <item name="gameTableLayout_canAutoDistribute">true</item>
         <item name="gameTableLayout_cardDeckEnable">true</item>
-        <item name="gameTableLayout_cardDeckGravity">center</item>
+        <item name="gameTableLayout_cardDeck_layoutGravity">center_horizontal|top</item>
         <item name="cardDeck_cardDeck_cardOffset_x">@dimen/cardsLayout_shadow_desk_offset</item>
         <item name="cardDeck_cardDeck_cardOffset_y">@dimen/cardsLayout_shadow_desk_offset</item>
         <item name="cardDeck_cardDeck_cardOffset_z">@dimen/cardsLayout_shadow_desk_offset</item>

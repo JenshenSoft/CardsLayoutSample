@@ -7,9 +7,10 @@
     tools:context="ua.jenshensoft.cardslayoutsample.MainActivity">
 
     <ua.jenshensoft.cardslayoutsample.views.CardDeck
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
         android:background="@color/colorAccent"
+        app:cardDeck_gravity="bottom|right"
         app:cardDeck_offsetBottom="@dimen/cardsLayout_cardDeck_offset"
         app:cardDeck_offsetLeft="@dimen/cardsLayout_cardDeck_offset"
         app:cardDeck_offsetRight="@dimen/cardsLayout_cardDeck_offset"
@@ -74,12 +75,12 @@
         android:id="@+id/cardsLayout3"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:cardsLayout_childList_orientation="vertical"
-        app:cardsLayout_childList_distributeCardsBy="circle"
-        app:cardsLayout_childList_circleRadius="50dp"
+        app:cardsLayout_cardsGravity="right|center_vertical"
         app:cardsLayout_childList_circleCenterLocation="bottom"
+        app:cardsLayout_childList_circleRadius="50dp"
+        app:cardsLayout_childList_distributeCardsBy="circle"
         app:cardsLayout_childList_height="200dp"
-        app:cardsLayout_cardsGravity="right|center_vertical">
+        app:cardsLayout_childList_orientation="vertical">
 
         <ImageView
             android:layout_width="@dimen/card_width"
@@ -134,12 +135,12 @@
         android:id="@+id/cardsLayout2"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:cardsLayout_childList_distributeCardsBy="circle"
-        app:cardsLayout_childList_circleRadius="200dp"
+        app:cardsLayout_cardsGravity="left|center_vertical"
         app:cardsLayout_childList_circleCenterLocation="bottom"
-        app:cardsLayout_childList_orientation="vertical"
+        app:cardsLayout_childList_circleRadius="200dp"
+        app:cardsLayout_childList_distributeCardsBy="circle"
         app:cardsLayout_childList_height="200dp"
-        app:cardsLayout_cardsGravity="left|center_vertical">
+        app:cardsLayout_childList_orientation="vertical">
 
         <ImageView
             android:layout_width="@dimen/card_width"

@@ -68,7 +68,7 @@ public abstract class GameTableLayout<
     //card deck attr
     private boolean canAutoDistribute = true;
     private boolean deskOfCardsEnable = true;
-    private FlagManager cardDeckGravity;
+    private FlagManager cardDeckLayoutGravity;
     private float cardDeckCardOffsetX = -1;
     private float cardDeckCardOffsetY = -1;
     private float cardDeckCardOffsetZ = -1;
@@ -464,12 +464,12 @@ public abstract class GameTableLayout<
 
     protected float getXPositionForCardDeck(float widthOfCardDeck, float rootWidth) {
         float cardPositionX = 0;
-        if (cardDeckGravity.containsFlag(FlagManager.Gravity.LEFT)) {
+        if (cardDeckLayoutGravity.containsFlag(FlagManager.Gravity.LEFT)) {
             cardPositionX = 0;
-        } else if (cardDeckGravity.containsFlag(FlagManager.Gravity.RIGHT)) {
+        } else if (cardDeckLayoutGravity.containsFlag(FlagManager.Gravity.RIGHT)) {
             cardPositionX = rootWidth - widthOfCardDeck;
-        } else if (cardDeckGravity.containsFlag(FlagManager.Gravity.CENTER_HORIZONTAL)
-                || cardDeckGravity.containsFlag(FlagManager.Gravity.CENTER)) {
+        } else if (cardDeckLayoutGravity.containsFlag(FlagManager.Gravity.CENTER_HORIZONTAL)
+                || cardDeckLayoutGravity.containsFlag(FlagManager.Gravity.CENTER)) {
             cardPositionX = rootWidth / 2f - widthOfCardDeck / 2f;
         }
         return cardPositionX;
@@ -477,12 +477,12 @@ public abstract class GameTableLayout<
 
     protected float getYPositionForCardDeck(float heightOfCardDeck, float rootHeight) {
         float cardPositionY = 0;
-        if (cardDeckGravity.containsFlag(FlagManager.Gravity.TOP)) {
+        if (cardDeckLayoutGravity.containsFlag(FlagManager.Gravity.TOP)) {
             cardPositionY = 0;
-        } else if (cardDeckGravity.containsFlag(FlagManager.Gravity.BOTTOM)) {
+        } else if (cardDeckLayoutGravity.containsFlag(FlagManager.Gravity.BOTTOM)) {
             cardPositionY = rootHeight - heightOfCardDeck;
-        } else if (cardDeckGravity.containsFlag(FlagManager.Gravity.CENTER_VERTICAL)
-                || cardDeckGravity.containsFlag(FlagManager.Gravity.CENTER)) {
+        } else if (cardDeckLayoutGravity.containsFlag(FlagManager.Gravity.CENTER_VERTICAL)
+                || cardDeckLayoutGravity.containsFlag(FlagManager.Gravity.CENTER)) {
             cardPositionY = rootHeight / 2f - heightOfCardDeck / 2f;
         }
         return cardPositionY;
@@ -505,9 +505,9 @@ public abstract class GameTableLayout<
                 //card deck
                 canAutoDistribute = attributesTable.getBoolean(R.styleable.GameTableLayout_gameTableLayout_canAutoDistribute, canAutoDistribute);
                 deskOfCardsEnable = attributesTable.getBoolean(R.styleable.GameTableLayout_gameTableLayout_cardDeckEnable, deskOfCardsEnable);
-                int flagSet = attributesTable.getInt(R.styleable.GameTableLayout_gameTableLayout_cardDeckGravity, -1);
+                int flagSet = attributesTable.getInt(R.styleable.GameTableLayout_gameTableLayout_cardDeck_layoutGravity, -1);
                 if (flagSet != -1) {
-                    cardDeckGravity = new FlagManager(flagSet);
+                    cardDeckLayoutGravity = new FlagManager(flagSet);
                 }
                 cardDeckCardOffsetX = attributes.getDimension(R.styleable.CardDeckView_cardDeck_cardDeck_cardOffset_x, cardDeckCardOffsetX);
                 cardDeckCardOffsetY = attributes.getDimension(R.styleable.CardDeckView_cardDeck_cardDeck_cardOffset_y, cardDeckCardOffsetY);
@@ -523,8 +523,8 @@ public abstract class GameTableLayout<
         cardsLayouts = new ArrayList<>();
         viewUpdater = new ViewUpdater<>(() -> !animationHandler.isOnDestroyed() && !animationHandler.isOnPause(), this);
         animationHandler = new AnimatorHandler();
-        if (cardDeckGravity == null) {
-            cardDeckGravity = new FlagManager(FlagManager.Gravity.CENTER);
+        if (cardDeckLayoutGravity == null) {
+            cardDeckLayoutGravity = new FlagManager(FlagManager.Gravity.CENTER);
         }
         if (Math.abs(cardDeckCardOffsetX - (-1)) < EPSILON) {
             cardDeckCardOffsetX = getResources().getDimension(R.dimen.cardsLayout_shadow_desk_offset);
