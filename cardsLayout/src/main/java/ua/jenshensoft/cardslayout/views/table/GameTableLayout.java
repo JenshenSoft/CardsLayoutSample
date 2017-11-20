@@ -505,8 +505,10 @@ public abstract class GameTableLayout<
                 //card deck
                 canAutoDistribute = attributesTable.getBoolean(R.styleable.GameTableLayout_gameTableLayout_canAutoDistribute, canAutoDistribute);
                 deskOfCardsEnable = attributesTable.getBoolean(R.styleable.GameTableLayout_gameTableLayout_cardDeckEnable, deskOfCardsEnable);
-                cardDeckGravity = new FlagManager(attributesTable.getInt(R.styleable.GameTableLayout_gameTableLayout_cardDeckGravity, FlagManager.Gravity.CENTER));
-
+                int flagSet = attributesTable.getInt(R.styleable.GameTableLayout_gameTableLayout_cardDeckGravity, -1);
+                if (flagSet != -1) {
+                    cardDeckGravity = new FlagManager(flagSet);
+                }
                 cardDeckCardOffsetX = attributes.getDimension(R.styleable.CardDeckView_cardDeck_cardDeck_cardOffset_x, cardDeckCardOffsetX);
                 cardDeckCardOffsetY = attributes.getDimension(R.styleable.CardDeckView_cardDeck_cardDeck_cardOffset_y, cardDeckCardOffsetY);
                 cardDeckCardOffsetZ = attributes.getDimension(R.styleable.CardDeckView_cardDeck_cardDeck_cardOffset_z, cardDeckCardOffsetZ);
@@ -521,7 +523,9 @@ public abstract class GameTableLayout<
         cardsLayouts = new ArrayList<>();
         viewUpdater = new ViewUpdater<>(() -> !animationHandler.isOnDestroyed() && !animationHandler.isOnPause(), this);
         animationHandler = new AnimatorHandler();
-        cardDeckGravity = new FlagManager(FlagManager.Gravity.CENTER);
+        if (cardDeckGravity == null) {
+            cardDeckGravity = new FlagManager(FlagManager.Gravity.CENTER);
+        }
         if (Math.abs(cardDeckCardOffsetX - (-1)) < EPSILON) {
             cardDeckCardOffsetX = getResources().getDimension(R.dimen.cardsLayout_shadow_desk_offset);
         }
