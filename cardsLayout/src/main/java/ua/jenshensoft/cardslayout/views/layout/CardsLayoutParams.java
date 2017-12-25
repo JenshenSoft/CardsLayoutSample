@@ -38,4 +38,12 @@ public class CardsLayoutParams extends ViewGroup.LayoutParams {
     public int getHeightForCalculation() {
         return heightForCalculation;
     }
+
+    public void setWidthForCalculation(int widthForCalculation) {
+        this.widthForCalculation = widthForCalculation;
+    }
+
+    public void setHeightForCalculation(int heightForCalculation) {
+        this.heightForCalculation = heightForCalculation;
+    }
 }
