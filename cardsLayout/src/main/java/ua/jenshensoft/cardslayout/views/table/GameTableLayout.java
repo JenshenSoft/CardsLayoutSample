@@ -442,14 +442,10 @@ public abstract class GameTableLayout<
             x = Math.round(card.getX());
             y = Math.round(card.getY());
         } else {
-            int angle = Math.round(coordinates.getAngle());
             x = Math.round(coordinates.getX());
             y = Math.round(coordinates.getY());
-            card.setCardZ(coordinates.getZ());
-            card.setFirstX(x);
-            card.setFirstY(y);
-            card.setFirstRotation(angle);
-            card.setRotation(angle);
+            setViewCoordinatesToStartPosition(card, coordinates);
+            card.setRotation(card.getCardInfo().getFirstRotation());
         }
         card.layout(x, y, x + card.getMeasuredWidth(), y + card.getMeasuredHeight());
         if (Math.abs(card.getX() - x) > EPSILON) {
@@ -458,6 +454,13 @@ public abstract class GameTableLayout<
         if (Math.abs(card.getY() - y) > EPSILON) {
             card.setY(y);
         }
+    }
+
+    protected <CV extends View & Card> void setViewCoordinatesToStartPosition(final Card card, final ThreeDCardCoordinates cardCoordinates) {
+        card.setCardZ(cardCoordinates.getZ());
+        card.setFirstX(cardCoordinates.getX());
+        card.setFirstY(cardCoordinates.getY());
+        card.setFirstRotation(cardCoordinates.getAngle());
     }
 
     protected float getXPositionForCardDeck(float widthOfCardDeck, float rootWidth) {

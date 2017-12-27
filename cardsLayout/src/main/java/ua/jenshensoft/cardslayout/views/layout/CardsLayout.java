@@ -594,10 +594,14 @@ public abstract class CardsLayout extends ViewGroup
         for (int i = 0; i < cardsCoordinates.size(); i++) {
             final Card card = cards.get(i);
             final CardCoordinates cardCoordinates = cardsCoordinates.get(i);
-            card.setFirstX(cardCoordinates.getX());
-            card.setFirstY(cardCoordinates.getY());
-            card.setFirstRotation(cardCoordinates.getAngle());
+            setViewCoordinatesToStartPosition(card, cardCoordinates);
         }
+    }
+
+    protected <CV extends View & Card> void setViewCoordinatesToStartPosition(final Card card, final CardCoordinates cardCoordinates) {
+        card.setFirstX(cardCoordinates.getX());
+        card.setFirstY(cardCoordinates.getY());
+        card.setFirstRotation(cardCoordinates.getAngle());
     }
 
     @Nullable
@@ -886,10 +890,8 @@ public abstract class CardsLayout extends ViewGroup
             int angle = Math.round(coordinates.getAngle());
             x = Math.round(coordinates.getX());
             y = Math.round(coordinates.getY());
-            card.setFirstX(x);
-            card.setFirstY(y);
-            card.setFirstRotation(angle);
-            card.setRotation(angle);
+            setViewCoordinatesToStartPosition(card, coordinates);
+            card.setRotation(card.getCardInfo().getFirstRotation());
         }
         card.layout(x, y, x + card.getMeasuredWidth(), y + card.getMeasuredHeight());
         if (Math.abs(card.getX() - x) > EPSILON) {
