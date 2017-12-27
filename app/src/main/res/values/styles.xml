@@ -101,5 +101,4 @@
         <item name="cardDeck_offsetRight">@dimen/cardsLayout_cardDeck_offset</item>
         <item name="cardDeck_offsetTop">@dimen/cardsLayout_cardDeck_offset</item>
     </style>
-
 </resources>

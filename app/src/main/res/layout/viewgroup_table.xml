@@ -83,48 +83,56 @@
         app:cardsLayout_childList_orientation="vertical">
 
         <ImageView
+            style="@style/Widget.Card.Horizontal"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
             android:src="@drawable/ic_card0" />
 
         <ImageView
+            style="@style/Widget.Card.Horizontal"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
             android:src="@drawable/ic_card1" />
 
         <ImageView
+            style="@style/Widget.Card.Horizontal"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
             android:src="@drawable/ic_card2" />
 
         <ImageView
+            style="@style/Widget.Card.Horizontal"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
             android:src="@drawable/ic_card3" />
 
         <ImageView
+            style="@style/Widget.Card.Horizontal"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
             android:src="@drawable/ic_card4" />
 
         <ImageView
+            style="@style/Widget.Card.Horizontal"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
             android:src="@drawable/ic_card5" />
 
         <ImageView
+            style="@style/Widget.Card.Horizontal"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
             android:src="@drawable/ic_card6" />
 
         <ImageView
+            style="@style/Widget.Card.Horizontal"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
@@ -143,48 +151,56 @@
         app:cardsLayout_childList_orientation="vertical">
 
         <ImageView
+            style="@style/Widget.Card.Horizontal"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
             android:src="@drawable/ic_card0" />
 
         <ImageView
+            style="@style/Widget.Card.Horizontal"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
             android:src="@drawable/ic_card1" />
 
         <ImageView
+            style="@style/Widget.Card.Horizontal"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
             android:src="@drawable/ic_card2" />
 
         <ImageView
+            style="@style/Widget.Card.Horizontal"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
             android:src="@drawable/ic_card3" />
 
         <ImageView
+            style="@style/Widget.Card.Horizontal"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
             android:src="@drawable/ic_card4" />
 
         <ImageView
+            style="@style/Widget.Card.Horizontal"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
             android:src="@drawable/ic_card5" />
 
         <ImageView
+            style="@style/Widget.Card.Horizontal"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
             android:src="@drawable/ic_card6" />
 
         <ImageView
+            style="@style/Widget.Card.Horizontal"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
@@ -202,48 +218,56 @@
         app:cardsLayout_childList_width="200dp">
 
         <ImageView
+            style="@style/Widget.Card.Vertical"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
             android:src="@drawable/ic_card0" />
 
         <ImageView
+            style="@style/Widget.Card.Vertical"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
             android:src="@drawable/ic_card1" />
 
         <ImageView
+            style="@style/Widget.Card.Vertical"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
             android:src="@drawable/ic_card2" />
 
         <ImageView
+            style="@style/Widget.Card.Vertical"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
             android:src="@drawable/ic_card3" />
 
         <ImageView
+            style="@style/Widget.Card.Vertical"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
             android:src="@drawable/ic_card4" />
 
         <ImageView
+            style="@style/Widget.Card.Vertical"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
             android:src="@drawable/ic_card5" />
 
         <ImageView
+            style="@style/Widget.Card.Vertical"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
             android:src="@drawable/ic_card6" />
 
         <ImageView
+            style="@style/Widget.Card.Vertical"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
@@ -260,48 +284,56 @@
         app:cardsLayout_childList_distributeCardsBy="line">
 
         <ImageView
+            style="@style/Widget.Card.Vertical"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
             android:src="@drawable/ic_card0" />
 
         <ImageView
+            style="@style/Widget.Card.Vertical"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
             android:src="@drawable/ic_card1" />
 
         <ImageView
+            style="@style/Widget.Card.Vertical"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
             android:src="@drawable/ic_card2" />
 
         <ImageView
+            style="@style/Widget.Card.Vertical"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
             android:src="@drawable/ic_card3" />
 
         <ImageView
+            style="@style/Widget.Card.Vertical"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
             android:src="@drawable/ic_card4" />
 
         <ImageView
+            style="@style/Widget.Card.Vertical"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
             android:src="@drawable/ic_card5" />
 
         <ImageView
+            style="@style/Widget.Card.Vertical"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
             android:src="@drawable/ic_card6" />
 
         <ImageView
+            style="@style/Widget.Card.Vertical"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
