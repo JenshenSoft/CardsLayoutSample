@@ -189,15 +189,17 @@ public abstract class CardDeckView extends ViewGroup {
                                                                    ThreeDCardCoordinates coordinates) {
         int x = Math.round(coordinates.getX());
         int y = Math.round(coordinates.getY());
-        float z = coordinates.getZ();
-        int angle = Math.round(coordinates.getAngle());
-        cardView.setRotation(angle);
-        cardView.setCardZ(z);
+        setViewCoordinatesToStartPosition(cardView, coordinates);
+        cardView.setRotation(cardView.getCardInfo().getFirstRotation());
+        cardView.setCardZ(coordinates.getZ());
         cardView.layout(x, y, x + cardView.getMeasuredWidth(), y + cardView.getMeasuredHeight());
-        CardInfo cardInfo = cardView.getCardInfo();
-        cardInfo.setFirstPositionX(x);
-        cardInfo.setFirstPositionY(y);
-        cardInfo.setFirstRotation(angle);
+    }
+
+    protected void setViewCoordinatesToStartPosition(final Card card, final ThreeDCardCoordinates cardCoordinates) {
+        card.setCardZ(cardCoordinates.getZ());
+        card.setFirstX(cardCoordinates.getX());
+        card.setFirstY(cardCoordinates.getY());
+        card.setFirstRotation(cardCoordinates.getAngle());
     }
 
     /* private methods */
@@ -214,7 +216,7 @@ public abstract class CardDeckView extends ViewGroup {
                 offsetRight = attributes.getDimension(R.styleable.CardDeckView_cardDeck_offsetRight, offsetRight);
                 offsetTop = attributes.getDimension(R.styleable.CardDeckView_cardDeck_offsetTop, offsetTop);
                 offsetBottom = attributes.getDimension(R.styleable.CardDeckView_cardDeck_offsetBottom, offsetBottom);
-               int flagSet = attributes.getInt(R.styleable.CardDeckView_cardDeck_gravity, -1);
+                int flagSet = attributes.getInt(R.styleable.CardDeckView_cardDeck_gravity, -1);
                 if (flagSet != -1) {
                     cardDeckGravity = new FlagManager(flagSet);
                 }
