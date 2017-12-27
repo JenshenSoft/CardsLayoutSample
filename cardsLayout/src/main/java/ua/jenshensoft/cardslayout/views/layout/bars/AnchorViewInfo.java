@@ -17,15 +17,31 @@ public class AnchorViewInfo {
         return firstPositionX;
     }
 
+    public void setFirstPositionX(int firstPositionX) {
+        this.firstPositionX = firstPositionX;
+    }
+
     public int getFirstPositionY() {
         return firstPositionY;
+    }
+
+    public void setFirstPositionY(int firstPositionY) {
+        this.firstPositionY = firstPositionY;
     }
 
     public int getCardsLayoutWidth() {
         return cardsLayoutWidth;
     }
 
+    public void setCardsLayoutWidth(int cardsLayoutWidth) {
+        this.cardsLayoutWidth = cardsLayoutWidth;
+    }
+
     public int getCardsLayoutHeight() {
         return cardsLayoutHeight;
+    }
+
+    public void setCardsLayoutHeight(int cardsLayoutHeight) {
+        this.cardsLayoutHeight = cardsLayoutHeight;
     }
 }
