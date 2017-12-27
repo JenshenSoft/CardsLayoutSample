@@ -189,13 +189,13 @@ public abstract class CardDeckView extends ViewGroup {
                                                                    ThreeDCardCoordinates coordinates) {
         int x = Math.round(coordinates.getX());
         int y = Math.round(coordinates.getY());
-        setViewCoordinatesToStartPosition(cardView, coordinates);
+        setCardDeckCardToStartPosition(cardView, coordinates);
         cardView.setRotation(cardView.getCardInfo().getFirstRotation());
         cardView.setCardZ(coordinates.getZ());
         cardView.layout(x, y, x + cardView.getMeasuredWidth(), y + cardView.getMeasuredHeight());
     }
 
-    protected void setViewCoordinatesToStartPosition(final Card card, final ThreeDCardCoordinates cardCoordinates) {
+    protected void setCardDeckCardToStartPosition(final Card card, final ThreeDCardCoordinates cardCoordinates) {
         card.setCardZ(cardCoordinates.getZ());
         card.setFirstX(cardCoordinates.getX());
         card.setFirstY(cardCoordinates.getY());

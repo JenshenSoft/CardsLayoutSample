@@ -444,7 +444,7 @@ public abstract class GameTableLayout<
         } else {
             x = Math.round(coordinates.getX());
             y = Math.round(coordinates.getY());
-            setViewCoordinatesToStartPosition(card, coordinates);
+            setCardDeckCardToStartPosition(card, coordinates);
             card.setRotation(card.getCardInfo().getFirstRotation());
         }
         card.layout(x, y, x + card.getMeasuredWidth(), y + card.getMeasuredHeight());
@@ -456,7 +456,7 @@ public abstract class GameTableLayout<
         }
     }
 
-    protected <CV extends View & Card> void setViewCoordinatesToStartPosition(final Card card, final ThreeDCardCoordinates cardCoordinates) {
+    protected <CV extends View & Card> void setCardDeckCardToStartPosition(final Card card, final ThreeDCardCoordinates cardCoordinates) {
         card.setCardZ(cardCoordinates.getZ());
         card.setFirstX(cardCoordinates.getX());
         card.setFirstY(cardCoordinates.getY());
