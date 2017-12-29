@@ -27,6 +27,7 @@ import com.jenshen.awesomeanimation.util.animator.AnimatorHandler;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import ua.jenshensoft.cardslayout.CardInfo;
@@ -258,7 +259,7 @@ public abstract class CardsLayout extends ViewGroup
         this.addView(cardView);
     }
 
-    public <CV extends View & Card> void removeCardView(int position) {
+    public <CV extends View & Card> void removeCardView(int position, boolean withAnimation) {
         CV cardView = findCardView(position);
         ViewParent parent = cardView.getParent();
         ((ViewGroup) parent).removeView(cardView);
@@ -270,7 +271,11 @@ public abstract class CardsLayout extends ViewGroup
                 cardInfo.setCardPositionInLayout(cardPosition - 1);
             }
         }
-        invalidateCardsPosition(true);
+        invalidateCardsPosition(withAnimation);
+    }
+
+    public <CV extends View & Card> void removeCardView(int position) {
+        removeCardView(position, true);
     }
 
     @Override
@@ -912,6 +917,10 @@ public abstract class CardsLayout extends ViewGroup
                 index = cards.size();
             } else {
                 index = 0;
+                Iterator<Card> cardIterator = cards.iterator();
+                for (int i = cards.size(); i >= 1; i--) {
+                    cardIterator.next().getCardInfo().setCardPositionInLayout(i);
+                }
             }
             card.setCardInfo(new CardInfo(index));
         }
