@@ -640,8 +640,10 @@ public abstract class GameTableLayout<
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     post(() -> {
-                        onEndDistributeCardWave(cards);
-                        distributeWave(entitiesByWaves);
+                        if (!animationHandler.isOnDestroyed()) {
+                            onEndDistributeCardWave(cards);
+                            distributeWave(entitiesByWaves);
+                        }
                     });
                 }
             });
