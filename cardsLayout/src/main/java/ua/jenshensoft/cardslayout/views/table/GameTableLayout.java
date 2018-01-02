@@ -355,7 +355,11 @@ public abstract class GameTableLayout<
             }
             entitiesByLayouts.add(cardsPairs.iterator());
         }
-        postDelayed(() -> distributeWave(CardsUtil.getEntitiesByWaves(entitiesByLayouts).iterator()), 200);
+        postDelayed(() -> {
+            if (!animationHandler.isOnDestroyed()) {
+                distributeWave(CardsUtil.getEntitiesByWaves(entitiesByLayouts).iterator());
+            }
+        }, 200);
     }
 
     /* protected methods */
