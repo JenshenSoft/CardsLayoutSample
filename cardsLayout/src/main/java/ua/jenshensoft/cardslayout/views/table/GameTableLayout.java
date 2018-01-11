@@ -67,6 +67,7 @@ public abstract class GameTableLayout<
     private int currentPlayerLayoutId = -1;
     //card deck attr
     private boolean canAutoDistribute = true;
+    private int distributionWaveCardsCount = 1;
     private boolean deskOfCardsEnable = true;
     private FlagManager cardDeckLayoutGravity;
     private float cardDeckCardOffsetX = -1;
@@ -347,11 +348,19 @@ public abstract class GameTableLayout<
     public void startDistributeCards(Predicate<Card> predicate) {
         onDistributeAnimation = true;
         setEnabled(false, null);//disable cards without filters
-        List<Iterator<Pair<Card, Layout>>> entitiesByLayouts = new ArrayList<>();
+        List<Iterator<Pair<List<Card>, Layout>>> entitiesByLayouts = new ArrayList<>();
         for (Layout cardsLayout : cardsLayouts) {
-            List<Pair<Card, Layout>> cardsPairs = new ArrayList<>();
-            for (Card card : getCardsForDistributions(cardsLayout, predicate)) {
-                cardsPairs.add(new Pair<>(card, cardsLayout));
+            List<Pair<List<Card>, Layout>> cardsPairs = new ArrayList<>();
+            List<Card> cardsForDistributions = getCardsForDistributions(cardsLayout, predicate);
+            int count = cardsForDistributions.size() / distributionWaveCardsCount;
+            int remainingCount = cardsForDistributions.size() - distributionWaveCardsCount * count;
+            for (int i = 0; i < count; i++) {
+                int startIndex = i * distributionWaveCardsCount;
+                cardsPairs.add(new Pair<>(cardsForDistributions.subList(startIndex, startIndex + distributionWaveCardsCount), cardsLayout));
+            }
+            if (remainingCount != 0) {
+                int startIndex = distributionWaveCardsCount * count;
+                cardsPairs.add(new Pair<>(cardsForDistributions.subList(startIndex, startIndex + remainingCount), cardsLayout));
             }
             entitiesByLayouts.add(cardsPairs.iterator());
         }
@@ -397,20 +406,31 @@ public abstract class GameTableLayout<
     }
 
     protected CardsLayout.OnCreateAnimatorAction creteAnimationForCardDistribution(Layout cardsLayout,
-                                                                                   Card card) {
+                                                                                   List<CardInfo> previousCardInfoList,
+                                                                                   List<Card> cards) {
         return new CardsLayout.OnCreateAnimatorAction() {
             @Override
             public <C extends View & Card> Animator createAnimation(C view) {
-                if (view.equals(card)) {
-                    AwesomeAnimation.Builder awesomeAnimation = new AwesomeAnimation.Builder(view)
-                            .setX(AwesomeAnimation.CoordinationMode.COORDINATES, view.getX(), view.getCardInfo().getFirstPositionX())
-                            .setY(AwesomeAnimation.CoordinationMode.COORDINATES, view.getY(), view.getCardInfo().getFirstPositionY())
-                            .setRotation(180 + card.getRotation(), card.getCardInfo().getFirstRotation())
-                            .setDuration(durationOfDistributeAnimation);
-                    return awesomeAnimation.build().getAnimatorSet();
-                } else {
-                    return cardsLayout.getDefaultCreateAnimatorAction().createAnimation(view);
+                CardInfo cardInfo = null;
+                for (CardInfo info : previousCardInfoList) {
+                    if (view.getCardInfo().equals(info)) {
+                        cardInfo = info;
+                        break;
+                    }
                 }
+                if (cardInfo == null) {
+                    throw new RuntimeException("Can't find card info for card " + view);
+                }
+                final AwesomeAnimation.Builder awesomeAnimation = new AwesomeAnimation.Builder(view)
+                        .setX(AwesomeAnimation.CoordinationMode.COORDINATES, cardInfo.getFirstPositionX(), view.getCardInfo().getFirstPositionX())
+                        .setY(AwesomeAnimation.CoordinationMode.COORDINATES, cardInfo.getFirstPositionY(), view.getCardInfo().getFirstPositionY())
+                        .setDuration(durationOfDistributeAnimation);
+                if (cards.contains(view)) {
+                    awesomeAnimation.setRotation(180 + view.getRotation(), view.getCardInfo().getFirstRotation());
+                } else {
+                    awesomeAnimation.setRotation(cardInfo.getFirstRotation(), view.getCardInfo().getFirstRotation());
+                }
+                return awesomeAnimation.build().getAnimatorSet();
             }
         };
     }
@@ -509,6 +529,7 @@ public abstract class GameTableLayout<
 
                 //card deck
                 canAutoDistribute = attributesTable.getBoolean(R.styleable.GameTableLayout_gameTableLayout_canAutoDistribute, canAutoDistribute);
+                distributionWaveCardsCount = attributesTable.getInt(R.styleable.GameTableLayout_gameTableLayout_distributionWaveCardsCount, 5);
                 deskOfCardsEnable = attributesTable.getBoolean(R.styleable.GameTableLayout_gameTableLayout_cardDeckEnable, deskOfCardsEnable);
                 int flagSet = attributesTable.getInt(R.styleable.GameTableLayout_gameTableLayout_cardDeck_layoutGravity, -1);
                 if (flagSet != -1) {
@@ -625,49 +646,69 @@ public abstract class GameTableLayout<
 
     /* distribution */
 
-    private void distributeWave(final Iterator<List<Pair<Card, Layout>>> entitiesByWaves) {
+    private void distributeWave(final Iterator<List<Pair<List<Card>, Layout>>> entitiesByWaves) {
         animationHandler.cancel();
-        if (entitiesByWaves.hasNext()) {
-            List<Pair<Card, Layout>> cardLayoutPair = entitiesByWaves.next();
-            List<Card> cards = new ArrayList<>();
-            for (Pair<Card, Layout> pair : cardLayoutPair) {
-                cards.add(pair.first);
-            }
-            onStartDistributedCardWave(cards);
-            List<Animator> animators = new ArrayList<>();
-            for (Pair<Card, Layout> pair : cardLayoutPair) {
-                animators.add(createAnimationForCard(pair.first, pair.second));
-            }
-            AnimatorSet animatorSet = new AnimatorSet();
-            animatorSet.playTogether(animators);
-            animatorSet.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    post(() -> {
-                        if (!animationHandler.isOnDestroyed()) {
-                            onEndDistributeCardWave(cards);
-                            distributeWave(entitiesByWaves);
-                        }
-                    });
-                }
-            });
-            if (interpolator != null) {
-                animatorSet.setInterpolator(interpolator);
-            }
-            animationHandler.addAnimator(animatorSet);
-            animatorSet.start();
-        } else {
-            onDistributedCards();
+        List<Animator> animators = new ArrayList<>();
+        while (entitiesByWaves.hasNext()) {
+            List<Pair<List<Card>, Layout>> cardLayoutPair = entitiesByWaves.next();
+            animators.add(createAnimatorForCardWave(cardLayoutPair));
         }
+        AnimatorSet animatorSet = new AnimatorSet();
+        animatorSet.playSequentially(animators);
+        if (interpolator != null) {
+            animatorSet.setInterpolator(interpolator);
+        }
+        animatorSet.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                onDistributedCards();
+            }
+        });
+        animationHandler.addAnimator(animatorSet);
+        animatorSet.start();
     }
 
-    private AnimatorSet createAnimationForCard(Card card, Layout layout) {
-        if (hasDistributionState() && isDeskOfCardsEnable()) {
-            card.getCardInfo().setCardDistributed(true);
-        } else {
-            card.setVisibility(VISIBLE);
+    private AnimatorSet createAnimatorForCardWave(List<Pair<List<Card>, Layout>> cardLayoutPair) {
+        List<Card> cards = new ArrayList<>();
+        for (Pair<List<Card>, Layout> pair : cardLayoutPair) {
+            cards.addAll(pair.first);
         }
-        return layout.createAnimationIfNeededForCards(true, creteAnimationForCardDistribution(layout, card));
+        List<Animator> animators = new ArrayList<>();
+        for (Pair<List<Card>, Layout> pair : cardLayoutPair) {
+            animators.add(createAnimationForCard(pair.second, pair.first));
+        }
+        AnimatorSet animatorSet = new AnimatorSet();
+        animatorSet.playTogether(animators);
+        animatorSet.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                super.onAnimationStart(animation);
+                onStartDistributedCardWave(cards);
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                onEndDistributeCardWave(cards);
+            }
+        });
+        return animatorSet;
+    }
+
+    private AnimatorSet createAnimationForCard(Layout layout, List<Card> cards) {
+        for (Card card : cards) {
+            if (hasDistributionState() && isDeskOfCardsEnable()) {
+                card.getCardInfo().setCardDistributed(true);
+            } else {
+                card.setVisibility(VISIBLE);
+            }
+        }
+        List<CardInfo> cardInfoList = new ArrayList<>();
+        for (Card view : layout.getValidatedCardViews()) {
+            cardInfoList.add(new CardInfo(view.getCardInfo()));
+        }
+        return layout.createAnimationIfNeededForCards(true, creteAnimationForCardDistribution(layout, cardInfoList, cards));
     }
 
     private List<Card> getCardsForDistributions(final Layout cardsLayout,

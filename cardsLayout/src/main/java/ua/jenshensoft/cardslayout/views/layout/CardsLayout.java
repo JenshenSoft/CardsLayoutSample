@@ -529,6 +529,17 @@ public abstract class CardsLayout extends ViewGroup
         return null;
     }
 
+    public <CV extends View & Card> List<CV> getValidatedCardViews() {
+        final List<CV> validatedCards = new ArrayList<>();
+        List<CV> cards = getCardViews();
+        for (CV card : cards) {
+            if (!shouldPassCard(card)) {
+                validatedCards.add(card);
+            }
+        }
+        return validatedCards;
+    }
+
     /* protected methods */
 
     protected void onInvalidateCardsPosition(boolean withAnimation,
@@ -991,17 +1002,6 @@ public abstract class CardsLayout extends ViewGroup
 
     private boolean shouldPassCard(Card card) {
         return card.getVisibility() != VISIBLE || !card.getCardInfo().isCardDistributed();
-    }
-
-    private <CV extends View & Card> List<CV> getValidatedCardViews() {
-        final List<CV> validatedCards = new ArrayList<>();
-        List<CV> cards = getCardViews();
-        for (CV card : cards) {
-            if (!shouldPassCard(card)) {
-                validatedCards.add(card);
-            }
-        }
-        return validatedCards;
     }
 
     @Override

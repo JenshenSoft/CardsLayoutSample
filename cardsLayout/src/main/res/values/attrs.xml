@@ -99,6 +99,7 @@
         <attr name="gameTableLayout_duration_distributeAnimation" format="integer" />
         <!-- card deck -->
         <attr name="gameTableLayout_canAutoDistribute" format="boolean" />
+        <attr name="gameTableLayout_distributionWaveCardsCount" format="integer" />
         <attr name="gameTableLayout_cardDeckEnable" format="boolean" />
         <attr name="gameTableLayout_cardDeck_layoutGravity">
             <flag name="right" value="1" />

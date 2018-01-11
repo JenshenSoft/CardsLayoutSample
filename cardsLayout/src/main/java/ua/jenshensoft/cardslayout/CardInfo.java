@@ -17,6 +17,16 @@ public class CardInfo {
         this.cardPositionInLayout = cardPositionInLayout;
     }
 
+    public CardInfo(CardInfo cardInfo) {
+        this.cardPositionInLayout = cardInfo.getCardPositionInLayout();
+        this.firstPositionX = cardInfo.getFirstPositionX();
+        this.firstPositionY = cardInfo.getFirstPositionY();
+        this.firstRotation = cardInfo.getFirstRotation();
+        this.hasFilter = cardInfo.hasFilter();
+        this.cardDistributed = cardInfo.isCardDistributed();
+        this.entity = cardInfo.getEntity();
+    }
+
     @Nullable
     public Object getEntity() {
         return entity;
