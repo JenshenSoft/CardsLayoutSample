@@ -529,7 +529,7 @@ public abstract class GameTableLayout<
 
                 //card deck
                 canAutoDistribute = attributesTable.getBoolean(R.styleable.GameTableLayout_gameTableLayout_canAutoDistribute, canAutoDistribute);
-                distributionWaveCardsCount = attributesTable.getInt(R.styleable.GameTableLayout_gameTableLayout_distributionWaveCardsCount, 5);
+                distributionWaveCardsCount = attributesTable.getInt(R.styleable.GameTableLayout_gameTableLayout_distributionWaveCardsCount, 1);
                 deskOfCardsEnable = attributesTable.getBoolean(R.styleable.GameTableLayout_gameTableLayout_cardDeckEnable, deskOfCardsEnable);
                 int flagSet = attributesTable.getInt(R.styleable.GameTableLayout_gameTableLayout_cardDeck_layoutGravity, -1);
                 if (flagSet != -1) {
