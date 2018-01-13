@@ -15,6 +15,7 @@ import ua.jenshensoft.cardslayout.listeners.card.OnCardPercentageChangeListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardSwipedListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardTranslationListener;
 import ua.jenshensoft.cardslayout.util.SwipeGestureManager;
+import ua.jenshensoft.cardslayout.views.FirstPosition;
 import ua.jenshensoft.cardslayout.views.layout.CardsLayoutParams;
 
 import static ua.jenshensoft.cardslayout.util.SwipeGestureManager.EPSILON;
@@ -81,21 +82,6 @@ public class CardView extends AppCompatImageView implements Card {
             return swipeManager.onTouch(this, ev);
         }
         return false;
-    }
-
-    @Override
-    public void setFirstX(float cardPositionX) {
-        cardInfo.setFirstPositionX(Math.round(cardPositionX));
-    }
-
-    @Override
-    public void setFirstY(float cardPositionY) {
-        cardInfo.setFirstPositionY(Math.round(cardPositionY));
-    }
-
-    @Override
-    public void setFirstRotation(float rotation) {
-        cardInfo.setFirstRotation(Math.round(rotation));
     }
 
     @Override
@@ -221,6 +207,11 @@ public class CardView extends AppCompatImageView implements Card {
     @Override
     public void setInAnimation(boolean inAnimation) {
         this.inAnimation = inAnimation;
+    }
+
+    @Override
+    public FirstPosition getFirstPosition() {
+        return cardInfo;
     }
 
 

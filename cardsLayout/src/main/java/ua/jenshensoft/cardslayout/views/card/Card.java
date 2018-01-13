@@ -1,15 +1,17 @@
 package ua.jenshensoft.cardslayout.views.card;
 
 
+import android.annotation.SuppressLint;
 import android.support.annotation.Px;
 
 import ua.jenshensoft.cardslayout.CardInfo;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardPercentageChangeListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardSwipedListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardTranslationListener;
+import ua.jenshensoft.cardslayout.views.FirstPositionProvider;
 import ua.jenshensoft.cardslayout.views.ValidateViewBlocker;
 
-public interface Card extends ValidateViewBlocker {
+public interface Card extends ValidateViewBlocker, FirstPositionProvider {
 
     int START_TO_CURRENT = 1;
     int LAST_TO_CURRENT = 2;
@@ -27,7 +29,7 @@ public interface Card extends ValidateViewBlocker {
     void setVisibility(int visible);
 
     float getX();
-
+    @SuppressLint("SupportAnnotationUsage")
     void setX(@Px float x);
 
     float getY();
@@ -49,12 +51,6 @@ public interface Card extends ValidateViewBlocker {
     void setEnabled(boolean enable);
 
     /* attr */
-
-    void setFirstX(float cardPositionX);
-
-    void setFirstY(float cardPositionY);
-
-    void setFirstRotation(float rotation);
 
     float getNormalElevation();
 

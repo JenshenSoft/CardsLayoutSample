@@ -35,6 +35,8 @@ import ua.jenshensoft.cardslayout.pattern.models.ThreeDCardCoordinates;
 import ua.jenshensoft.cardslayout.util.CardsUtil;
 import ua.jenshensoft.cardslayout.util.DistributionState;
 import ua.jenshensoft.cardslayout.util.FlagManager;
+import ua.jenshensoft.cardslayout.views.FirstPosition;
+import ua.jenshensoft.cardslayout.views.FirstPositionProvider;
 import ua.jenshensoft.cardslayout.views.card.Card;
 import ua.jenshensoft.cardslayout.views.layout.CardDeckView;
 import ua.jenshensoft.cardslayout.views.layout.CardsLayout;
@@ -406,33 +408,34 @@ public abstract class GameTableLayout<
     }
 
     protected CardsLayout.OnCreateAnimatorAction creteAnimationForCardDistribution(Layout cardsLayout,
-                                                                                   List<CardInfo> previousCardInfoList,
+                                                                                   List<FirstPosition> firstPositions,
                                                                                    List<Card> cards) {
         return new CardsLayout.OnCreateAnimatorAction() {
             @Override
-            public <C extends View & Card> Animator createAnimation(C view) {
-                CardInfo cardInfo = null;
-                for (CardInfo info : previousCardInfoList) {
-                    if (view.getCardInfo().equals(info)) {
-                        cardInfo = info;
-                        break;
-                    }
-                }
-                if (cardInfo == null) {
-                    throw new RuntimeException("Can't find card info for card " + view);
-                }
+            public <C extends View & FirstPositionProvider> Animator createAnimation(C view) {
+                FirstPosition firstPosition = findFirstPosition(view.getFirstPosition(), firstPositions);
                 final AwesomeAnimation.Builder awesomeAnimation = new AwesomeAnimation.Builder(view)
-                        .setX(AwesomeAnimation.CoordinationMode.COORDINATES, cardInfo.getFirstPositionX(), view.getCardInfo().getFirstPositionX())
-                        .setY(AwesomeAnimation.CoordinationMode.COORDINATES, cardInfo.getFirstPositionY(), view.getCardInfo().getFirstPositionY())
+                        .setX(AwesomeAnimation.CoordinationMode.COORDINATES, firstPosition.getFirstPositionX(), view.getFirstPosition().getFirstPositionX())
+                        .setY(AwesomeAnimation.CoordinationMode.COORDINATES, firstPosition.getFirstPositionY(), view.getFirstPosition().getFirstPositionY())
                         .setDuration(durationOfDistributeAnimation);
                 if (cards.contains(view)) {
-                    awesomeAnimation.setRotation(180 + view.getRotation(), view.getCardInfo().getFirstRotation());
+                    awesomeAnimation.setRotation(180 + view.getRotation(), view.getFirstPosition().getFirstRotation());
                 } else {
-                    awesomeAnimation.setRotation(cardInfo.getFirstRotation(), view.getCardInfo().getFirstRotation());
+                    awesomeAnimation.setRotation(firstPosition.getFirstRotation(), view.getFirstPosition().getFirstRotation());
                 }
                 return awesomeAnimation.build().getAnimatorSet();
             }
         };
+    }
+
+    protected <C extends View & FirstPositionProvider> FirstPosition findFirstPosition(FirstPosition view, List<FirstPosition> previousCardInfoList) {
+        FirstPosition firstPosition = null;
+        for (FirstPosition info : previousCardInfoList) {
+            if (view.hashCode() == info.hashCode()) {
+                return info;
+            }
+        }
+        throw new RuntimeException("Can't find card info for card " + view);
     }
 
     protected ThreeDCardCoordinates getCardDeckPosition(List<Card> cards) {
@@ -482,9 +485,10 @@ public abstract class GameTableLayout<
 
     protected <CV extends View & Card> void setCardDeckCardToStartPosition(final Card card, final ThreeDCardCoordinates cardCoordinates) {
         card.setCardZ(cardCoordinates.getZ());
-        card.setFirstX(cardCoordinates.getX());
-        card.setFirstY(cardCoordinates.getY());
-        card.setFirstRotation(cardCoordinates.getAngle());
+        FirstPosition firstPosition = card.getFirstPosition();
+        firstPosition.setFirstPositionX(Math.round(cardCoordinates.getX()));
+        firstPosition.setFirstPositionY(Math.round(cardCoordinates.getY()));
+        firstPosition.setFirstRotation(Math.round(cardCoordinates.getAngle()));
     }
 
     protected float getXPositionForCardDeck(float widthOfCardDeck, float rootWidth) {
@@ -696,7 +700,7 @@ public abstract class GameTableLayout<
         return animatorSet;
     }
 
-    private AnimatorSet createAnimationForCard(Layout layout, List<Card> cards) {
+    private Animator createAnimationForCard(Layout layout, List<Card> cards) {
         for (Card card : cards) {
             if (hasDistributionState() && isDeskOfCardsEnable()) {
                 card.getCardInfo().setCardDistributed(true);
@@ -704,11 +708,11 @@ public abstract class GameTableLayout<
                 card.setVisibility(VISIBLE);
             }
         }
-        List<CardInfo> cardInfoList = new ArrayList<>();
-        for (Card view : layout.getValidatedCardViews()) {
-            cardInfoList.add(new CardInfo(view.getCardInfo()));
+        List<FirstPosition> firstPositions = new ArrayList<>();
+        for (FirstPositionProvider view : layout.getValidatedViews()) {
+            firstPositions.add(new FirstPosition(view.getFirstPosition()));
         }
-        return layout.createAnimationIfNeededForCards(true, creteAnimationForCardDistribution(layout, cardInfoList, cards));
+        return layout.createAnimationIfNeededForCards(true, creteAnimationForCardDistribution(layout, firstPositions, cards));
     }
 
     private List<Card> getCardsForDistributions(final Layout cardsLayout,

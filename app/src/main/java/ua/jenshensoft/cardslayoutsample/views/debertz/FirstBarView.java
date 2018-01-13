@@ -5,11 +5,14 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.Button;
 
+import ua.jenshensoft.cardslayout.views.FirstPosition;
+import ua.jenshensoft.cardslayout.views.FirstPositionProvider;
 import ua.jenshensoft.cardslayout.views.ValidateViewBlocker;
 
-public class FirstBarView extends Button implements ValidateViewBlocker {
+public class FirstBarView extends Button implements ValidateViewBlocker, FirstPositionProvider {
 
     private boolean inAnimation;
+    private FirstPosition firstPosition = new FirstPosition(hashCode());
 
     public FirstBarView(Context context) {
         super(context);
@@ -35,5 +38,10 @@ public class FirstBarView extends Button implements ValidateViewBlocker {
     @Override
     public void setInAnimation(boolean inAnimation) {
         this.inAnimation = inAnimation;
+    }
+
+    @Override
+    public FirstPosition getFirstPosition() {
+        return firstPosition;
     }
 }

@@ -15,8 +15,6 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
-import com.jenshen.awesomeanimation.AwesomeAnimation;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
@@ -27,6 +25,8 @@ import ua.jenshensoft.cardslayout.R;
 import ua.jenshensoft.cardslayout.pattern.models.BarCoordinates;
 import ua.jenshensoft.cardslayout.pattern.models.CardCoordinates;
 import ua.jenshensoft.cardslayout.util.FlagManager;
+import ua.jenshensoft.cardslayout.views.FirstPosition;
+import ua.jenshensoft.cardslayout.views.FirstPositionProvider;
 import ua.jenshensoft.cardslayout.views.ValidateViewBlocker;
 import ua.jenshensoft.cardslayout.views.card.Card;
 import ua.jenshensoft.cardslayout.views.layout.CardsLayout;
@@ -37,8 +37,8 @@ import static ua.jenshensoft.cardslayout.views.layout.bars.CardsLayoutWithBars.A
 import static ua.jenshensoft.cardslayout.views.layout.bars.CardsLayoutWithBars.AnchorPosition.VIEW_POSITION_START;
 
 public abstract class CardsLayoutWithBars<
-        FirstBarView extends View & ValidateViewBlocker,
-        SecondBarView extends View & ValidateViewBlocker>
+        FirstBarView extends View & ValidateViewBlocker & FirstPositionProvider,
+        SecondBarView extends View & ValidateViewBlocker & FirstPositionProvider>
         extends CardsLayout {
 
     //additional views
@@ -115,7 +115,8 @@ public abstract class CardsLayoutWithBars<
         }
     }
 
-    protected <V extends View & ValidateViewBlocker> void onLayoutAdditionView(V view, CoordinatesProvider coordinatesProvider) {
+    protected <V extends View & ValidateViewBlocker & FirstPositionProvider>
+    void onLayoutAdditionView(V view, CoordinatesProvider coordinatesProvider) {
         int x;
         int y;
         if (view.isInAnimation()) {
@@ -125,6 +126,7 @@ public abstract class CardsLayoutWithBars<
             CardCoordinates coordinates = coordinatesProvider.get();
             x = Math.round(coordinates.getX());
             y = Math.round(coordinates.getY());
+            setViewCoordinatesToStartPosition(view, coordinates);
         }
         view.layout(x, y, x + view.getMeasuredWidth(), y + view.getMeasuredHeight());
         if (Math.abs(view.getX() - x) > EPSILON) {
@@ -147,82 +149,88 @@ public abstract class CardsLayoutWithBars<
 
     @Nullable
     @Override
-    public <CV extends View & Card> AnimatorSet createAnimationIfNeededForCards(boolean withAnimation,
-                                                                                @Nullable OnCreateAnimatorAction animationCreateAction) {
-        AnimatorSet animatorSet = super.createAnimationIfNeededForCards(withAnimation, animationCreateAction);
+    public <CV extends View & Card> Animator createAnimationIfNeededForCards(boolean withAnimation,
+                                                                             @Nullable OnCreateAnimatorAction animationCreateAction) {
+        Animator animator = super.createAnimationIfNeededForCards(withAnimation, animationCreateAction);
+        List<Animator> animators = new ArrayList<>();
+        if (animator != null) {
+            animators.add(animator);
+        }
         Iterator<BarCoordinates> cardCoordinates = getCoordinatesForBars().iterator();
         if (firstBarView != null && firstBarView.getVisibility() != GONE) {
             BarCoordinates coordinates = cardCoordinates.next();
-            AnimatorSet firstBarAnimation = moveFirstBarToPosition(coordinates, withAnimation, null);
+            Animator firstBarAnimation = moveFirstBarToPosition(coordinates, withAnimation, animationCreateAction, null);
             if (firstBarAnimation != null) {
-                if (animatorSet == null) {
-                    animatorSet = firstBarAnimation;
-                } else {
-                    animatorSet.playTogether(firstBarAnimation);
-                }
+                animators.add(firstBarAnimation);
             }
         }
         if (secondBarView != null && secondBarView.getVisibility() != GONE) {
             BarCoordinates coordinates = cardCoordinates.next();
-            AnimatorSet secondBarAnimation = moveSecondBarToPosition(coordinates, withAnimation, null);
+            Animator secondBarAnimation = moveSecondBarToPosition(coordinates, withAnimation, animationCreateAction, null);
             if (secondBarAnimation != null) {
-                if (animatorSet == null) {
-                    animatorSet = secondBarAnimation;
-                } else {
-                    animatorSet.playTogether(secondBarAnimation);
-                }
+                animators.add(secondBarAnimation);
             }
         }
-        return animatorSet;
+        if (animators.isEmpty()) {
+            return null;
+        } else {
+            AnimatorSet animatorSet = new AnimatorSet();
+            animatorSet.playTogether(animators);
+            return animatorSet;
+        }
     }
 
     @Nullable
-    protected AnimatorSet moveFirstBarToPosition(BarCoordinates cardCoordinates,
-                                                 boolean withAnimation,
-                                                 @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
-        return createAnimationIfNeededForView(firstBarView, cardCoordinates, withAnimation, animatorListenerAdapter);
+    protected Animator moveFirstBarToPosition(BarCoordinates cardCoordinates,
+                                              boolean withAnimation,
+                                              @Nullable OnCreateAnimatorAction animationCreateAction,
+                                              @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
+        return createAnimationIfNeededForView(firstBarView, cardCoordinates, withAnimation, animationCreateAction, animatorListenerAdapter);
     }
 
     @Nullable
-    protected AnimatorSet moveSecondBarToPosition(BarCoordinates cardCoordinates,
-                                                  boolean withAnimation,
-                                                  @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
-        return createAnimationIfNeededForView(secondBarView, cardCoordinates, withAnimation, animatorListenerAdapter);
+    protected Animator moveSecondBarToPosition(BarCoordinates cardCoordinates,
+                                               boolean withAnimation,
+                                               @Nullable OnCreateAnimatorAction animationCreateAction,
+                                               @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
+        return createAnimationIfNeededForView(secondBarView, cardCoordinates, withAnimation, animationCreateAction, animatorListenerAdapter);
     }
 
     @Nullable
-    protected <V extends View & ValidateViewBlocker> AnimatorSet createAnimationIfNeededForView(V view,
-                                                                                                @NonNull BarCoordinates coordinates,
-                                                                                                boolean withAnimation,
-                                                                                                @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
+    protected <V extends View & ValidateViewBlocker & FirstPositionProvider> Animator
+    createAnimationIfNeededForView(V view,
+                                   @NonNull BarCoordinates coordinates,
+                                   boolean withAnimation,
+                                   @Nullable OnCreateAnimatorAction animationCreateAction,
+                                   @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
         if (Math.abs(coordinates.getX() - (view.getX())) < EPSILON && Math.abs(coordinates.getY() - (view.getY())) < EPSILON) {
             return null;
         }
+        setViewCoordinatesToStartPosition(view, coordinates);
         if (withAnimation) {
-            return createAnimationForView(view, coordinates, animatorListenerAdapter);
+            return createAnimationForView(view, animationCreateAction, animatorListenerAdapter);
         } else {
-            view.setX(coordinates.getX());
-            view.setY(coordinates.getY());
+            FirstPosition firstPosition = view.getFirstPosition();
+            view.setX(firstPosition.getFirstPositionX());
+            view.setY(firstPosition.getFirstPositionY());
         }
         return null;
     }
 
-    @Nullable
-    protected <V extends View & ValidateViewBlocker> AnimatorSet createAnimationForView(V view,
-                                                                                        @NonNull BarCoordinates coordinates,
-                                                                                        @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
-        if (Math.abs(coordinates.getX() - (view.getX())) < EPSILON && Math.abs(coordinates.getY() - (view.getY())) < EPSILON) {
-            return null;
+    protected <V extends View & ValidateViewBlocker & FirstPositionProvider> Animator
+    createAnimationForView(V view,
+                           @Nullable OnCreateAnimatorAction animationCreateAction,
+                           @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
+        final Animator animator;
+        if (animationCreateAction != null) {
+            animator = animationCreateAction.createAnimation(view);
+        } else {
+            animator = this.defaultAnimatorAction.createAnimation(view);
         }
-        AwesomeAnimation.Builder awesomeAnimation = new AwesomeAnimation.Builder(view)
-                .setX(AwesomeAnimation.CoordinationMode.COORDINATES, view.getX(), coordinates.getX())
-                .setY(AwesomeAnimation.CoordinationMode.COORDINATES, view.getY(), coordinates.getY())
-                .setDuration(getDurationOfAnimation());
-        if (interpolator != null)
-            awesomeAnimation.setInterpolator(interpolator);
-        AwesomeAnimation build = awesomeAnimation.build();
-        AnimatorSet animatorSet = build.getAnimatorSet();
-        animatorSet.addListener(new AnimatorListenerAdapter() {
+        if (interpolator != null) {
+            animator.setInterpolator(interpolator);
+        }
+        animator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
                 view.setInAnimation(true);
@@ -234,9 +242,9 @@ public abstract class CardsLayoutWithBars<
             }
         });
         if (animatorListenerAdapter != null) {
-            animatorSet.addListener(animatorListenerAdapter);
+            animator.addListener(animatorListenerAdapter);
         }
-        return animatorSet;
+        return animator;
     }
 
     protected <T extends View> List<CardCoordinates> getCoordinatesForViews(Config xConfig, Config yConfig, List<T> views) {
@@ -299,6 +307,17 @@ public abstract class CardsLayoutWithBars<
         return barCoordinates;
     }
 
+    @Override
+    public <CV extends View & ValidateViewBlocker & FirstPositionProvider> List<CV> getValidatedViews() {
+        List<CV> validatedViews = super.getValidatedViews();
+        if (firstBarView != null) {
+            validatedViews.add((CV) firstBarView);
+        }
+        if (secondBarView != null) {
+            validatedViews.add((CV) secondBarView);
+        }
+        return validatedViews;
+    }
 
     /* private methods */
 

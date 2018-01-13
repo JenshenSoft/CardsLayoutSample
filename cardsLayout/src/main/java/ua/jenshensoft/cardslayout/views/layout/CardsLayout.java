@@ -42,6 +42,9 @@ import ua.jenshensoft.cardslayout.pattern.models.CardCoordinates;
 import ua.jenshensoft.cardslayout.util.DrawableUtils;
 import ua.jenshensoft.cardslayout.util.FlagManager;
 import ua.jenshensoft.cardslayout.util.SwipeGestureManager;
+import ua.jenshensoft.cardslayout.views.FirstPosition;
+import ua.jenshensoft.cardslayout.views.FirstPositionProvider;
+import ua.jenshensoft.cardslayout.views.ValidateViewBlocker;
 import ua.jenshensoft.cardslayout.views.card.Card;
 import ua.jenshensoft.cardslayout.views.card.CardBoxView;
 import ua.jenshensoft.cardslayout.views.card.CardView;
@@ -499,8 +502,8 @@ public abstract class CardsLayout extends ViewGroup
     }
 
     @Nullable
-    public <CV extends View & Card> AnimatorSet createAnimationIfNeededForCards(boolean withAnimation,
-                                                                                @Nullable OnCreateAnimatorAction animationCreateAction) {
+    public <CV extends View & Card> Animator createAnimationIfNeededForCards(boolean withAnimation,
+                                                                             @Nullable OnCreateAnimatorAction animationCreateAction) {
         final List<CV> cards = getValidatedCardViews();
         final List<CardCoordinates> cardsStartPositions = getViewsCoordinatesForStartPosition(cards);
         final List<CV> verifiedCards = new ArrayList<>();
@@ -540,19 +543,31 @@ public abstract class CardsLayout extends ViewGroup
         return validatedCards;
     }
 
+    @SuppressWarnings("unchecked")
+    public <CV extends View & ValidateViewBlocker & FirstPositionProvider> List<CV> getValidatedViews() {
+        final List<CV> validatedCards = new ArrayList<>();
+        List<Card> cards = getCards();
+        for (Card card : cards) {
+            if (!shouldPassCard(card)) {
+                validatedCards.add((CV) card);
+            }
+        }
+        return validatedCards;
+    }
+
     /* protected methods */
 
     protected void onInvalidateCardsPosition(boolean withAnimation,
                                              @Nullable OnCreateAnimatorAction onCreateAnimatorAction,
                                              @Nullable AnimatorListenerAdapter animatorListenerAdapter) {
         animationHandler.cancel();
-        AnimatorSet animatorSet = createAnimationIfNeededForCards(withAnimation, onCreateAnimatorAction);
-        if (animatorSet != null) {
+        Animator animator = createAnimationIfNeededForCards(withAnimation, onCreateAnimatorAction);
+        if (animator != null) {
             if (animatorListenerAdapter != null) {
-                animatorSet.addListener(animatorListenerAdapter);
+                animator.addListener(animatorListenerAdapter);
             }
-            animationHandler.addAnimator(animatorSet);
-            animatorSet.start();
+            animationHandler.addAnimator(animator);
+            animator.start();
         }
     }
 
@@ -606,18 +621,22 @@ public abstract class CardsLayout extends ViewGroup
         }
     }
 
-    protected <CV extends View & Card> void setViewsCoordinatesToStartPosition(List<CV> cards, List<CardCoordinates> cardsCoordinates) {
+    protected <CV extends View & FirstPositionProvider>
+    void setViewsCoordinatesToStartPosition(List<CV> cards,
+                                            List<CardCoordinates> cardsCoordinates) {
         for (int i = 0; i < cardsCoordinates.size(); i++) {
-            final Card card = cards.get(i);
+            final CV card = cards.get(i);
             final CardCoordinates cardCoordinates = cardsCoordinates.get(i);
             setViewCoordinatesToStartPosition(card, cardCoordinates);
         }
     }
 
-    protected <CV extends View & Card> void setViewCoordinatesToStartPosition(final Card card, final CardCoordinates cardCoordinates) {
-        card.setFirstX(cardCoordinates.getX());
-        card.setFirstY(cardCoordinates.getY());
-        card.setFirstRotation(cardCoordinates.getAngle());
+    protected void setViewCoordinatesToStartPosition(final FirstPositionProvider card,
+                                                     final CardCoordinates cardCoordinates) {
+        FirstPosition firstPosition = card.getFirstPosition();
+        firstPosition.setFirstPositionX(Math.round(cardCoordinates.getX()));
+        firstPosition.setFirstPositionY(Math.round(cardCoordinates.getY()));
+        firstPosition.setFirstRotation(Math.round(cardCoordinates.getAngle()));
     }
 
     @Nullable
@@ -842,11 +861,11 @@ public abstract class CardsLayout extends ViewGroup
         cards = new ArrayList<>();
         defaultAnimatorAction = new OnCreateAnimatorAction() {
             @Override
-            public <C extends View & Card> Animator createAnimation(C cardView) {
+            public <C extends View & FirstPositionProvider> Animator createAnimation(C cardView) {
                 AwesomeAnimation.Builder awesomeAnimation = new AwesomeAnimation.Builder(cardView)
-                        .setX(AwesomeAnimation.CoordinationMode.COORDINATES, cardView.getX(), cardView.getCardInfo().getFirstPositionX())
-                        .setY(AwesomeAnimation.CoordinationMode.COORDINATES, cardView.getY(), cardView.getCardInfo().getFirstPositionY())
-                        .setRotation(cardView.getRotation(), cardView.getCardInfo().getFirstRotation())
+                        .setX(AwesomeAnimation.CoordinationMode.COORDINATES, cardView.getX(), cardView.getFirstPosition().getFirstPositionX())
+                        .setY(AwesomeAnimation.CoordinationMode.COORDINATES, cardView.getY(), cardView.getFirstPosition().getFirstPositionY())
+                        .setRotation(cardView.getRotation(), cardView.getFirstPosition().getFirstRotation())
                         .setDuration(durationOfAnimation);
                 return awesomeAnimation.build().getAnimatorSet();
             }
@@ -1015,7 +1034,7 @@ public abstract class CardsLayout extends ViewGroup
 
     @FunctionalInterface
     public interface OnCreateAnimatorAction {
-        <CV extends View & Card> Animator createAnimation(CV cardView);
+        <CV extends View & FirstPositionProvider> Animator createAnimation(CV cardView);
     }
 
     /* inner types */

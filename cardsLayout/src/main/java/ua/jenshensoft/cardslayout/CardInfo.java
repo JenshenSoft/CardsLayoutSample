@@ -3,33 +3,38 @@ package ua.jenshensoft.cardslayout;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-public class CardInfo {
+import ua.jenshensoft.cardslayout.views.FirstPosition;
+
+public class CardInfo extends FirstPosition {
     private int cardPositionInLayout;
-    private int firstPositionX;
-    private int firstPositionY;
-    private int firstRotation;
     private boolean hasFilter;
     private boolean cardDistributed = true;
     @Nullable
     private Object entity;
 
     public CardInfo(int cardPositionInLayout) {
+        super(cardPositionInLayout);
         this.cardPositionInLayout = cardPositionInLayout;
     }
 
     public CardInfo(CardInfo cardInfo) {
+        super(cardInfo.getCardPositionInLayout());
         this.cardPositionInLayout = cardInfo.getCardPositionInLayout();
-        this.firstPositionX = cardInfo.getFirstPositionX();
-        this.firstPositionY = cardInfo.getFirstPositionY();
-        this.firstRotation = cardInfo.getFirstRotation();
         this.hasFilter = cardInfo.hasFilter();
         this.cardDistributed = cardInfo.isCardDistributed();
         this.entity = cardInfo.getEntity();
+        setFirstPositionX(cardInfo.getFirstPositionX());
+        setFirstPositionY(cardInfo.getFirstPositionY());
+        setFirstRotation(cardInfo.getFirstRotation());
     }
 
     @Nullable
     public Object getEntity() {
         return entity;
+    }
+
+    public void setEntity(@NonNull Object entity) {
+        this.entity = entity;
     }
 
     public boolean isCardDistributed() {
@@ -38,34 +43,6 @@ public class CardInfo {
 
     public void setCardDistributed(boolean cardDistributed) {
         this.cardDistributed = cardDistributed;
-    }
-
-    public void setEntity(@NonNull Object entity) {
-        this.entity = entity;
-    }
-
-    public int getFirstPositionX() {
-        return firstPositionX;
-    }
-
-    public void setFirstPositionX(int firstPositionX) {
-        this.firstPositionX = firstPositionX;
-    }
-
-    public int getFirstPositionY() {
-        return firstPositionY;
-    }
-
-    public void setFirstPositionY(int firstPositionY) {
-        this.firstPositionY = firstPositionY;
-    }
-
-    public void setFirstRotation(int firstRotation) {
-        this.firstRotation = firstRotation;
-    }
-
-    public int getFirstRotation() {
-        return firstRotation;
     }
 
     public int getCardPositionInLayout() {
@@ -85,30 +62,9 @@ public class CardInfo {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        CardInfo  cardInfo = (CardInfo) o;
-
-        if (cardPositionInLayout != cardInfo.cardPositionInLayout) return false;
-        return entity != null ? entity.equals(cardInfo.entity) : cardInfo.entity == null;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = cardPositionInLayout;
-        result = 31 * result + (entity != null ? entity.hashCode() : 0);
-        return result;
-    }
-
-    @Override
     public String toString() {
         return "CardInfo{" +
                 "cardPositionInLayout=" + cardPositionInLayout +
-                ", firstPositionX=" + firstPositionX +
-                ", firstPositionY=" + firstPositionY +
-                ", firstRotation=" + firstRotation +
                 ", hasFilter=" + hasFilter +
                 ", cardDistributed=" + cardDistributed +
                 ", entity=" + entity +

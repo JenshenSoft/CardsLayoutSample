@@ -19,6 +19,7 @@ import ua.jenshensoft.cardslayout.R;
 import ua.jenshensoft.cardslayout.pattern.CardDeckCoordinatesPattern;
 import ua.jenshensoft.cardslayout.pattern.models.ThreeDCardCoordinates;
 import ua.jenshensoft.cardslayout.util.FlagManager;
+import ua.jenshensoft.cardslayout.views.FirstPosition;
 import ua.jenshensoft.cardslayout.views.ViewUpdateConfig;
 import ua.jenshensoft.cardslayout.views.card.Card;
 import ua.jenshensoft.cardslayout.views.card.CardBoxView;
@@ -197,9 +198,10 @@ public abstract class CardDeckView extends ViewGroup {
 
     protected void setCardDeckCardToStartPosition(final Card card, final ThreeDCardCoordinates cardCoordinates) {
         card.setCardZ(cardCoordinates.getZ());
-        card.setFirstX(cardCoordinates.getX());
-        card.setFirstY(cardCoordinates.getY());
-        card.setFirstRotation(cardCoordinates.getAngle());
+        FirstPosition firstPosition = card.getFirstPosition();
+        firstPosition.setFirstPositionX(Math.round(cardCoordinates.getX()));
+        firstPosition.setFirstPositionY(Math.round(cardCoordinates.getY()));
+        firstPosition.setFirstRotation(Math.round(cardCoordinates.getAngle()));
     }
 
     /* private methods */
