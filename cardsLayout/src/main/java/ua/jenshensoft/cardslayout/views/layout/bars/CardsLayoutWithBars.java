@@ -230,12 +230,8 @@ public abstract class CardsLayoutWithBars<
         if (interpolator != null) {
             animator.setInterpolator(interpolator);
         }
+        view.setInAnimation(true);
         animator.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                view.setInAnimation(true);
-            }
-
             @Override
             public void onAnimationEnd(Animator animation) {
                 view.setInAnimation(false);

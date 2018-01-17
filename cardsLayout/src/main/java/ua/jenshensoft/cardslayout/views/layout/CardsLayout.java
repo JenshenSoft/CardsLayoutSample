@@ -655,14 +655,10 @@ public abstract class CardsLayout extends ViewGroup
         if (!animators.isEmpty()) {
             AnimatorSet animatorSet = new AnimatorSet();
             animatorSet.playTogether(animators);
+            for (CV card : cards) {
+                card.setInAnimation(true);
+            }
             animatorSet.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationStart(Animator animation) {
-                    for (CV card : cards) {
-                        card.setInAnimation(true);
-                    }
-                }
-
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     for (CV card : cards) {
