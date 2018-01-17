@@ -366,11 +366,11 @@ public abstract class GameTableLayout<
             }
             entitiesByLayouts.add(cardsPairs.iterator());
         }
-        postDelayed(() -> {
+        post(() -> {
             if (!animationHandler.isOnDestroyed()) {
                 distributeWave(CardsUtil.getEntitiesByWaves(entitiesByLayouts).iterator());
             }
-        }, 200);
+        });
     }
 
     /* protected methods */
@@ -665,7 +665,6 @@ public abstract class GameTableLayout<
         animatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
                 onDistributedCards();
             }
         });
@@ -687,13 +686,11 @@ public abstract class GameTableLayout<
         animatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
-                super.onAnimationStart(animation);
                 onStartDistributedCardWave(cards);
             }
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
                 onEndDistributeCardWave(cards);
             }
         });
