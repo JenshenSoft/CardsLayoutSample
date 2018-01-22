@@ -160,6 +160,11 @@ public class CardBoxView extends FrameLayout implements Card {
     }
 
     @Override
+    public void setAnimationDuration(int animationDuration) {
+        swipeManager.setAnimationDuration(animationDuration);
+    }
+
+    @Override
     public void setCardTranslationListener(final OnCardTranslationListener cardTranslationListener) {
         swipeManager.setCardTranslationListener(cardTranslationListener);
     }
@@ -246,7 +251,6 @@ public class CardBoxView extends FrameLayout implements Card {
         builder.setSwipeOffset(swipeOffset);
         builder.setOrientationMode(swipeOrientationMode);
         swipeManager = builder.create();
-        setOnTouchListener(swipeManager);
     }
 
     @Override

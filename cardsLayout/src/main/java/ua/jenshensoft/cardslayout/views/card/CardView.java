@@ -31,6 +31,7 @@ public class CardView extends AppCompatImageView implements Card {
     private boolean inAnimation;
     private float cardElevation = -1;
     private float cardElevationPressed = -1;
+    private int animationDuration = 200;
 
     public CardView(Context context) {
         super(context);
@@ -160,6 +161,11 @@ public class CardView extends AppCompatImageView implements Card {
     }
 
     @Override
+    public void setAnimationDuration(int animationDuration) {
+        swipeManager.setAnimationDuration(animationDuration);
+    }
+
+    @Override
     public void setCardTranslationListener(final OnCardTranslationListener cardTranslationListener) {
         swipeManager.setCardTranslationListener(cardTranslationListener);
     }
@@ -227,6 +233,7 @@ public class CardView extends AppCompatImageView implements Card {
                 scrollAndClickable = attributes.getBoolean(ua.jenshensoft.cardslayout.R.styleable.SwipeableLayout_card_scrollAndClickable, scrollAndClickable);
                 cardElevation = attributes.getDimension(ua.jenshensoft.cardslayout.R.styleable.SwipeableLayout_card_elevation, cardElevation);
                 cardElevationPressed = attributes.getDimension(R.styleable.SwipeableLayout_card_elevation_pressed, cardElevationPressed);
+                animationDuration = attributes.getInt(R.styleable.SwipeableLayout_card_animationDuration, animationDuration);
             } finally {
                 attributes.recycle();
             }
@@ -245,8 +252,8 @@ public class CardView extends AppCompatImageView implements Card {
         builder.setSwipeSpeed(swipeSpeed);
         builder.setSwipeOffset(swipeOffset);
         builder.setOrientationMode(swipeOrientationMode);
+        builder.setAnimationDuration(animationDuration);
         swipeManager = builder.create();
-        setOnTouchListener(swipeManager);
     }
 
     @Override

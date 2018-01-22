@@ -5,6 +5,7 @@
         <attr name="card_elevation_pressed" format="dimension" />
         <attr name="card_speed" format="float" />
         <attr name="card_swipeOffset" format="float" />
+        <attr name="card_animationDuration" format="integer" />
         <attr name="card_swipeOrientation" format="enum">
             <enum name="leftToRight" value="0" />
             <enum name="bottomToUp" value="1" />

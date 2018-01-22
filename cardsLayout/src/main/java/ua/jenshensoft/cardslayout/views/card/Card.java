@@ -56,6 +56,8 @@ public interface Card extends ValidateViewBlocker, FirstPositionProvider {
 
     float getPressedElevation();
 
+    void setAnimationDuration(int animationDuration);
+
     /**
      * @param mode 0 - LEFT_RIGHT , 1 - UP_BOTTOM, 2 - BOTH, 3 - NONE
      */
