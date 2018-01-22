@@ -62,26 +62,10 @@ public class SwipeGestureManager implements View.OnTouchListener {
         }
 
         if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
-            AwesomeAnimation awesomeAnimation = new AwesomeAnimation.Builder(view)
-                    .setSizeX(AwesomeAnimation.SizeMode.SCALE, SIZE_MULTIPLIER)
-                    .setSizeY(AwesomeAnimation.SizeMode.SCALE, SIZE_MULTIPLIER)
-                    .setDuration(200)
-                    .build();
-            awesomeAnimation.start();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                view.setElevation(((Card) view).getPressedElevation());
-            }
+            zoomIn(view);
             cardDragged = true;
         } else if (event.getActionMasked() == MotionEvent.ACTION_UP) {
-            AwesomeAnimation awesomeAnimation = new AwesomeAnimation.Builder(view)
-                    .setSizeX(AwesomeAnimation.SizeMode.SCALE, 1f)
-                    .setSizeY(AwesomeAnimation.SizeMode.SCALE, 1f)
-                    .setDuration(200)
-                    .build();
-            awesomeAnimation.start();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                view.setElevation(((Card) view).getNormalElevation());
-            }
+            zoomOut(view);
             cardDragged = false;
         }
 
@@ -233,6 +217,35 @@ public class SwipeGestureManager implements View.OnTouchListener {
         ObjectAnimator animator = ObjectAnimator.ofFloat(view, xProperty, fromPosition, startPosition);
         animator.setDuration(300);
         animator.start();
+    }
+
+    private void rollback(View view, int firstPositionX, int firstPositionY) {
+        rollback(view, View.X, view.getX(), firstPositionX);
+        rollback(view, View.Y, view.getY(), firstPositionY);
+    }
+
+    private void zoomIn(View view) {
+        AwesomeAnimation awesomeAnimation = new AwesomeAnimation.Builder(view)
+                .setSizeX(AwesomeAnimation.SizeMode.SCALE, SIZE_MULTIPLIER)
+                .setSizeY(AwesomeAnimation.SizeMode.SCALE, SIZE_MULTIPLIER)
+                .setDuration(200)
+                .build();
+        awesomeAnimation.start();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            view.setElevation(((Card) view).getPressedElevation());
+        }
+    }
+
+    private void zoomOut(View view) {
+        AwesomeAnimation awesomeAnimation = new AwesomeAnimation.Builder(view)
+                .setSizeX(AwesomeAnimation.SizeMode.SCALE, 1f)
+                .setSizeY(AwesomeAnimation.SizeMode.SCALE, 1f)
+                .setDuration(200)
+                .build();
+        awesomeAnimation.start();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            view.setElevation(((Card) view).getNormalElevation());
+        }
     }
 
     private CardInfo getCardInfo() {
