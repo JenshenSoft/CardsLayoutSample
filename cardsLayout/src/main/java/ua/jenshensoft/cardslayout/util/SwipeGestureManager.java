@@ -213,6 +213,8 @@ public class SwipeGestureManager implements View.OnTouchListener {
             rollback(view);
             zoomOut(view);
             cardDragged = false;
+            triggerPercentageListener(view);
+            triggerPositionChangeListener(shiftX, shiftY);
             return true;
         }
 
