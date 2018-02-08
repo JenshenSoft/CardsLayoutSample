@@ -8,6 +8,7 @@ import ua.jenshensoft.cardslayout.CardInfo;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardPercentageChangeListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardSwipedListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardTranslationListener;
+import ua.jenshensoft.cardslayout.util.SwipeGestureManager;
 import ua.jenshensoft.cardslayout.views.FirstPositionProvider;
 import ua.jenshensoft.cardslayout.views.ValidateViewBlocker;
 
@@ -81,4 +82,6 @@ public interface Card extends ValidateViewBlocker, FirstPositionProvider {
     void setSwipeOffset(float swipeOffset);
 
     void setScrollAndClickableState(boolean scrollAndClickable);
+
+    void setSwipeController(SwipeGestureManager swipeGestureManager);
 }

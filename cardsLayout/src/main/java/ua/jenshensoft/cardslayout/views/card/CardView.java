@@ -9,6 +9,8 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
 
+import com.jenshen.awesomeanimation.util.animator.AnimatorHandler;
+
 import ua.jenshensoft.cardslayout.CardInfo;
 import ua.jenshensoft.cardslayout.R;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardPercentageChangeListener;
@@ -20,18 +22,20 @@ import ua.jenshensoft.cardslayout.views.layout.CardsLayoutParams;
 
 import static ua.jenshensoft.cardslayout.util.SwipeGestureManager.EPSILON;
 
-public class CardView extends AppCompatImageView implements Card {
+public class CardView extends AppCompatImageView  implements Card {
     //attr
     private float swipeSpeed = 1.0f;
     private float swipeOffset = -1;
     private int swipeOrientationMode = SwipeGestureManager.OrientationMode.UP_BOTTOM;
     private SwipeGestureManager swipeManager;
     private CardInfo cardInfo;
+    private boolean ownSwipeController = true;
     private boolean scrollAndClickable = true;
     private boolean inAnimation;
     private float cardElevation = -1;
     private float cardElevationPressed = -1;
-    private int animationDuration = 200;
+    @Nullable
+    private AnimatorHandler animatorHandler;
 
     public CardView(Context context) {
         super(context);
@@ -58,12 +62,6 @@ public class CardView extends AppCompatImageView implements Card {
     }
 
     @Override
-    public void setEnabled(boolean enabled) {
-        super.setEnabled(enabled);
-        setScrollAndClickableState(enabled);
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof CardView)) return false;
@@ -74,6 +72,20 @@ public class CardView extends AppCompatImageView implements Card {
     @Override
     public int hashCode() {
         return cardInfo != null ? cardInfo.hashCode() : 0;
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        setScrollAndClickableState(enabled);
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        if (animatorHandler != null) {
+            animatorHandler.onDestroy();
+        }
     }
 
     @Override
@@ -112,18 +124,18 @@ public class CardView extends AppCompatImageView implements Card {
     }
 
     @Override
-    public void setCardZ(float z) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            setElevation(z);
-        }
-    }
-
-    @Override
     public float getCardZ() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             return getElevation();
         }
         return 0;
+    }
+
+    @Override
+    public void setCardZ(float z) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            setElevation(z);
+        }
     }
 
     /* attr */
@@ -146,8 +158,6 @@ public class CardView extends AppCompatImageView implements Card {
     @Override
     public void setCardInfo(CardInfo cardInfo) {
         this.cardInfo = cardInfo;
-        if (swipeManager != null)
-            swipeManager.setCardInfoProvider(() -> cardInfo);
     }
 
     @Override
@@ -206,6 +216,14 @@ public class CardView extends AppCompatImageView implements Card {
     }
 
     @Override
+    public void setSwipeController(SwipeGestureManager swipeManager) {
+        this.swipeManager = swipeManager;
+        this.swipeManager.setSwipeSpeed(swipeSpeed);
+        this.swipeManager.setSwipeOffset(swipeOffset);
+        this.swipeManager.setOrientationMode(swipeOrientationMode);
+    }
+
+    @Override
     public boolean isInAnimation() {
         return inAnimation;
     }
@@ -220,20 +238,19 @@ public class CardView extends AppCompatImageView implements Card {
         return cardInfo;
     }
 
-
     /* private methods */
 
     private void inflateAttributes(Context context, @Nullable AttributeSet attributeSet) {
         if (attributeSet != null) {
             TypedArray attributes = context.obtainStyledAttributes(attributeSet, ua.jenshensoft.cardslayout.R.styleable.SwipeableLayout);
             try {
+                ownSwipeController = attributes.getBoolean(ua.jenshensoft.cardslayout.R.styleable.SwipeableLayout_card_ownSwipeController, ownSwipeController);
                 swipeSpeed = attributes.getFloat(ua.jenshensoft.cardslayout.R.styleable.SwipeableLayout_card_speed, swipeSpeed);
                 swipeOrientationMode = attributes.getInt(ua.jenshensoft.cardslayout.R.styleable.SwipeableLayout_card_swipeOrientation, swipeOrientationMode);
                 swipeOffset = attributes.getFloat(ua.jenshensoft.cardslayout.R.styleable.SwipeableLayout_card_swipeOffset, swipeOffset);
                 scrollAndClickable = attributes.getBoolean(ua.jenshensoft.cardslayout.R.styleable.SwipeableLayout_card_scrollAndClickable, scrollAndClickable);
                 cardElevation = attributes.getDimension(ua.jenshensoft.cardslayout.R.styleable.SwipeableLayout_card_elevation, cardElevation);
                 cardElevationPressed = attributes.getDimension(R.styleable.SwipeableLayout_card_elevation_pressed, cardElevationPressed);
-                animationDuration = attributes.getInt(R.styleable.SwipeableLayout_card_animationDuration, animationDuration);
             } finally {
                 attributes.recycle();
             }
@@ -248,17 +265,19 @@ public class CardView extends AppCompatImageView implements Card {
         if (Math.abs(cardElevationPressed - (-1)) < EPSILON) {
             cardElevationPressed = getResources().getDimension(R.dimen.cardsLayout_card_elevation_pressed);
         }
-        SwipeGestureManager.Builder builder = new SwipeGestureManager.Builder(getContext());
-        builder.setSwipeSpeed(swipeSpeed);
-        builder.setSwipeOffset(swipeOffset);
-        builder.setOrientationMode(swipeOrientationMode);
-        builder.setAnimationDuration(animationDuration);
-        swipeManager = builder.create();
+        if (ownSwipeController) {
+            animatorHandler = new AnimatorHandler();
+            SwipeGestureManager.Builder builder = new SwipeGestureManager.Builder(getContext(), animatorHandler);
+            builder.setSwipeSpeed(swipeSpeed);
+            builder.setSwipeOffset(swipeOffset);
+            builder.setOrientationMode(swipeOrientationMode);
+            swipeManager = builder.create();
+        }
     }
 
     @Override
     public String toString() {
-        return "CardView{" +
+        return "CardBox{" +
                 "cardInfo=" + cardInfo +
                 '}';
     }

@@ -9,6 +9,8 @@ import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import com.jenshen.awesomeanimation.util.animator.AnimatorHandler;
+
 import ua.jenshensoft.cardslayout.CardInfo;
 import ua.jenshensoft.cardslayout.R;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardPercentageChangeListener;
@@ -27,10 +29,13 @@ public class CardBoxView extends FrameLayout implements Card {
     private int swipeOrientationMode = SwipeGestureManager.OrientationMode.UP_BOTTOM;
     private SwipeGestureManager swipeManager;
     private CardInfo cardInfo;
+    private boolean ownSwipeController = true;
     private boolean scrollAndClickable = true;
     private boolean inAnimation;
     private float cardElevation = -1;
     private float cardElevationPressed = -1;
+    @Nullable
+    private AnimatorHandler animatorHandler;
 
     public CardBoxView(Context context) {
         super(context);
@@ -76,6 +81,14 @@ public class CardBoxView extends FrameLayout implements Card {
     }
 
     @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        if (animatorHandler != null) {
+            animatorHandler.onDestroy();
+        }
+    }
+
+    @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
         if (scrollAndClickable) {
             super.dispatchTouchEvent(ev);
@@ -111,18 +124,18 @@ public class CardBoxView extends FrameLayout implements Card {
     }
 
     @Override
-    public void setCardZ(float z) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            setElevation(z);
-        }
-    }
-
-    @Override
     public float getCardZ() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             return getElevation();
         }
         return 0;
+    }
+
+    @Override
+    public void setCardZ(float z) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            setElevation(z);
+        }
     }
 
     /* attr */
@@ -145,8 +158,6 @@ public class CardBoxView extends FrameLayout implements Card {
     @Override
     public void setCardInfo(CardInfo cardInfo) {
         this.cardInfo = cardInfo;
-        if (swipeManager != null)
-            swipeManager.setCardInfoProvider(() -> cardInfo);
     }
 
     @Override
@@ -205,6 +216,14 @@ public class CardBoxView extends FrameLayout implements Card {
     }
 
     @Override
+    public void setSwipeController(SwipeGestureManager swipeManager) {
+        this.swipeManager = swipeManager;
+        this.swipeManager.setSwipeSpeed(swipeSpeed);
+        this.swipeManager.setSwipeOffset(swipeOffset);
+        this.swipeManager.setOrientationMode(swipeOrientationMode);
+    }
+
+    @Override
     public boolean isInAnimation() {
         return inAnimation;
     }
@@ -219,13 +238,13 @@ public class CardBoxView extends FrameLayout implements Card {
         return cardInfo;
     }
 
-
     /* private methods */
 
     private void inflateAttributes(Context context, @Nullable AttributeSet attributeSet) {
         if (attributeSet != null) {
             TypedArray attributes = context.obtainStyledAttributes(attributeSet, ua.jenshensoft.cardslayout.R.styleable.SwipeableLayout);
             try {
+                ownSwipeController = attributes.getBoolean(ua.jenshensoft.cardslayout.R.styleable.SwipeableLayout_card_ownSwipeController, ownSwipeController);
                 swipeSpeed = attributes.getFloat(ua.jenshensoft.cardslayout.R.styleable.SwipeableLayout_card_speed, swipeSpeed);
                 swipeOrientationMode = attributes.getInt(ua.jenshensoft.cardslayout.R.styleable.SwipeableLayout_card_swipeOrientation, swipeOrientationMode);
                 swipeOffset = attributes.getFloat(ua.jenshensoft.cardslayout.R.styleable.SwipeableLayout_card_swipeOffset, swipeOffset);
@@ -246,11 +265,14 @@ public class CardBoxView extends FrameLayout implements Card {
         if (Math.abs(cardElevationPressed - (-1)) < EPSILON) {
             cardElevationPressed = getResources().getDimension(R.dimen.cardsLayout_card_elevation_pressed);
         }
-        SwipeGestureManager.Builder builder = new SwipeGestureManager.Builder(getContext());
-        builder.setSwipeSpeed(swipeSpeed);
-        builder.setSwipeOffset(swipeOffset);
-        builder.setOrientationMode(swipeOrientationMode);
-        swipeManager = builder.create();
+        if (ownSwipeController) {
+            animatorHandler = new AnimatorHandler();
+            SwipeGestureManager.Builder builder = new SwipeGestureManager.Builder(getContext(), animatorHandler);
+            builder.setSwipeSpeed(swipeSpeed);
+            builder.setSwipeOffset(swipeOffset);
+            builder.setOrientationMode(swipeOrientationMode);
+            swipeManager = builder.create();
+        }
     }
 
     @Override

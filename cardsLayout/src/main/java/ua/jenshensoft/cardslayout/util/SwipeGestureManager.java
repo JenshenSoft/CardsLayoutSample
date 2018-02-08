@@ -10,6 +10,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.jenshen.awesomeanimation.AwesomeAnimation;
+import com.jenshen.awesomeanimation.util.animator.AnimatorHandler;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -27,6 +28,8 @@ public class SwipeGestureManager implements View.OnTouchListener {
     public static final float EPSILON = 0.00000001f;
 
     private final GestureDetector gestureDetector;
+    private final FlingGestureDetector flingGestureDetector;
+    private final AnimatorHandler animatorHandler;
     // Configs
     private float swipeSpeed;
     private int orientationMode;
@@ -39,27 +42,28 @@ public class SwipeGestureManager implements View.OnTouchListener {
     private Set<Integer> blocks;
     private int shiftX;
     private int shiftY;
-    private int lastMotion = -1;
     private int lastXPosition;
     private int lastYPosition;
     private float percentageX;
     private float percentageY;
     private int mode;
-    private CardInfoProvider cardInfoProvider;
     private boolean cardDragged;
     private boolean cardInRollback;
 
     private SwipeGestureManager(Context context,
+                                AnimatorHandler animatorHandler,
                                 float swipeSpeed,
                                 float swipeOffset,
                                 int orientationMode,
                                 int animationDuration) {
+        this.animatorHandler = animatorHandler;
         this.swipeSpeed = swipeSpeed;
         this.swipeOffset = swipeOffset;
         this.orientationMode = orientationMode;
         this.animationDuration = animationDuration;
         this.blocks = new HashSet<>();
-        this.gestureDetector = new GestureDetector(context, new FlingGestureDetector());
+        this.flingGestureDetector = new FlingGestureDetector();
+        this.gestureDetector = new GestureDetector(context, flingGestureDetector);
     }
 
     @SuppressWarnings("unchecked")
@@ -82,14 +86,13 @@ public class SwipeGestureManager implements View.OnTouchListener {
                 shouldRollback = swipeByY((View & Card) view, event);
                 break;
             case OrientationMode.BOTH:
-                shouldRollback = swipeByY((View & Card) view, event) || swipeByX((View & Card) view, event);
+                shouldRollback = swipeByXandY((View & Card) view, event);
                 break;
             default:
                 shouldRollback = false;
         }
-        lastMotion = event.getActionMasked();
         if (shouldRollback) {
-            rollback((View & Card) view);
+            cardRollback((View & Card) view);
         }
         return true;
     }
@@ -131,10 +134,6 @@ public class SwipeGestureManager implements View.OnTouchListener {
         this.cardPercentageChangeListener = cardPercentageChangeListener;
     }
 
-    public void setCardInfoProvider(CardInfoProvider cardInfoProvider) {
-        this.cardInfoProvider = cardInfoProvider;
-    }
-
     /* private methods */
 
     private float getPercent(float from, float to) {
@@ -147,6 +146,7 @@ public class SwipeGestureManager implements View.OnTouchListener {
     private <C extends View & Card> boolean swipeByX(C view, MotionEvent event) {
         if (!blocks.contains(OrientationMode.LEFT_RIGHT)) {
             CardInfo cardInfo = view.getCardInfo();
+            flingGestureDetector.setCardInfo(cardInfo);
             if (gestureDetector.onTouchEvent(event)) {
                 return false;
             }
@@ -157,15 +157,18 @@ public class SwipeGestureManager implements View.OnTouchListener {
             percentageX = getPercent(view.getX(), x);
             if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
                 lastXPosition = x;
+                shiftX = 0;
+                triggerPercentageListener(view);
+                triggerPositionChangeListener(cardInfo, shiftX, shiftY);
             } else if (event.getActionMasked() == MotionEvent.ACTION_MOVE) {
                 shiftX = x - lastXPosition;
                 float currentX = cardInfo.getFirstPositionX() + (shiftX * swipeSpeed);
                 view.setX(currentX);
                 triggerPercentageListener(view);
-                triggerPositionChangeListener(shiftX, shiftY);
+                triggerPositionChangeListener(cardInfo, shiftX, shiftY);
             } else if (event.getActionMasked() == MotionEvent.ACTION_UP) {
                 triggerPercentageListener(view);
-                triggerPositionChangeListener(shiftX, shiftY);
+                triggerPositionChangeListener(cardInfo, shiftX, shiftY);
                 return true;
             }
         }
@@ -175,6 +178,7 @@ public class SwipeGestureManager implements View.OnTouchListener {
     private <C extends View & Card> boolean swipeByY(C view, MotionEvent event) {
         if (!blocks.contains(OrientationMode.UP_BOTTOM)) {
             CardInfo cardInfo = view.getCardInfo();
+            flingGestureDetector.setCardInfo(cardInfo);
             if (gestureDetector.onTouchEvent(event)) {
                 return false;
             }
@@ -185,15 +189,58 @@ public class SwipeGestureManager implements View.OnTouchListener {
             percentageY = getPercent(view.getY(), y);
             if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
                 lastYPosition = y;
+                shiftY = 0;
+                triggerPercentageListener(view);
+                triggerPositionChangeListener(cardInfo, shiftX, shiftY);
             } else if (event.getActionMasked() == MotionEvent.ACTION_MOVE) {
                 shiftY = y - lastYPosition;
                 float currentY = cardInfo.getFirstPositionY() + (shiftY * swipeSpeed);
                 view.setY(currentY);
                 triggerPercentageListener(view);
-                triggerPositionChangeListener(shiftX, shiftY);
+                triggerPositionChangeListener(cardInfo, shiftX, shiftY);
             } else if (event.getActionMasked() == MotionEvent.ACTION_UP) {
                 triggerPercentageListener(view);
-                triggerPositionChangeListener(shiftX, shiftY);
+                triggerPositionChangeListener(cardInfo, shiftX, shiftY);
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    private <C extends View & Card> boolean swipeByXandY(C view, MotionEvent event) {
+        if (!blocks.contains(OrientationMode.BOTH)) {
+            CardInfo cardInfo = view.getCardInfo();
+            flingGestureDetector.setCardInfo(cardInfo);
+            if (gestureDetector.onTouchEvent(event)) {
+                return false;
+            }
+            final int x = (int) event.getRawX();
+            final int y = (int) event.getRawY();
+            if (Math.abs(swipeOffset - (-1)) < EPSILON) {
+                swipeOffset = view.getHeight();
+            }
+            percentageX = getPercent(view.getX(), x);
+            percentageY = getPercent(view.getY(), y);
+            if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                lastXPosition = x;
+                lastYPosition = y;
+                shiftX = 0;
+                shiftY = 0;
+                triggerPercentageListener(view);
+                triggerPositionChangeListener(cardInfo, shiftX, shiftY);
+            } else if (event.getActionMasked() == MotionEvent.ACTION_MOVE) {
+                shiftX = x - lastXPosition;
+                shiftY = y - lastYPosition;
+                float currentX = cardInfo.getFirstPositionX() + (shiftX * swipeSpeed);
+                float currentY = cardInfo.getFirstPositionY() + (shiftY * swipeSpeed);
+                view.setX(currentX);
+                view.setY(currentY);
+                triggerPercentageListener(view);
+                triggerPositionChangeListener(cardInfo, shiftX, shiftY);
+            } else if (event.getActionMasked() == MotionEvent.ACTION_UP) {
+                triggerPercentageListener(view);
+                triggerPositionChangeListener(cardInfo, shiftX, shiftY);
                 return true;
             }
         }
@@ -210,11 +257,9 @@ public class SwipeGestureManager implements View.OnTouchListener {
         }
 
         if (event.getPointerCount() > 1) {
-            rollback(view);
-            zoomOut(view);
-            cardDragged = false;
+            cardRollback(view);
             triggerPercentageListener(view);
-            triggerPositionChangeListener(shiftX, shiftY);
+            triggerPositionChangeListener(view.getCardInfo(), shiftX, shiftY);
             return true;
         }
 
@@ -240,12 +285,13 @@ public class SwipeGestureManager implements View.OnTouchListener {
     }
 
     private <C extends View & Card> void cardRollback(C view) {
+        cardDragged = false;
         rollback(view);
         zoomOut(view);
-        cardDragged = false;
     }
 
     private <C extends View & Card> void rollback(C view) {
+        animatorHandler.cancel();
         float x = view.getX();
         float y = view.getY();
         CardInfo cardInfo = view.getCardInfo();
@@ -260,14 +306,15 @@ public class SwipeGestureManager implements View.OnTouchListener {
                 .setY(AwesomeAnimation.CoordinationMode.COORDINATES, y, firstPositionY)
                 .setDuration(animationDuration)
                 .build();
-        AnimatorSet animatorSet = awesomeAnimation.getAnimatorSet();
-        animatorSet.addListener(new AnimatorListenerAdapter() {
+        AnimatorSet animator = awesomeAnimation.getAnimatorSet();
+        animator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 cardInRollback = false;
             }
         });
-        animatorSet.start();
+        animatorHandler.addAnimator(animator);
+        animator.start();
     }
 
     private void zoomIn(View view) {
@@ -276,10 +323,12 @@ public class SwipeGestureManager implements View.OnTouchListener {
                 .setSizeY(AwesomeAnimation.SizeMode.SCALE, SIZE_MULTIPLIER)
                 .setDuration(animationDuration)
                 .build();
-        awesomeAnimation.start();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             view.setElevation(((Card) view).getPressedElevation());
         }
+        AnimatorSet animator = awesomeAnimation.getAnimatorSet();
+        animatorHandler.addAnimator(animator);
+        animator.start();
     }
 
     private void zoomOut(View view) {
@@ -288,23 +337,18 @@ public class SwipeGestureManager implements View.OnTouchListener {
                 .setSizeY(AwesomeAnimation.SizeMode.SCALE, 1f)
                 .setDuration(200)
                 .build();
-        awesomeAnimation.start();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             view.setElevation(((Card) view).getNormalElevation());
         }
+        AnimatorSet animator = awesomeAnimation.getAnimatorSet();
+        animatorHandler.addAnimator(animator);
+        animator.start();
     }
 
-    private CardInfo getCardInfo() {
-        if (cardInfoProvider != null) {
-            return cardInfoProvider.getCardInfo();
-        }
-        throw new RuntimeException("Cant provide Card info, please attach it to SwipeGestureManager");
-    }
-
-    private void triggerPercentageListener(View view) {
-        if (cardPercentageChangeListener != null && lastMotion != MotionEvent.ACTION_UP) {
+    private <C extends View & Card> void triggerPercentageListener(C view) {
+        if (cardPercentageChangeListener != null) {
             float percentageX, percentageY;
-            CardInfo cardInfo = getCardInfo();
+            CardInfo cardInfo = view.getCardInfo();
             if (mode == Card.START_TO_CURRENT) {
                 percentageX = getPercent(cardInfo.getFirstPositionX(), view.getX());
                 percentageY = getPercent(cardInfo.getFirstPositionY(), view.getY());
@@ -318,19 +362,19 @@ public class SwipeGestureManager implements View.OnTouchListener {
         }
     }
 
-    private void triggerSwipeListener() {
-        if (cardSwipedListener != null && lastMotion != MotionEvent.ACTION_UP) {
-            cardSwipedListener.onCardSwiped(getCardInfo());
+    private void triggerSwipeListener(CardInfo cardInfo) {
+        if (cardSwipedListener != null) {
+            cardSwipedListener.onCardSwiped(cardInfo);
         }
     }
 
-    private void triggerPositionChangeListener(float positionX, float positionY) {
-        if (cardTranslationListener != null && lastMotion != MotionEvent.ACTION_UP) {
-            cardTranslationListener.onCardTranslation(positionX, positionY, getCardInfo(), cardDragged);
+    private void triggerPositionChangeListener(CardInfo cardInfo, float positionX, float positionY) {
+        if (cardTranslationListener != null) {
+            cardTranslationListener.onCardTranslation(positionX, positionY, cardInfo, cardDragged);
         }
     }
 
-    public void setSwipeSpeed(int swipeSpeed) {
+    public void setSwipeSpeed(float swipeSpeed) {
         this.swipeSpeed = swipeSpeed;
     }
 
@@ -338,22 +382,19 @@ public class SwipeGestureManager implements View.OnTouchListener {
         this.swipeOffset = swipeOffset;
     }
 
-    @FunctionalInterface
-    public interface CardInfoProvider {
-        CardInfo getCardInfo();
-    }
-
     /* inner types */
 
     public static class Builder {
         private final Context context;
+        private final AnimatorHandler animatorHandler;
         private float swipeOffset;
         private float swipeSpeed;
         private int mOrientationMode;
         private int animationDuration = 300;
 
-        public Builder(Context context) {
+        public Builder(Context context, AnimatorHandler animatorHandler) {
             this.context = context;
+            this.animatorHandler = animatorHandler;
         }
 
         public void setSwipeSpeed(float mSwipeSpeed) {
@@ -373,20 +414,25 @@ public class SwipeGestureManager implements View.OnTouchListener {
         }
 
         public SwipeGestureManager create() {
-            return new SwipeGestureManager(context, swipeSpeed, swipeOffset, mOrientationMode, animationDuration);
+            return new SwipeGestureManager(context, animatorHandler, swipeSpeed, swipeOffset, mOrientationMode, animationDuration);
         }
     }
 
     private class FlingGestureDetector extends GestureDetector.SimpleOnGestureListener {
 
         float sensitivity = 500;
+        private CardInfo cardInfo;
+
+        public void setCardInfo(CardInfo cardInfo) {
+            this.cardInfo = cardInfo;
+        }
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             if (Math.abs(velocityY) > sensitivity && !blocks.contains(OrientationMode.UP_BOTTOM)) {
-                triggerSwipeListener();
+                triggerSwipeListener(cardInfo);
             } else if (Math.abs(velocityX) > sensitivity && !blocks.contains(OrientationMode.LEFT_RIGHT)) {
-                triggerSwipeListener();
+                triggerSwipeListener(cardInfo);
             }
             return false;
         }

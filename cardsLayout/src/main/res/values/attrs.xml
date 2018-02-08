@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <declare-styleable name="SwipeableLayout" tools:ignore="ResourceName">
+        <attr name="card_ownSwipeController" format="boolean" />
         <attr name="card_elevation" format="dimension" />
         <attr name="card_elevation_pressed" format="dimension" />
         <attr name="card_speed" format="float" />
