@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.support.annotation.Px;
 
 import ua.jenshensoft.cardslayout.CardInfo;
+import ua.jenshensoft.cardslayout.listeners.card.OnCardClickedListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardPercentageChangeListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardSwipedListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardTranslationListener;
@@ -67,6 +68,8 @@ public interface Card extends ValidateViewBlocker, FirstPositionProvider {
     void setCardTranslationListener(OnCardTranslationListener cardTranslationListener);
 
     void setCardSwipedListener(OnCardSwipedListener cardSwipedListener);
+
+    void setCardClickListener(OnCardClickedListener cardClickListener);
 
     /**
      * @param mode 0 - START_TO_CURRENT , 1 - LAST_TO_CURRENT

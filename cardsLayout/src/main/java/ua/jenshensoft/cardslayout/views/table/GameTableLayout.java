@@ -28,6 +28,7 @@ import java.util.List;
 
 import ua.jenshensoft.cardslayout.CardInfo;
 import ua.jenshensoft.cardslayout.R;
+import ua.jenshensoft.cardslayout.listeners.card.OnCardPercentageChangeListener;
 import ua.jenshensoft.cardslayout.listeners.table.OnCardClickListener;
 import ua.jenshensoft.cardslayout.listeners.table.OnDistributedCardsListener;
 import ua.jenshensoft.cardslayout.pattern.CardDeckCoordinatesPattern;
@@ -64,8 +65,9 @@ public abstract class GameTableLayout<
     @Nullable
     protected Interpolator interpolator;
     private int durationOfDistributeAnimation = 1000;
-    private boolean isEnableSwipe;
-    private boolean isEnableTransition;
+    private boolean isEnableCardSwipe;
+    private boolean isEnableCardTransition;
+    private boolean isEnableCardClick;
     private int currentPlayerLayoutId = -1;
     //card deck attr
     private boolean canAutoDistribute = true;
@@ -80,6 +82,8 @@ public abstract class GameTableLayout<
     private OnCardClickListener onCardClickListener;
     @Nullable
     private OnDistributedCardsListener onDistributedCardsListener;
+    @Nullable
+    private OnCardPercentageChangeListener percentageChangeListener;
     private boolean onDistributeAnimation;
     private boolean cardTriggered;
 
@@ -124,11 +128,14 @@ public abstract class GameTableLayout<
             Layout layout = (Layout) child;
             cardsLayouts.add(layout);
             if (currentPlayerLayoutId != -1 && currentPlayerLayoutId == child.getId()) {
-                if (isEnableSwipe) {
+                if (isEnableCardSwipe) {
                     setSwipeValidatorEnabled(layout);
                 }
-                if (isEnableTransition) {
+                if (isEnableCardTransition) {
                     setPercentageValidator(layout);
+                }
+                if (isEnableCardClick) {
+                    setCardClickValidatorEnabled(layout);
                 }
             }
         } else if (child instanceof CardDeckView) {
@@ -242,6 +249,27 @@ public abstract class GameTableLayout<
         setCardDeckCards();
     }
 
+    public void setEnableCardClick(boolean enableCardClick) {
+        if (!this.isEnableCardClick && enableCardClick) {
+            setCardClickValidatorEnabled(getCurrentPlayerCardsLayout());
+        }
+        isEnableCardClick = enableCardClick;
+    }
+
+    public void setEnableCardSwipe(boolean enableCardSwipe) {
+        if (!this.isEnableCardSwipe && enableCardSwipe) {
+            setSwipeValidatorEnabled(getCurrentPlayerCardsLayout());
+        }
+        isEnableCardSwipe = enableCardSwipe;
+    }
+
+    public void setEnableCardTransition(boolean enableCardTransition) {
+        if (!this.isEnableCardTransition && enableCardTransition) {
+            setPercentageValidator(getCurrentPlayerCardsLayout());
+        }
+        isEnableCardTransition = enableCardTransition;
+    }
+
     public int getCurrentPlayerLayoutId() {
         return currentPlayerLayoutId;
     }
@@ -262,30 +290,53 @@ public abstract class GameTableLayout<
     }
 
     public void setSwipeValidatorEnabled(final Layout cardsLayout) {
+        if (percentageChangeListener == null) {
+            enableCardTouchValidator(cardsLayout);
+        }
         cardsLayout.addOnCardSwipedListener(cardInfo -> {
-            if (!cardsLayout.isEnabled()) {
+            boolean cardsLayoutEnabled = cardsLayout.isEnabled();
+            if (!cardsLayoutEnabled) {
                 cardsLayout.setEnabled(true);
             }
-            onActionWithCard(cardInfo);
+            onActionWithCard(cardsLayout, cardInfo, cardsLayoutEnabled);
+        });
+    }
+
+    public void setCardClickValidatorEnabled(final Layout cardsLayout) {
+        if (percentageChangeListener == null) {
+            enableCardTouchValidator(cardsLayout);
+        }
+        cardsLayout.addOnCardClickedListeners(cardInfo -> {
+            boolean cardsLayoutEnabled = cardsLayout.isEnabled();
+            if (!cardsLayoutEnabled) {
+                cardsLayout.setEnabled(true);
+            }
+            onActionWithCard(cardsLayout, cardInfo, cardsLayoutEnabled);
         });
     }
 
     public void setPercentageValidator(final Layout cardsLayout) {
-        cardsLayout.addCardPercentageChangeListener((percentageX, percentageY, cardInfo, isTouched) -> {
-            if (!isTouched) {
-                if (!cardsLayout.isEnabled()) {
-                    cardsLayout.setEnabled(true);
-                }
-                if (percentageX >= 100 || percentageY >= 100) {
-                    onActionWithCard(cardInfo);
-                }
-            } else {
+        if (percentageChangeListener != null) {
+            cardsLayout.removeOnCardPercentageChangeListener(percentageChangeListener);
+            percentageChangeListener = null;
+        }
+        percentageChangeListener = (percentageX, percentageY, cardInfo, isTouched) -> {
+            if (isTouched) {
+                cardTriggered = false;
                 if (cardsLayout.isEnabled()) {
                     cardsLayout.setEnabledCards(false, Collections.singletonList(cardInfo.getCardPositionInLayout()));
                 }
-                cardTriggered = false;
+            } else {
+                boolean cardsLayoutEnabled = cardsLayout.isEnabled();
+                if (!cardsLayoutEnabled) {
+                    cardsLayout.setEnabled(true);
+                }
+                if (percentageX >= 100 || percentageY >= 100) {
+                    onActionWithCard(cardsLayout, cardInfo, cardsLayoutEnabled);
+                }
             }
-        });
+        };
+        cardsLayout.addCardPercentageChangeListener(percentageChangeListener);
     }
 
     @Nullable
@@ -527,8 +578,9 @@ public abstract class GameTableLayout<
             TypedArray attributes = getContext().obtainStyledAttributes(attrs, R.styleable.CardDeckView);
             try {
                 durationOfDistributeAnimation = attributesTable.getInteger(R.styleable.GameTableLayout_gameTableLayout_duration_distributeAnimation, durationOfDistributeAnimation);
-                isEnableSwipe = attributesTable.getBoolean(R.styleable.GameTableLayout_gameTableLayout_cardValidatorSwipe, isEnableSwipe);
-                isEnableTransition = attributesTable.getBoolean(R.styleable.GameTableLayout_gameTableLayout_cardValidatorTransition, isEnableTransition);
+                isEnableCardSwipe = attributesTable.getBoolean(R.styleable.GameTableLayout_gameTableLayout_cardValidatorSwipe, isEnableCardSwipe);
+                isEnableCardTransition = attributesTable.getBoolean(R.styleable.GameTableLayout_gameTableLayout_cardValidatorTransition, isEnableCardTransition);
+                isEnableCardClick = attributesTable.getBoolean(R.styleable.GameTableLayout_gameTableLayout_cardValidatorClicker, isEnableCardClick);
                 currentPlayerLayoutId = attributesTable.getResourceId(R.styleable.GameTableLayout_gameTableLayout_currentPlayerLayoutId, currentPlayerLayoutId);
 
                 //card deck
@@ -630,8 +682,8 @@ public abstract class GameTableLayout<
         }
     }
 
-    private void onActionWithCard(CardInfo cardInfo) {
-        if (cardTriggered) {
+    private void onActionWithCard(Layout layout, CardInfo cardInfo, boolean cardsLayoutEnabled) {
+        if (cardsLayoutEnabled || cardTriggered) {
             return;
         }
         if (onCardClickListener != null) {
@@ -758,5 +810,24 @@ public abstract class GameTableLayout<
             }
         }
         return validatedCards;
+    }
+
+    private void enableCardTouchValidator(final Layout cardsLayout) {
+        percentageChangeListener = (percentageX, percentageY, cardInfo, isTouched) -> {
+            if (isTouched) {
+                cardTriggered = false;
+                if (cardsLayout.isEnabled()) {
+                    cardsLayout.setEnabledCards(false, Collections.singletonList(cardInfo.getCardPositionInLayout()));
+                }
+            } else {
+                if (cardTriggered) {
+                    return;
+                }
+                if (!cardsLayout.isEnabled()) {
+                    cardsLayout.setEnabled(true);
+                }
+            }
+        };
+        cardsLayout.addCardPercentageChangeListener(percentageChangeListener);
     }
 }

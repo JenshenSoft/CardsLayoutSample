@@ -98,6 +98,7 @@
         <attr name="gameTableLayout_currentPlayerLayoutId" format="integer" />
         <attr name="gameTableLayout_cardValidatorSwipe" format="boolean" />
         <attr name="gameTableLayout_cardValidatorTransition" format="boolean" />
+        <attr name="gameTableLayout_cardValidatorClicker" format="boolean" />
         <attr name="gameTableLayout_duration_distributeAnimation" format="integer" />
         <!-- card deck -->
         <attr name="gameTableLayout_canAutoDistribute" format="boolean" />

@@ -32,6 +32,7 @@ import java.util.List;
 
 import ua.jenshensoft.cardslayout.CardInfo;
 import ua.jenshensoft.cardslayout.R;
+import ua.jenshensoft.cardslayout.listeners.card.OnCardClickedListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardPercentageChangeListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardSwipedListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardTranslationListener;
@@ -63,7 +64,8 @@ public abstract class CardsLayout extends ViewGroup
         implements
         OnCardTranslationListener,
         OnCardSwipedListener,
-        OnCardPercentageChangeListener {
+        OnCardPercentageChangeListener,
+        OnCardClickedListener {
 
     public static final int EMPTY = -1;
     public static final float EPSILON = 0.00000001f;
@@ -75,9 +77,14 @@ public abstract class CardsLayout extends ViewGroup
     protected ViewUpdater viewUpdater;
     protected AnimatorHandler animationHandler;
     //listeners
+    @Nullable
     protected List<OnCardSwipedListener> onCardSwipedListeners;
+    @Nullable
     protected List<OnCardPercentageChangeListener> onCardPercentageChangeListeners;
+    @Nullable
     protected List<OnCardTranslationListener> onCardTranslationListeners;
+    @Nullable
+    protected List<OnCardClickedListener> onCardClickedListeners;
     //property
     @LinearLayoutCompat.OrientationMode
     private int childListOrientation;
@@ -100,6 +107,10 @@ public abstract class CardsLayout extends ViewGroup
     private List<Card> cards;
     @Nullable
     private ColorFilter colorFilter;
+    private boolean enableCardSwipeListener;
+    private boolean enableCardTranslationListener;
+    private boolean enableCardPercentageChangeListener;
+    private boolean enableCardClickListener;
 
     public CardsLayout(Context context) {
         super(context);
@@ -175,6 +186,7 @@ public abstract class CardsLayout extends ViewGroup
             Card cardView = (Card) child;
             cardView.setCardTranslationListener(null);
             cardView.setCardSwipedListener(null);
+            cardView.setCardClickListener(null);
             cardView.setCardPercentageChangeListener(null, CardBoxView.START_TO_CURRENT);
         }
     }
@@ -337,15 +349,86 @@ public abstract class CardsLayout extends ViewGroup
     /* listeners */
 
     public void addCardTranslationListener(OnCardTranslationListener cardTranslationListener) {
+        if (this.onCardTranslationListeners == null) {
+            this.onCardTranslationListeners = new ArrayList<>();
+        }
+        if (!enableCardTranslationListener) {
+            for (Card card : getCards()) {
+                card.setCardTranslationListener(this);
+            }
+            enableCardTranslationListener = true;
+        }
         this.onCardTranslationListeners.add(cardTranslationListener);
     }
 
     public void addCardPercentageChangeListener(OnCardPercentageChangeListener onCardPercentageChangeListener) {
+        if (this.onCardPercentageChangeListeners == null) {
+            this.onCardPercentageChangeListeners = new ArrayList<>();
+        }
+        if (!enableCardPercentageChangeListener) {
+            for (Card card : getCards()) {
+                card.setCardPercentageChangeListener(this, CardBoxView.START_TO_CURRENT);
+            }
+            enableCardPercentageChangeListener = true;
+        }
         this.onCardPercentageChangeListeners.add(onCardPercentageChangeListener);
     }
 
     public void addOnCardSwipedListener(OnCardSwipedListener onCardSwipedListeners) {
+        if (this.onCardSwipedListeners == null) {
+            this.onCardSwipedListeners = new ArrayList<>();
+        }
+        if (!enableCardSwipeListener) {
+            for (Card card : getCards()) {
+                card.setCardSwipedListener(this);
+            }
+            enableCardSwipeListener = true;
+        }
         this.onCardSwipedListeners.add(onCardSwipedListeners);
+    }
+
+    public void addOnCardClickedListeners(OnCardClickedListener onCardClickedListeners) {
+        if (this.onCardClickedListeners == null) {
+            this.onCardClickedListeners = new ArrayList<>();
+        }
+        if (!enableCardClickListener) {
+            for (Card card : getCards()) {
+                card.setCardClickListener(this);
+            }
+            enableCardClickListener = true;
+        }
+        this.onCardClickedListeners.add(onCardClickedListeners);
+    }
+
+    public void removeOnCardTranslationListeners(OnCardTranslationListener onCardTranslationListener) {
+        if (this.onCardTranslationListeners != null) {
+            this.onCardTranslationListeners.remove(onCardTranslationListener);
+        }
+    }
+
+    public void removeOnCardPercentageChangeListener(OnCardPercentageChangeListener onCardPercentageChangeListener) {
+        if (this.onCardPercentageChangeListeners != null) {
+            this.onCardPercentageChangeListeners.remove(onCardPercentageChangeListener);
+        }
+    }
+
+    public void removeOnCardSwipedListener(OnCardSwipedListener onCardSwipedListener) {
+        if (this.onCardSwipedListeners != null) {
+            this.onCardSwipedListeners.remove(onCardSwipedListener);
+        }
+    }
+
+    public void removeOnCardClickedListener(OnCardClickedListener onCardClickedListener) {
+        if (this.onCardClickedListeners != null) {
+            this.onCardClickedListeners.remove(onCardClickedListener);
+        }
+    }
+
+    public boolean hasSetListeners() {
+        return enableCardPercentageChangeListener
+                || enableCardClickListener
+                || enableCardSwipeListener
+                || enableCardTranslationListener;
     }
 
     @LinearLayoutCompat.OrientationMode
@@ -497,6 +580,15 @@ public abstract class CardsLayout extends ViewGroup
         if (!onCardPercentageChangeListeners.isEmpty()) {
             for (OnCardPercentageChangeListener listener : onCardPercentageChangeListeners) {
                 listener.onPercentageChanged(percentageX, percentageY, cardInfo, isTouched);
+            }
+        }
+    }
+
+    @Override
+    public void onCardClicked(CardInfo cardInfo) {
+        if (!onCardClickedListeners.isEmpty()) {
+            for (OnCardClickedListener listener : onCardClickedListeners) {
+                listener.onCardClicked(cardInfo);
             }
         }
     }
@@ -867,9 +959,6 @@ public abstract class CardsLayout extends ViewGroup
             }
         };
         viewUpdater = new ViewUpdater<>(() -> !animationHandler.isOnDestroyed() && !animationHandler.isOnPause(), null);
-        onCardPercentageChangeListeners = new ArrayList<>();
-        onCardSwipedListeners = new ArrayList<>();
-        onCardTranslationListeners = new ArrayList<>();
         animationHandler = new AnimatorHandler();
     }
 
@@ -952,9 +1041,6 @@ public abstract class CardsLayout extends ViewGroup
         }
         this.cards.add(card.getCardInfo().getCardPositionInLayout(), card);
         card.setSwipeOrientationMode(SwipeGestureManager.OrientationMode.BOTH);
-        card.setCardTranslationListener(this);
-        card.setCardSwipedListener(this);
-        card.setCardPercentageChangeListener(this, CardBoxView.START_TO_CURRENT);
     }
 
     private <CV extends View & Card> CV findCardView(int position) {

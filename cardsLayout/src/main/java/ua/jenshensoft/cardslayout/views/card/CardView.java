@@ -13,6 +13,7 @@ import com.jenshen.awesomeanimation.util.animator.AnimatorHandler;
 
 import ua.jenshensoft.cardslayout.CardInfo;
 import ua.jenshensoft.cardslayout.R;
+import ua.jenshensoft.cardslayout.listeners.card.OnCardClickedListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardPercentageChangeListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardSwipedListener;
 import ua.jenshensoft.cardslayout.listeners.card.OnCardTranslationListener;
@@ -183,6 +184,11 @@ public class CardView extends AppCompatImageView  implements Card {
     @Override
     public void setCardSwipedListener(final OnCardSwipedListener cardSwipedListener) {
         swipeManager.setCardSwipedListener(cardSwipedListener);
+    }
+
+    @Override
+    public void setCardClickListener(OnCardClickedListener cardClickListener) {
+        swipeManager.setCardClickListener(cardClickListener);
     }
 
     @Override
