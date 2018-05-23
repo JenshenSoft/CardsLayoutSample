@@ -36,6 +36,7 @@ dependencies {
 
     //support
     implementation "com.android.support:appcompat-v7:${libs.supportVersion}"
+    implementation "com.android.support:support-annotations:${libs.supportVersion}"
 
     //testing
     testImplementation "junit:junit:${testLibs.junit}"

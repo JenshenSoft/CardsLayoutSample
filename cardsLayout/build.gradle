@@ -12,7 +12,7 @@ def gitUrl = 'https://github.com/JenshenSoft/CardsLayoutSample.git'
 def libDesc = 'CardsLayout android library'
 
 group = "ua.jenshensoft"
-version = "0.9274"
+version = "0.9276"
 
 allprojects {
     repositories {
@@ -44,8 +44,6 @@ android {
         versionName cfg.versionName
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
-        consumerProguardFiles 'proguard-rules.pro'
     }
     buildTypes {
         release {
@@ -133,8 +131,9 @@ task findConventions << {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'ua.jenshensoft:awesomeanimation:1.0.1'
-    implementation "com.android.support:appcompat-v7:${libs.supportVersion}"
+    implementation 'ua.jenshensoft:awesomeanimation:1.0.2'
+    compileOnly "com.android.support:appcompat-v7:${libs.supportVersion}"
+    compileOnly "com.android.support:support-annotations:${libs.supportVersion}"
 
     //testing
     testImplementation "junit:junit:${test.junit}"
