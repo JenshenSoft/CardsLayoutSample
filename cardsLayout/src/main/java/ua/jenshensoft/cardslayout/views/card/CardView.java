@@ -23,7 +23,7 @@ import ua.jenshensoft.cardslayout.views.layout.CardsLayoutParams;
 
 import static ua.jenshensoft.cardslayout.util.SwipeGestureManager.EPSILON;
 
-public class CardView extends AppCompatImageView  implements Card {
+public class CardView extends AppCompatImageView implements Card {
     //attr
     private float swipeSpeed = 1.0f;
     private float swipeOffset = -1;

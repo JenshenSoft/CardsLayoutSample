@@ -6,6 +6,11 @@ def testLibs = rootProject.ext.testingLibraries
 
 android {
 
+    compileOptions {
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
+    }
+
     compileSdkVersion cfg.compileSdkVersion
     buildToolsVersion cfg.buildToolsVersion
 
@@ -26,15 +31,15 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
-    compile project(':cardsLayout')
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(':cardsLayout')
 
     //support
-    compile "com.android.support:appcompat-v7:${libs.supportVersion}"
+    implementation "com.android.support:appcompat-v7:${libs.supportVersion}"
 
     //testing
-    testCompile "junit:junit:${testLibs.junit}"
+    testImplementation "junit:junit:${testLibs.junit}"
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
 }
