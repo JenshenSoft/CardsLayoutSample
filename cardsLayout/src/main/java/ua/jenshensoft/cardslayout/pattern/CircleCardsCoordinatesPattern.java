@@ -1,4 +1,4 @@
-package ua.jenshensoft.cardslayout.provider;
+package ua.jenshensoft.cardslayout.pattern;
 
 import android.support.v7.widget.LinearLayoutCompat;
 import android.util.Log;
@@ -6,13 +6,17 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
+import ua.jenshensoft.cardslayout.pattern.models.CardCoordinates;
 import ua.jenshensoft.cardslayout.util.FlagManager;
-import ua.jenshensoft.cardslayout.views.CardsLayout;
+import ua.jenshensoft.cardslayout.views.layout.CardsLayout;
+import ua.jenshensoft.cardslayout.views.layout.Config;
 
-import static ua.jenshensoft.cardslayout.views.CardsLayout.CircleCenterLocation.BOTTOM;
-import static ua.jenshensoft.cardslayout.views.CardsLayout.CircleCenterLocation.TOP;
+import static ua.jenshensoft.cardslayout.views.layout.CardsLayout.CircleCenterLocation.BOTTOM;
+import static ua.jenshensoft.cardslayout.views.layout.CardsLayout.CircleCenterLocation.TOP;
 
-public class CardsCoordinatesProvider {
+public class CircleCardsCoordinatesPattern implements CardCoordinatesPattern {
+
+    private static final int SCALE_NUMBER_COUNT_CONSTANT = 6;
 
     private final float radius;
     @CardsLayout.CircleCenterLocation
@@ -26,16 +30,16 @@ public class CardsCoordinatesProvider {
     private final float startAngle;
     private final float endAngle;
 
-    public CardsCoordinatesProvider(@LinearLayoutCompat.OrientationMode int orientation,
-                                    @CardsLayout.CircleCenterLocation int circleCenterLocation,
-                                    int cardsCount,
-                                    float radius,
-                                    float cardWidth,
-                                    float cardHeight,
-                                    float cardsLayoutLength,
-                                    FlagManager flagManager,
-                                    CardsLayout.Config xConfig,
-                                    CardsLayout.Config yConfig) {
+    public CircleCardsCoordinatesPattern(@LinearLayoutCompat.OrientationMode int orientation,
+                                         @CardsLayout.CircleCenterLocation int circleCenterLocation,
+                                         int cardsCount,
+                                         float radius,
+                                         float cardWidth,
+                                         float cardHeight,
+                                         float cardsLayoutLength,
+                                         FlagManager flagManager,
+                                         Config xConfig,
+                                         Config yConfig) {
         this.orientation = orientation;
         if (orientation == LinearLayoutCompat.HORIZONTAL) {
             if (cardsLayoutLength - cardWidth >= 0) {
@@ -62,16 +66,17 @@ public class CardsCoordinatesProvider {
         final float generalArc = calcArcFromChord(radius, cardsLayoutLength);
         //angles
         final float generalAngle = calcAngleFromArc(generalArc, radius);
-        final float allCardsAngle = round(generalAngle, 6);
-        this.cardSectorAngle = round(allCardsAngle / (cardsCount - 1), 6);
-        this.startAngle = round(90f - (generalAngle / 2f), 6);
-        this.endAngle = round(90f - ((generalAngle / 2f)), 6);
+        final float allCardsAngle = round(generalAngle, SCALE_NUMBER_COUNT_CONSTANT);
+        this.cardSectorAngle = round(allCardsAngle / (cardsCount - 1), SCALE_NUMBER_COUNT_CONSTANT);
+        this.startAngle = round(90f - (generalAngle / 2f), SCALE_NUMBER_COUNT_CONSTANT);
+        this.endAngle = round(90f - ((generalAngle / 2f)), SCALE_NUMBER_COUNT_CONSTANT);
     }
 
+    @Override
     public List<CardCoordinates> getCardsCoordinates() {
         List<CardCoordinates> cardsCoordinates = new ArrayList<>();
         boolean isLeftArc = true;
-        float fault = 0.0001f;
+        float fault = 0.001f;
         float angle = 0f;
         for (int i = 0; i < cardsCount; i++) {
             if (i == 0) {// for first card
@@ -86,13 +91,21 @@ public class CardsCoordinatesProvider {
                         angle -= 90f;
                         angle = 90f - angle;
                     } else {
-                        throw new RuntimeException("Something went wrong");
+                        throw new RuntimeException("Something went wrong, angle = " + angle
+                                + ", startAngle: " + startAngle
+                                + ", endAngle: " + endAngle
+                                + ", cardSectorAngle: " + cardSectorAngle
+                                + ", cardsCoordinates: " + cardsCoordinates);
                     }
                 } else {
                     if (angle - cardSectorAngle + fault >= endAngle && angle - cardSectorAngle - fault <= 90) {
                         angle -= cardSectorAngle;
                     } else {
-                        throw new RuntimeException("Something went wrong");
+                        throw new RuntimeException("Something went wrong, angle = " + angle
+                                + ", startAngle: " + startAngle
+                                + ", endAngle: " + endAngle
+                                + ", cardSectorAngle: " + cardSectorAngle
+                                + ", cardsCoordinates: " + cardsCoordinates);
                     }
                 }
             }
@@ -106,9 +119,7 @@ public class CardsCoordinatesProvider {
     /* private methods */
 
     private int validateCircleLocation(@CardsLayout.CircleCenterLocation int circleCenterLocation, FlagManager flagManager) {
-        if (flagManager.containsFlag(FlagManager.Gravity.TOP)) {
-            return circleCenterLocation == BOTTOM ? TOP : BOTTOM;
-        } else if (flagManager.containsFlag(FlagManager.Gravity.RIGHT)) {
+        if (flagManager.containsFlag(FlagManager.Gravity.TOP) || flagManager.containsFlag(FlagManager.Gravity.RIGHT)) {
             return circleCenterLocation == BOTTOM ? TOP : BOTTOM;
         }
         return circleCenterLocation;
@@ -166,7 +177,7 @@ public class CardsCoordinatesProvider {
                                             float cardWidth,
                                             float cardHeight,
                                             float radius,
-                                            CardsLayout.Config xConfig, CardsLayout.Config yConfig) {
+                                            Config xConfig, Config yConfig) {
         float x;
         float y;
         if (orientation == LinearLayoutCompat.HORIZONTAL) {
@@ -206,8 +217,8 @@ public class CardsCoordinatesProvider {
         return (float) ((Math.PI * radius) / 180f * angleDegrees);
     }
 
-    private float calcArcFromChord(float radius, float сhordLenght) {
-        float angleDegrees = (float) Math.toDegrees(Math.asin((сhordLenght / 2f) / radius)) * 2f;
+    private float calcArcFromChord(float radius, float chordLength) {
+        float angleDegrees = (float) Math.toDegrees(Math.asin((chordLength / 2f) / radius)) * 2f;
         return calcArc(radius, angleDegrees);
     }
 

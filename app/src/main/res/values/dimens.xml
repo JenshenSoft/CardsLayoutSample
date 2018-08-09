@@ -3,6 +3,17 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
-    <dimen name="card_width">90dp</dimen>
-    <dimen name="card_height">110dp</dimen>
+    <dimen name="card_width">60dp</dimen>
+    <dimen name="card_height">90dp</dimen>
+
+    <dimen name="offset_small1">8dp</dimen>
+
+    <dimen name="childList_otherPlayersBarMargin">-40dp</dimen>
+    <dimen name="childList_length">200dp</dimen>
+    <dimen name="childList_offsetFromScreen_otherPlayer">-50dp</dimen>
+    <dimen name="childList_offsetFromScreen_currentPlayer">-20dp</dimen>
+    <dimen name="cardDeck_elevationMin">6dp</dimen>
+    <dimen name="cardDeck_elevationMax">10dp</dimen>
+    <dimen name="card_elevation_normal">4dp</dimen>
+    <dimen name="card_elevation_pressed">16dp</dimen>
 </resources>

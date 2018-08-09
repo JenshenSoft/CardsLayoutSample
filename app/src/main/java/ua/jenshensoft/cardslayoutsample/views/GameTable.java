@@ -1,26 +1,23 @@
 package ua.jenshensoft.cardslayoutsample.views;
 
 import android.content.Context;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
-import android.widget.ImageView;
 
 import com.android.internal.util.Predicate;
 
-import ua.jenshensoft.cardslayout.CardInfo;
-import ua.jenshensoft.cardslayout.listeners.OnCardSwipedListener;
-import ua.jenshensoft.cardslayout.listeners.OnUpdateDeskOfCardsUpdater;
 import ua.jenshensoft.cardslayout.util.DistributionState;
-import ua.jenshensoft.cardslayout.views.CardView;
-import ua.jenshensoft.cardslayout.views.CardsLayout;
-import ua.jenshensoft.cardslayout.views.GameTableLayout;
-import ua.jenshensoft.cardslayoutsample.CardsLayoutDefault;
+import ua.jenshensoft.cardslayout.views.card.Card;
+import ua.jenshensoft.cardslayout.views.layout.CardsLayout;
+import ua.jenshensoft.cardslayout.views.table.GameTableLayout;
+import ua.jenshensoft.cardslayout.views.updater.model.GameTableParams;
 import ua.jenshensoft.cardslayoutsample.R;
 
-public class GameTable extends GameTableLayout<CardsLayoutDefault.CardInfo, CardsLayout<CardsLayoutDefault.CardInfo>> {
-
-    private ImageView imageView;
+public class GameTable extends GameTableLayout<CardsLayout> {
 
     public GameTable(Context context) {
         super(context);
@@ -43,56 +40,66 @@ public class GameTable extends GameTableLayout<CardsLayoutDefault.CardInfo, Card
         init();
     }
 
+    @Override
+    public void onUpdateViewParams(GameTableParams params, boolean calledInOnMeasure) {
+        super.onUpdateViewParams(params, calledInOnMeasure);
+    }
+
+    /*
+
+    @Override
+    protected void onStartDistributedCardWave(List<Card> cards) {
+        *//*Bitmap bitmap = BitmapUtils.rotateBitmap(getContext(), R.drawable.ic_card1, 90);
+        for (Card<CardsLayoutDefault.CardInfoModel> card : cards) {
+            if (card instanceof CardView) {
+                CardView cardView = (CardView) card;
+                cardView.setImageBitmap(bitmap);
+            } else if (card instanceof CardBoxView) {
+                CardBoxView cardView = (CardBoxView) card;
+                ((ImageView)cardView.getChildAt(0)).setImageBitmap(bitmap);
+            }
+        }*//*
+        super.onStartDistributedCardWave(cards);
+    }*/
+
     private void init() {
-        imageView = (ImageView) findViewById(R.id.imageView);
-        for (final CardsLayout<CardsLayoutDefault.CardInfo> cardsLayout : cardsLayouts) {
-            cardsLayout.setOnCardSwipedListener(new OnCardSwipedListener<CardsLayoutDefault.CardInfo>() {
+        inflate(getContext(), R.layout.viewgroup_table, this);
+        setDurationOfDistributeAnimation(100);
 
-                @Override
-                public void onCardSwiped(CardInfo<CardsLayoutDefault.CardInfo> cardInfo) {
-                    cardsLayout.removeCardView(cardInfo.getCardPositionInLayout());
-                }
-            });
+        getCurrentPlayerCardsLayout().setColorFilter(new PorterDuffColorFilter(ContextCompat.getColor(getContext(), R.color.colorAccent), PorterDuff.Mode.MULTIPLY));
 
+        int j = 0;
+        for (CardsLayout cardsLayout : cardsLayouts) {
+            int i = 0;
+            for (Card card : cardsLayout.getCards()) {
+                card.getCardInfo().setEntity(new CardInfoModel(i, j));
+                i++;
+                j++;
+            }
         }
 
-        setDistributionState(new DistributionState<CardsLayoutDefault.CardInfo>(false) {
+        updateDistributionState(new DistributionState(false) {
             @Override
-            public Predicate<CardView<CardsLayoutDefault.CardInfo>> getPredicateForCardsForDistribution() {
-                return new Predicate<CardView<CardsLayoutDefault.CardInfo>>() {
+            public Predicate<Card> getCardsPredicateBeforeDistribution() {
+                return new Predicate<Card>() {
                     @Override
-                    public boolean apply(CardView<CardsLayoutDefault.CardInfo> cardInfoCardView) {
-                        return true;
+                    public boolean apply(Card cardInfoCard) {
+                        CardInfoModel entity = (CardInfoModel) cardInfoCard.getCardInfo().getEntity();
+                        return entity.getPosition() < 2;
                     }
                 };
             }
 
             @Override
-            public Predicate<CardView<CardsLayoutDefault.CardInfo>> getPredicateForCardsBeforeDistribution() {
-                return new Predicate<CardView<CardsLayoutDefault.CardInfo>>() {
+            public Predicate<Card> getCardsPredicateForDistribution() {
+                return new Predicate<Card>() {
                     @Override
-                    public boolean apply(CardView<CardsLayoutDefault.CardInfo> cardInfoCardView) {
-                        return false;
-                    }
-                };
-            }
-
-            @Override
-            protected OnUpdateDeskOfCardsUpdater<CardsLayoutDefault.CardInfo> provideDeskOfCardsUpdater() {
-                return new OnUpdateDeskOfCardsUpdater<CardsLayoutDefault.CardInfo>() {
-                    @Override
-                    public float[] getPosition() {
-                        int x = getMeasuredWidth() / 2 - imageView.getMeasuredWidth() / 2;
-                        int y = getMeasuredHeight() / 2 - imageView.getMeasuredHeight() / 2;
-                        return new float[]{x, y};
+                    public boolean apply(Card cardInfoCard) {
+                        CardInfoModel entity = (CardInfoModel) cardInfoCard.getCardInfo().getEntity();
+                        return entity.getPosition() >= 2 && entity.getPosition() < 8;
                     }
                 };
             }
         });
-    }
-
-    @Override
-    protected int getLayoutId() {
-        return R.layout.viewgroup_table;
     }
 }

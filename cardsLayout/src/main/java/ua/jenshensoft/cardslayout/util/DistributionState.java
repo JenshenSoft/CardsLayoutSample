@@ -1,29 +1,15 @@
 package ua.jenshensoft.cardslayout.util;
 
-import android.support.annotation.Nullable;
-
 import com.android.internal.util.Predicate;
 
-import ua.jenshensoft.cardslayout.listeners.OnUpdateDeskOfCardsUpdater;
-import ua.jenshensoft.cardslayout.views.CardView;
+import ua.jenshensoft.cardslayout.views.card.Card;
 
-public abstract class DistributionState<Entity> {
+public abstract class DistributionState {
 
-    @Nullable
-    private OnUpdateDeskOfCardsUpdater<Entity> deskOfCardsUpdater;
     private boolean isCardsAlreadyDistributed;
 
     protected DistributionState(boolean isCardsAlreadyDistributed) {
         this.isCardsAlreadyDistributed = isCardsAlreadyDistributed;
-    }
-
-    protected abstract OnUpdateDeskOfCardsUpdater<Entity> provideDeskOfCardsUpdater() ;
-
-    public OnUpdateDeskOfCardsUpdater<Entity> getDeskOfCardsUpdater() {
-        if (deskOfCardsUpdater == null) {
-            deskOfCardsUpdater = provideDeskOfCardsUpdater();
-        }
-        return deskOfCardsUpdater;
     }
 
     public boolean isCardsAlreadyDistributed() {
@@ -34,8 +20,17 @@ public abstract class DistributionState<Entity> {
         isCardsAlreadyDistributed = cardsAlreadyDistributed;
     }
 
-    public abstract Predicate<CardView<Entity>> getPredicateForCardsForDistribution();
+    /**
+     * set cards for players hands before the distribution
+     *
+     * @return
+     */
+    public abstract Predicate<Card> getCardsPredicateBeforeDistribution();
 
-    public abstract Predicate<CardView<Entity>> getPredicateForCardsBeforeDistribution();
-
+    /**
+     * set cards for the distribution to players hands
+     *
+     * @return
+     */
+    public abstract Predicate<Card> getCardsPredicateForDistribution();
 }

@@ -7,8 +7,9 @@
     android:background="@android:color/darker_gray"
     tools:context="ua.jenshensoft.cardslayoutsample.MainActivity">
 
-
     <ua.jenshensoft.cardslayoutsample.views.GameTable
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        app:gameTableLayout_currentPlayerLayoutId="@+id/cardsLayout0"
+        style="@style/Widget.TableLayout" />
 </FrameLayout>

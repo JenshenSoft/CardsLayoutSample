@@ -3,25 +3,38 @@ package ua.jenshensoft.cardslayout;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-public class CardInfo<Entity> {
+import ua.jenshensoft.cardslayout.views.FirstPosition;
+
+public class CardInfo extends FirstPosition {
     private int cardPositionInLayout;
-    private int firstPositionX;
-    private int firstPositionY;
-    private int currentPositionX;
-    private int currentPositionY;
-    private int firstRotation;
-    private int currentRotation;
+    private boolean hasFilter;
     private boolean cardDistributed = true;
     @Nullable
-    private Entity entity;
+    private Object entity;
 
     public CardInfo(int cardPositionInLayout) {
+        super(cardPositionInLayout);
         this.cardPositionInLayout = cardPositionInLayout;
     }
 
+    public CardInfo(CardInfo cardInfo) {
+        super(cardInfo.getCardPositionInLayout());
+        this.cardPositionInLayout = cardInfo.getCardPositionInLayout();
+        this.hasFilter = cardInfo.hasFilter();
+        this.cardDistributed = cardInfo.isCardDistributed();
+        this.entity = cardInfo.getEntity();
+        setFirstPositionX(cardInfo.getFirstPositionX());
+        setFirstPositionY(cardInfo.getFirstPositionY());
+        setFirstRotation(cardInfo.getFirstRotation());
+    }
+
     @Nullable
-    public Entity getEntity() {
+    public Object getEntity() {
         return entity;
+    }
+
+    public void setEntity(@NonNull Object entity) {
+        this.entity = entity;
     }
 
     public boolean isCardDistributed() {
@@ -32,84 +45,30 @@ public class CardInfo<Entity> {
         this.cardDistributed = cardDistributed;
     }
 
-    public void setEntity(@NonNull Entity entity) {
-        this.entity = entity;
-    }
-
-    public int getFirstPositionX() {
-        return firstPositionX;
-    }
-
-    public void setFirstPositionX(int firstPositionX) {
-        this.firstPositionX = firstPositionX;
-    }
-
-    public int getFirstPositionY() {
-        return firstPositionY;
-    }
-
-    public void setFirstPositionY(int firstPositionY) {
-        this.firstPositionY = firstPositionY;
-    }
-
-    public int getCurrentPositionX() {
-        return currentPositionX;
-    }
-
-    public void setCurrentPositionX(int currentPositionX) {
-        this.currentPositionX = currentPositionX;
-    }
-
-    public int getCurrentPositionY() {
-        return currentPositionY;
-    }
-
-    public void setCurrentPositionY(int currentPositionY) {
-        this.currentPositionY = currentPositionY;
-    }
-
-    public void setFirstRotation(int firstRotation) {
-        this.firstRotation = firstRotation;
-        setCurrentRotation(firstRotation);
-    }
-
-    public int getFirstRotation() {
-        return firstRotation;
-    }
-
-    public void setCurrentRotation(int currentRotation) {
-        this.currentRotation = currentRotation;
-    }
-
-    public int getCurrentRotation() {
-        return currentRotation;
-    }
-
     public int getCardPositionInLayout() {
         return cardPositionInLayout;
     }
 
     public void setCardPositionInLayout(int cardPositionInLayout) {
         this.cardPositionInLayout = cardPositionInLayout;
+    }
 
+    public void setHasFilter(boolean hasFilter) {
+        this.hasFilter = hasFilter;
+    }
+
+    public boolean hasFilter() {
+        return hasFilter;
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        CardInfo<?> cardInfo = (CardInfo<?>) o;
-
-        if (cardPositionInLayout != cardInfo.cardPositionInLayout) return false;
-        return entity != null ? entity.equals(cardInfo.entity) : cardInfo.entity == null;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = cardPositionInLayout;
-        result = 31 * result + (entity != null ? entity.hashCode() : 0);
-        return result;
+    public String toString() {
+        return "CardInfo{" +
+                "cardPositionInLayout=" + cardPositionInLayout +
+                ", hasFilter=" + hasFilter +
+                ", cardDistributed=" + cardDistributed +
+                ", entity=" + entity +
+                '}';
     }
 }
 

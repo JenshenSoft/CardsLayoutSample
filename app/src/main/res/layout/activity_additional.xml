@@ -6,7 +6,7 @@
     android:gravity="center"
     android:orientation="vertical">
 
-    <ua.jenshensoft.cardslayoutsample.CardsLayoutDefault
+    <ua.jenshensoft.cardslayoutsample.views.CardsLayoutDefault
         android:id="@+id/cardsLayout1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -63,6 +63,6 @@
             android:layout_height="@dimen/card_height"
             android:contentDescription="@null"
             android:src="@drawable/ic_card7" />
-    </ua.jenshensoft.cardslayoutsample.CardsLayoutDefault>
+    </ua.jenshensoft.cardslayoutsample.views.CardsLayoutDefault>
 
 </LinearLayout>

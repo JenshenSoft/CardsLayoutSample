@@ -1,5 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'me.tatarka.retrolambda'
 
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
@@ -13,7 +12,7 @@ def gitUrl = 'https://github.com/JenshenSoft/CardsLayoutSample.git'
 def libDesc = 'CardsLayout android library'
 
 group = "ua.jenshensoft"
-version = "0.9033"
+version = "0.9276"
 
 allprojects {
     repositories {
@@ -45,12 +44,11 @@ android {
         versionName cfg.versionName
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
     }
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }
@@ -132,13 +130,14 @@ task findConventions << {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
-    compile "com.android.support:appcompat-v7:${libs.supportVersion}"
-    compile 'ua.jenshensoft:awesomeanimation:0.5'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'ua.jenshensoft:awesomeanimation:1.0.2'
+    compileOnly "com.android.support:appcompat-v7:${libs.supportVersion}"
+    compileOnly "com.android.support:support-annotations:${libs.supportVersion}"
 
     //testing
-    testCompile "junit:junit:${test.junit}"
+    testImplementation "junit:junit:${test.junit}"
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
 }

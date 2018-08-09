@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <declare-styleable name="SwipeableLayout" tools:ignore="ResourceName">
+        <attr name="card_ownSwipeController" format="boolean" />
+        <attr name="card_elevation" format="dimension" />
+        <attr name="card_elevation_pressed" format="dimension" />
         <attr name="card_speed" format="float" />
         <attr name="card_swipeOffset" format="float" />
+        <attr name="card_animationDuration" format="integer" />
         <attr name="card_swipeOrientation" format="enum">
             <enum name="leftToRight" value="0" />
             <enum name="bottomToUp" value="1" />
@@ -12,7 +16,7 @@
         <attr name="card_scrollAndClickable" format="boolean" />
     </declare-styleable>
 
-    <declare-styleable name="CardsLayout_Params">
+    <declare-styleable name="CardsLayout">
         <attr name="cardsLayout_cardsDirection" format="enum">
             <enum name="leftToRight" value="0" />
             <enum name="rightToLeft" value="1" />
@@ -47,12 +51,14 @@
             <enum name="top" value="0" />
             <enum name="bottom" value="1" />
         </attr>
-        <attr name="cardsLayout_fixedCardMeasure" format="boolean" />
-        <attr name="cardsLayout_cardWidth" format="dimension" />
-        <attr name="cardsLayout_cardHeight" format="dimension" />
     </declare-styleable>
 
-    <declare-styleable name="CardsLayoutAV_Params" tools:ignore="ResourceName">
+    <declare-styleable name="CardsLayout_Params">
+        <attr name="cardsLayout_widthForCalculation" format="dimension" />
+        <attr name="cardsLayout_heightForCalculation" format="dimension" />
+    </declare-styleable>
+
+    <declare-styleable name="CardsLayoutAV" tools:ignore="ResourceName">
         <attr name="cardsLayoutAV_firstBar_anchorPosition" format="enum">
             <enum name="start" value="0" />
             <enum name="end" value="1" />
@@ -87,13 +93,44 @@
         <attr name="cardsLayoutAV_secondBarViewClass" format="string" />
     </declare-styleable>
 
-    <declare-styleable name="GameTableLayout_Params" tools:ignore="ResourceName">
-        <attr name="gameTableLayout_canAutoDistribute" format="boolean" />
-        <attr name="gameTableLayout_deskOfCardsEnable" format="boolean" />
+    <declare-styleable name="GameTableLayout" tools:ignore="ResourceName">
         <attr name="gameTableLayout_deskOfCardsIcon" format="reference" />
         <attr name="gameTableLayout_currentPlayerLayoutId" format="integer" />
         <attr name="gameTableLayout_cardValidatorSwipe" format="boolean" />
-        <attr name="gameTableLayout_cardValidatorTransition" format="color" />
+        <attr name="gameTableLayout_cardValidatorTransition" format="boolean" />
+        <attr name="gameTableLayout_cardValidatorClicker" format="boolean" />
         <attr name="gameTableLayout_duration_distributeAnimation" format="integer" />
+        <!-- card deck -->
+        <attr name="gameTableLayout_canAutoDistribute" format="boolean" />
+        <attr name="gameTableLayout_distributionWaveCardsCount" format="integer" />
+        <attr name="gameTableLayout_cardDeckEnable" format="boolean" />
+        <attr name="gameTableLayout_cardDeck_layoutGravity">
+            <flag name="right" value="1" />
+            <flag name="left" value="2" />
+            <flag name="top" value="4" />
+            <flag name="bottom" value="8" />
+            <flag name="center" value="16" />
+            <flag name="center_horizontal" value="32" />
+            <flag name="center_vertical" value="64" />
+        </attr>
+    </declare-styleable>
+
+    <declare-styleable name="CardDeckView" tools:ignore="ResourceName">
+        <attr name="cardDeck_offsetLeft" format="dimension" />
+        <attr name="cardDeck_offsetTop" format="dimension" />
+        <attr name="cardDeck_offsetRight" format="dimension" />
+        <attr name="cardDeck_offsetBottom" format="dimension" />
+        <attr name="cardDeck_cardDeck_cardOffset_x" format="dimension" />
+        <attr name="cardDeck_cardDeck_cardOffset_y" format="dimension" />
+        <attr name="cardDeck_cardDeck_cardOffset_z" format="dimension" />
+        <attr name="cardDeck_gravity">
+            <flag name="right" value="1" />
+            <flag name="left" value="2" />
+            <flag name="top" value="4" />
+            <flag name="bottom" value="8" />
+            <flag name="center" value="16" />
+            <flag name="center_horizontal" value="32" />
+            <flag name="center_vertical" value="64" />
+        </attr>
     </declare-styleable>
 </resources>
