@@ -17,7 +17,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Interpolator;
 
-import com.android.internal.util.Predicate;
 import com.jenshen.awesomeanimation.AwesomeAnimation;
 import com.jenshen.awesomeanimation.util.animator.AnimatorHandler;
 
@@ -25,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Predicate;
 
 import ua.jenshensoft.cardslayout.CardInfo;
 import ua.jenshensoft.cardslayout.R;
@@ -367,8 +367,8 @@ public abstract class GameTableLayout<
         DistributionState distributionState = viewUpdater.getParams().getDistributionState();
         if (distributionState.isCardsAlreadyDistributed()) {
             Predicate<Card> predicateForCardsOnTheHands = entityCard ->
-                    distributionState.getCardsPredicateBeforeDistribution().apply(entityCard) ||
-                            distributionState.getCardsPredicateForDistribution().apply(entityCard);
+                    distributionState.getCardsPredicateBeforeDistribution().test(entityCard) ||
+                            distributionState.getCardsPredicateForDistribution().test(entityCard);
             setCardDeckCards(predicateForCardsOnTheHands);
         } else {
             setCardDeckCards(distributionState.getCardsPredicateBeforeDistribution());
@@ -769,7 +769,7 @@ public abstract class GameTableLayout<
         List<Card> filteredCardsViews = new ArrayList<>();
         List<Card> cards = cardsLayout.getCards();
         for (Card card : cards) {
-            if (predicate.apply(card) && (isDeskOfCardsEnable() || card.getVisibility() != VISIBLE)) {
+            if (predicate.test(card) && (isDeskOfCardsEnable() || card.getVisibility() != VISIBLE)) {
                 filteredCardsViews.add(card);
             }
         }
@@ -777,7 +777,7 @@ public abstract class GameTableLayout<
     }
 
     private void setCardDeckCard(Card card, Predicate<Card> predicateForCardsOnTheHands) {
-        if (predicateForCardsOnTheHands.apply(card)) {
+        if (predicateForCardsOnTheHands.test(card)) {
             if (deskOfCardsEnable) {
                 card.getCardInfo().setCardDistributed(true);
             } else {

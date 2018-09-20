@@ -1,6 +1,7 @@
 package ua.jenshensoft.cardslayout.util;
 
-import com.android.internal.util.Predicate;
+
+import java.util.function.Predicate;
 
 import ua.jenshensoft.cardslayout.views.card.Card;
 

@@ -8,7 +8,7 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 
-import com.android.internal.util.Predicate;
+import java.util.function.Predicate;
 
 import ua.jenshensoft.cardslayout.util.DistributionState;
 import ua.jenshensoft.cardslayout.views.card.Card;
@@ -81,23 +81,17 @@ public class GameTable extends GameTableLayout<CardsLayout> {
         updateDistributionState(new DistributionState(false) {
             @Override
             public Predicate<Card> getCardsPredicateBeforeDistribution() {
-                return new Predicate<Card>() {
-                    @Override
-                    public boolean apply(Card cardInfoCard) {
-                        CardInfoModel entity = (CardInfoModel) cardInfoCard.getCardInfo().getEntity();
-                        return entity.getPosition() < 2;
-                    }
+                return cardInfoCard -> {
+                    CardInfoModel entity = (CardInfoModel) cardInfoCard.getCardInfo().getEntity();
+                    return entity.getPosition() < 2;
                 };
             }
 
             @Override
             public Predicate<Card> getCardsPredicateForDistribution() {
-                return new Predicate<Card>() {
-                    @Override
-                    public boolean apply(Card cardInfoCard) {
-                        CardInfoModel entity = (CardInfoModel) cardInfoCard.getCardInfo().getEntity();
-                        return entity.getPosition() >= 2 && entity.getPosition() < 8;
-                    }
+                return cardInfoCard -> {
+                    CardInfoModel entity = (CardInfoModel) cardInfoCard.getCardInfo().getEntity();
+                    return entity.getPosition() >= 2 && entity.getPosition() < 8;
                 };
             }
         });

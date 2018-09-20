@@ -7,9 +7,8 @@ import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
-import com.android.internal.util.Predicate;
-
 import java.util.List;
+import java.util.function.Predicate;
 
 import ua.jenshensoft.cardslayout.util.DistributionState;
 import ua.jenshensoft.cardslayout.views.card.Card;
@@ -81,23 +80,17 @@ public class DebertzGameTableLayout extends GameTableLayout<DebertzCardsLayout> 
         updateDistributionState(new DistributionState(false) {
             @Override
             public Predicate<Card> getCardsPredicateBeforeDistribution() {
-                return new Predicate<Card>() {
-                    @Override
-                    public boolean apply(Card cardInfoCard) {
-                        CardInfoModel entity = (CardInfoModel) cardInfoCard.getCardInfo().getEntity();
-                        return entity.getPosition() < 2;
-                    }
+                return cardInfoCard -> {
+                    CardInfoModel entity = (CardInfoModel) cardInfoCard.getCardInfo().getEntity();
+                    return entity.getPosition() < 2;
                 };
             }
 
             @Override
             public Predicate<Card> getCardsPredicateForDistribution() {
-                return new Predicate<Card>() {
-                    @Override
-                    public boolean apply(Card cardInfoCard) {
-                        CardInfoModel entity = (CardInfoModel) cardInfoCard.getCardInfo().getEntity();
-                        return entity.getPosition() >= 2 && entity.getPosition() < 9;
-                    }
+                return cardInfoCard -> {
+                    CardInfoModel entity = (CardInfoModel) cardInfoCard.getCardInfo().getEntity();
+                    return entity.getPosition() >= 2 && entity.getPosition() < 9;
                 };
             }
         });
