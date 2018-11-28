@@ -1,7 +1,7 @@
 package ua.jenshensoft.cardslayout.util;
 
 
-import java.util.function.Predicate;
+import com.annimon.stream.function.Predicate;
 
 import ua.jenshensoft.cardslayout.views.card.Card;
 

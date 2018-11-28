@@ -38,6 +38,9 @@ dependencies {
     implementation "com.android.support:appcompat-v7:${libs.supportVersion}"
     implementation "com.android.support:support-annotations:${libs.supportVersion}"
 
+    //Stream API
+    implementation "com.annimon:stream:${libs.streamApiVersion}"
+
     //testing
     testImplementation "junit:junit:${testLibs.junit}"
     androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {

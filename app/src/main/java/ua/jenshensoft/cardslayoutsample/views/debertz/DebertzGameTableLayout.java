@@ -7,8 +7,9 @@ import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
+import com.annimon.stream.function.Predicate;
+
 import java.util.List;
-import java.util.function.Predicate;
 
 import ua.jenshensoft.cardslayout.util.DistributionState;
 import ua.jenshensoft.cardslayout.views.card.Card;

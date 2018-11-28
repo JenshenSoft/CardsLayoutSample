@@ -12,7 +12,7 @@ def gitUrl = 'https://github.com/JenshenSoft/CardsLayoutSample.git'
 def libDesc = 'CardsLayout android library'
 
 group = "ua.jenshensoft"
-version = "0.9278"
+version = "0.9279"
 
 allprojects {
     repositories {
@@ -134,6 +134,8 @@ dependencies {
     implementation 'ua.jenshensoft:awesomeanimation:1.0.2'
     compileOnly "com.android.support:appcompat-v7:${libs.supportVersion}"
     compileOnly "com.android.support:support-annotations:${libs.supportVersion}"
+    //Stream API
+    implementation "com.annimon:stream:${libs.streamApiVersion}"
 
     //testing
     testImplementation "junit:junit:${test.junit}"
