@@ -501,7 +501,7 @@ public abstract class CardsLayout extends ViewGroup
             List<CV> cards,
             @Nullable ColorFilter colorFilter,
             @Nullable List<Integer> ignoredPositions) {
-        setEnabledCards(enabled, cards, colorFilter, ignoredPositions, true);
+        setEnabledCards(enabled, cards, colorFilter, ignoredPositions, false);
     }
 
     public <CV extends View & Card> void setEnabledCards(
@@ -510,6 +510,9 @@ public abstract class CardsLayout extends ViewGroup
             @Nullable ColorFilter colorFilter,
             @Nullable List<Integer> ignoredPositions,
             boolean forced) {
+        if (isEnabled() == enabled) {
+            return;
+        }
         super.setEnabled(enabled);
         setEnabledCardsExceptPositions(enabled, cards, colorFilter, ignoredPositions, forced);
     }
