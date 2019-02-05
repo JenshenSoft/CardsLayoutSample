@@ -435,8 +435,8 @@ public abstract class CardsLayout extends ViewGroup
     public int getChildListOrientation() {
         return childListOrientation;
     }
-    
-    
+
+
     /* property */
 
     public void setChildListOrientation(@LinearLayoutCompat.OrientationMode int childListOrientation) {
@@ -510,7 +510,7 @@ public abstract class CardsLayout extends ViewGroup
             @Nullable ColorFilter colorFilter,
             @Nullable List<Integer> ignoredPositions,
             boolean forced) {
-        if (isEnabled() == enabled) {
+        if (!forced && isEnabled() == enabled) {
             return;
         }
         super.setEnabled(enabled);
