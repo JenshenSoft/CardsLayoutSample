@@ -521,6 +521,13 @@ public abstract class CardsLayout extends ViewGroup
         this.colorFilter = colorFilter;
     }
 
+    public <CV extends View & Card> void setColorFilterForCards(List<CV> cards,
+                                                                @Nullable ColorFilter colorFilter) {
+        for (CV card : cards) {
+            setCardFilter(card, colorFilter);
+        }
+    }
+
     public void clearCardTints() {
         clearCardTints(null);
     }
@@ -916,16 +923,16 @@ public abstract class CardsLayout extends ViewGroup
     }
 
     protected <T extends View> int getChildWidth(T view) {
-        if (Card.class.isInstance(view)) {
-            return Card.class.cast(view).getCardWidth();
+        if (view instanceof Card) {
+            return ((Card) view).getCardWidth();
         } else {
             return view.getMeasuredWidth();
         }
     }
 
     protected <T extends View> int getChildHeight(T view) {
-        if (Card.class.isInstance(view)) {
-            return Card.class.cast(view).getCardHeight();
+        if (view instanceof Card) {
+            return ((Card) view).getCardHeight();
         } else {
             return view.getMeasuredHeight();
         }
@@ -1075,8 +1082,7 @@ public abstract class CardsLayout extends ViewGroup
         for (CV card : cards) {
             if (state && card.getCardInfo().isCardDistributed()) {
                 if (forced || card.getCardInfo().hasFilter()) {
-                    DrawableUtils.setColorFilter(card, null);
-                    card.getCardInfo().setHasFilter(false);
+                    setCardFilter(card, null);
                 }
                 card.setEnabled(true);
             } else {
@@ -1087,11 +1093,9 @@ public abstract class CardsLayout extends ViewGroup
                 if (!ignoredCard) {
                     if (card.getCardInfo().isCardDistributed()) {
                         if (colorFilter != null && (forced || !card.getCardInfo().hasFilter())) {
-                            DrawableUtils.setColorFilter(card, colorFilter);
-                            card.getCardInfo().setHasFilter(true);
+                            setCardFilter(card, colorFilter);
                         } else if (colorFilter == null && (forced || card.getCardInfo().hasFilter())) {
-                            DrawableUtils.setColorFilter(card, null);
-                            card.getCardInfo().setHasFilter(false);
+                            setCardFilter(card, null);
                         }
                     }
                     card.setEnabled(false);
@@ -1100,8 +1104,13 @@ public abstract class CardsLayout extends ViewGroup
         }
     }
 
+    private <CV extends View & Card> void setCardFilter(CV card, @Nullable ColorFilter colorFilter) {
+        DrawableUtils.setColorFilter(card, colorFilter);
+        card.getCardInfo().setHasFilter(colorFilter != null);
+    }
+
     private boolean shouldPassView(View view) {
-        return view.getVisibility() != VISIBLE || Card.class.isInstance(view) && !((Card) view).getCardInfo().isCardDistributed();
+        return view.getVisibility() != VISIBLE || view instanceof Card && !((Card) view).getCardInfo().isCardDistributed();
     }
 
     private boolean shouldPassCard(Card card) {
