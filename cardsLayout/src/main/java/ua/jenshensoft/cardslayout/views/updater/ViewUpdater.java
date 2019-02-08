@@ -43,6 +43,9 @@ public class ViewUpdater<P extends ViewUpdaterParams> {
         this.queueActions = new ConcurrentLinkedQueue<>();
     }
 
+    /**
+     * Should be called in the onLayout method
+     */
     public void onViewUpdated() {
         updated = true;
         onUpdateViewParams(true);
