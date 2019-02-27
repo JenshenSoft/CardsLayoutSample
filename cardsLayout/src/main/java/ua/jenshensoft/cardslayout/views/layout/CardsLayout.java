@@ -517,6 +517,11 @@ public abstract class CardsLayout extends ViewGroup
         setEnabledCardsExceptPositions(enabled, cards, colorFilter, ignoredPositions, forced);
     }
 
+    @Nullable
+    public ColorFilter getColorFilter() {
+        return colorFilter;
+    }
+
     public void setColorFilter(@Nullable ColorFilter colorFilter) {
         this.colorFilter = colorFilter;
     }
